@@ -1,273 +1,226 @@
 /**
- * Nexus Cinematic motion layer for ApexTimeZones marketing site.
- * WebGL ambient particles · scroll beats · magnetic hooks · card tilt.
- * Honors prefers-reduced-motion.
+ * Aether Prime telemetry interactions for ApexTimeZones marketing site.
  */
 (function () {
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ——— WebGL / Canvas particle field ———
-  const canvas = document.getElementById('webgl-bg');
-  const gl = canvas?.getContext('webgl', { alpha: true, antialias: true });
-  let animId = 0;
+  // ——— Dither / matrix field (light dashboard atmosphere) ———
+  const canvas = document.getElementById('matrix-bg');
+  const ctx = canvas?.getContext('2d');
+  let w = 0;
+  let h = 0;
+  let t = 0;
+  let particles = [];
 
-  function initParticles() {
-    if (!canvas || !gl || reduceMotion) {
-      // Soft 2D fallback
-      if (canvas && !reduceMotion) initCanvas2dFallback();
-      return;
-    }
-
-    const vs = `
-      attribute vec2 a_pos;
-      attribute float a_size;
-      attribute float a_alpha;
-      uniform vec2 u_res;
-      uniform float u_time;
-      varying float v_a;
-      void main() {
-        vec2 p = a_pos;
-        p.x += sin(u_time * 0.15 + a_pos.y * 3.0) * 0.02;
-        p.y += cos(u_time * 0.12 + a_pos.x * 2.5) * 0.015;
-        vec2 zeroToOne = (p + 1.0) * 0.5;
-        vec2 clip = zeroToOne * 2.0 - 1.0;
-        gl_Position = vec4(clip * vec2(1.0, -1.0), 0.0, 1.0);
-        gl_PointSize = a_size * (u_res.y / 900.0);
-        v_a = a_alpha;
-      }
-    `;
-    const fs = `
-      precision mediump float;
-      varying float v_a;
-      void main() {
-        vec2 c = gl_PointCoord - 0.5;
-        float d = length(c);
-        float soft = smoothstep(0.5, 0.1, d);
-        // Neural pink tint
-        gl_FragColor = vec4(0.96, 0.72, 0.82, soft * v_a);
-      }
-    `;
-
-    function compile(type, src) {
-      const s = gl.createShader(type);
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      return s;
-    }
-
-    const prog = gl.createProgram();
-    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vs));
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fs));
-    gl.linkProgram(prog);
-    gl.useProgram(prog);
-
-    const COUNT = 160;
-    const pos = new Float32Array(COUNT * 2);
-    const size = new Float32Array(COUNT);
-    const alpha = new Float32Array(COUNT);
-    for (let i = 0; i < COUNT; i++) {
-      pos[i * 2] = Math.random() * 2 - 1;
-      pos[i * 2 + 1] = Math.random() * 2 - 1;
-      size[i] = 1.5 + Math.random() * 3.5;
-      alpha[i] = 0.15 + Math.random() * 0.45;
-    }
-
-    function buf(data, locName, sizeN) {
-      const b = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, b);
-      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-      const loc = gl.getAttribLocation(prog, locName);
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, sizeN, gl.FLOAT, false, 0, 0);
-    }
-
-    buf(pos, 'a_pos', 2);
-    // need separate binds - re-bind properly
-    const bPos = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bPos);
-    gl.bufferData(gl.ARRAY_BUFFER, pos, gl.STATIC_DRAW);
-    const locPos = gl.getAttribLocation(prog, 'a_pos');
-    gl.enableVertexAttribArray(locPos);
-    gl.vertexAttribPointer(locPos, 2, gl.FLOAT, false, 0, 0);
-
-    const bSize = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bSize);
-    gl.bufferData(gl.ARRAY_BUFFER, size, gl.STATIC_DRAW);
-    const locSize = gl.getAttribLocation(prog, 'a_size');
-    gl.enableVertexAttribArray(locSize);
-    gl.vertexAttribPointer(locSize, 1, gl.FLOAT, false, 0, 0);
-
-    const bAlpha = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bAlpha);
-    gl.bufferData(gl.ARRAY_BUFFER, alpha, gl.STATIC_DRAW);
-    const locAlpha = gl.getAttribLocation(prog, 'a_alpha');
-    gl.enableVertexAttribArray(locAlpha);
-    gl.vertexAttribPointer(locAlpha, 1, gl.FLOAT, false, 0, 0);
-
-    const uRes = gl.getUniformLocation(prog, 'u_res');
-    const uTime = gl.getUniformLocation(prog, 'u_time');
-
-    function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = window.innerWidth + 'px';
-      canvas.style.height = window.innerHeight + 'px';
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniform2f(uRes, canvas.width, canvas.height);
-    }
-
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-
-    const t0 = performance.now();
-    function frame(now) {
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.uniform1f(uTime, (now - t0) / 1000);
-      gl.drawArrays(gl.POINTS, 0, COUNT);
-      animId = requestAnimationFrame(frame);
-    }
-
-    resize();
-    window.addEventListener('resize', resize);
-    animId = requestAnimationFrame(frame);
+  function resizeMatrix() {
+    if (!canvas || !ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    particles = Array.from({ length: Math.floor((w * h) / 18000) }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      v: 0.15 + Math.random() * 0.45,
+      s: Math.random() * 1.2 + 0.3,
+    }));
   }
 
-  function initCanvas2dFallback() {
-    const ctx = canvas.getContext('2d');
+  function drawMatrix() {
     if (!ctx) return;
-    let w, h, stars;
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      stars = Array.from({ length: 120 }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 1.5 + 0.3,
-        a: Math.random(),
-      }));
+    t += 0.008;
+    ctx.clearRect(0, 0, w, h);
+
+    // soft blue wash
+    const g = ctx.createLinearGradient(0, 0, w, h);
+    g.addColorStop(0, 'rgba(59,130,246,0.04)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0)');
+    g.addColorStop(1, 'rgba(52,211,153,0.05)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    // grid
+    ctx.strokeStyle = 'rgba(229,231,235,0.7)';
+    ctx.lineWidth = 1;
+    const step = 48;
+    const ox = (t * 8) % step;
+    for (let x = -step + ox; x < w + step; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
     }
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-      for (const s of stars) {
-        s.a += 0.012;
-        ctx.fillStyle = `rgba(245,184,208,${0.2 + Math.sin(s.a) * 0.2})`;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fill();
+    for (let y = 0; y < h; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+
+    // dither dots
+    for (const p of particles) {
+      if (!reduce) {
+        p.y += p.v;
+        if (p.y > h) {
+          p.y = -4;
+          p.x = Math.random() * w;
+        }
       }
-      animId = requestAnimationFrame(draw);
+      ctx.fillStyle = 'rgba(59,130,246,0.35)';
+      ctx.fillRect(p.x, p.y, p.s, p.s);
     }
-    resize();
-    window.addEventListener('resize', resize);
-    draw();
+
+    if (!reduce) requestAnimationFrame(drawMatrix);
   }
 
-  initParticles();
-
-  // ——— Magnetic pull ———
-  function magnetic(el, strength = 0.35) {
-    if (reduceMotion) return;
-    const onMove = (e) => {
-      const r = el.getBoundingClientRect();
-      const x = e.clientX - (r.left + r.width / 2);
-      const y = e.clientY - (r.top + r.height / 2);
-      el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
-    };
-    const reset = () => {
-      el.style.transform = '';
-    };
-    el.addEventListener('pointermove', onMove);
-    el.addEventListener('pointerleave', reset);
+  if (canvas && ctx) {
+    resizeMatrix();
+    drawMatrix();
+    window.addEventListener('resize', () => {
+      resizeMatrix();
+      if (reduce) drawMatrix();
+    });
   }
 
-  document.querySelectorAll('.mag').forEach((el) => {
-    const s = el.classList.contains('btn') ? 0.22 : 0.35;
-    magnetic(el, s);
-  });
-
-  // ——— 3D card tilt ———
-  document.querySelectorAll('.agent-card').forEach((card) => {
-    if (reduceMotion) return;
-    card.addEventListener('pointermove', (e) => {
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      card.style.transform = `rotateX(${(-y * 8).toFixed(2)}deg) rotateY(${(x * 10).toFixed(2)}deg) scale(1.02)`;
-    });
-    card.addEventListener('pointerleave', () => {
-      card.style.transform = '';
-    });
-  });
-
-  // ——— Scroll reveal + timeline beats ———
-  const captions = ['01 · Arrival', '02 · Orbit', '03 · Sports', '04 · Deploy'];
-  const dots = document.querySelectorAll('.timeline-track .dot');
-  const captionEl = document.getElementById('timelineCaption');
-  const stage = document.querySelector('.hero-stage');
-
+  // ——— Reveal on scroll ———
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
-        entries.forEach((en) => {
-          if (en.isIntersecting) en.target.classList.add('is-visible');
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add('is-in');
         });
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
     );
-    document.querySelectorAll('.beat-in').forEach((el) => io.observe(el));
-
-    const beatIO = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((en) => {
-          if (!en.isIntersecting) return;
-          const step = Number(en.target.dataset.step || 0);
-          dots.forEach((d, i) => d.classList.toggle('active', i === step));
-          if (captionEl) captionEl.textContent = captions[step] || captions[0];
-          if (stage) stage.dataset.step = String(step);
-          const fill = document.getElementById('hudProgress');
-          if (fill) fill.style.width = `${20 + step * 22}%`;
-        });
-      },
-      { threshold: 0.55 }
-    );
-    document.querySelectorAll('.beat-spacer').forEach((el) => beatIO.observe(el));
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
   } else {
-    document.querySelectorAll('.beat-in').forEach((el) => el.classList.add('is-visible'));
+    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-in'));
   }
 
-  // ——— Cursor glow ———
-  const glow = document.getElementById('cursorGlow');
-  if (glow && !reduceMotion) {
-    window.addEventListener('pointermove', (e) => {
-      glow.style.opacity = '1';
-      glow.style.left = e.clientX + 'px';
-      glow.style.top = e.clientY + 'px';
+  // ——— Sparkline charts on modules ———
+  function spark(canvasEl, color) {
+    const c = canvasEl.getContext('2d');
+    if (!c) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvasEl.parentElement.getBoundingClientRect();
+    const W = Math.max(120, rect.width);
+    const H = 40;
+    canvasEl.width = W * dpr;
+    canvasEl.height = H * dpr;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const pts = Array.from({ length: 24 }, (_, i) => {
+      const n = Math.sin(i * 0.45) * 0.35 + Math.cos(i * 0.2) * 0.2 + Math.random() * 0.15;
+      return 0.35 + n * 0.35;
     });
+    c.beginPath();
+    pts.forEach((v, i) => {
+      const x = (i / (pts.length - 1)) * (W - 8) + 4;
+      const y = H - 6 - v * (H - 12);
+      if (i === 0) c.moveTo(x, y);
+      else c.lineTo(x, y);
+    });
+    c.strokeStyle = color;
+    c.lineWidth = 1.5;
+    c.stroke();
+    // fill
+    const lastX = W - 4;
+    c.lineTo(lastX, H);
+    c.lineTo(4, H);
+    c.closePath();
+    c.fillStyle = color.replace(')', ',0.12)').replace('rgb', 'rgba').replace('#3b82f6', 'rgba(59,130,246,0.12)').replace('#34d399', 'rgba(52,211,153,0.12)');
+    // simpler fill
+    c.globalAlpha = 0.12;
+    c.fillStyle = color;
+    c.fill();
+    c.globalAlpha = 1;
   }
 
-  // ——— Node tooltips ———
-  const tip = document.getElementById('tip');
-  document.querySelectorAll('.node').forEach((node) => {
-    node.addEventListener('pointerenter', (e) => {
-      if (!tip) return;
-      tip.hidden = false;
-      tip.textContent = node.dataset.tip || '';
-      tip.style.left = e.clientX + 12 + 'px';
-      tip.style.top = e.clientY + 12 + 'px';
-    });
-    node.addEventListener('pointermove', (e) => {
-      if (!tip || tip.hidden) return;
-      tip.style.left = e.clientX + 12 + 'px';
-      tip.style.top = e.clientY + 12 + 'px';
-    });
-    node.addEventListener('pointerleave', () => {
-      if (tip) tip.hidden = true;
+  const sparkColors = { f1: '#3b82f6', wc: '#34d399', ten: '#3b82f6', esp: '#34d399' };
+  document.querySelectorAll('canvas[data-spark]').forEach((el) => {
+    spark(el, sparkColors[el.dataset.spark] || '#3b82f6');
+  });
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('canvas[data-spark]').forEach((el) => {
+      spark(el, sparkColors[el.dataset.spark] || '#3b82f6');
     });
   });
 
-  // ——— Live countdown HUD ———
+  // ——— Zone chart ———
+  function drawZoneChart() {
+    const el = document.getElementById('zoneChart');
+    if (!el) return;
+    const c = el.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = el.parentElement.clientWidth - 0;
+    const H = 120;
+    el.width = W * dpr;
+    el.height = H * dpr;
+    el.style.width = W + 'px';
+    el.style.height = H + 'px';
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, W, H);
+
+    const now = new Date();
+    const hours = Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(now.getTime() + i * 3600000);
+      return {
+        utc: d.getUTCHours() + d.getUTCMinutes() / 60,
+        local: d.getHours() + d.getMinutes() / 60,
+        lon: (() => {
+          try {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+              timeZone: 'Europe/London',
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: false,
+            }).formatToParts(d);
+            const hh = Number(parts.find((p) => p.type === 'hour')?.value || 0) % 24;
+            const mm = Number(parts.find((p) => p.type === 'minute')?.value || 0);
+            return hh + mm / 60;
+          } catch {
+            return d.getUTCHours();
+          }
+        })(),
+      };
+    });
+
+    function series(key, color) {
+      c.beginPath();
+      hours.forEach((pt, i) => {
+        const x = 20 + (i / 11) * (W - 36);
+        const y = H - 16 - (pt[key] / 24) * (H - 28);
+        if (i === 0) c.moveTo(x, y);
+        else c.lineTo(x, y);
+      });
+      c.strokeStyle = color;
+      c.lineWidth = 2;
+      c.stroke();
+    }
+
+    // grid
+    c.strokeStyle = '#e5e7eb';
+    c.lineWidth = 1;
+    for (let i = 0; i < 4; i++) {
+      const y = 12 + i * ((H - 28) / 3);
+      c.beginPath();
+      c.moveTo(16, y);
+      c.lineTo(W - 12, y);
+      c.stroke();
+    }
+
+    series('utc', '#93c5fd');
+    series('lon', '#3b82f6');
+    series('local', '#34d399');
+  }
+
+  drawZoneChart();
+  window.addEventListener('resize', drawZoneChart);
+
+  // ——— Countdown HUD ———
   function fmt(date, tz) {
     try {
       return new Intl.DateTimeFormat(undefined, {
@@ -326,12 +279,27 @@
   }
 
   const demos = [
-    { title: 'British Grand Prix', tz: 'Europe/London', city: 'Silverstone', when: wallApprox('2026-07-05', '15:00', 'Europe/London') },
-    { title: 'Belgian Grand Prix', tz: 'Europe/Brussels', city: 'Spa', when: wallApprox('2026-07-26', '15:00', 'Europe/Brussels') },
-    { title: 'Hungarian Grand Prix', tz: 'Europe/Budapest', city: 'Budapest', when: wallApprox('2026-08-02', '15:00', 'Europe/Budapest') },
+    {
+      title: 'British Grand Prix',
+      tz: 'Europe/London',
+      city: 'Silverstone',
+      when: wallApprox('2026-07-05', '15:00', 'Europe/London'),
+    },
+    {
+      title: 'Belgian Grand Prix',
+      tz: 'Europe/Brussels',
+      city: 'Spa',
+      when: wallApprox('2026-07-26', '15:00', 'Europe/Brussels'),
+    },
+    {
+      title: 'Hungarian Grand Prix',
+      tz: 'Europe/Budapest',
+      city: 'Budapest',
+      when: wallApprox('2026-08-02', '15:00', 'Europe/Budapest'),
+    },
   ];
 
-  function tickHud() {
+  function tick() {
     const now = new Date();
     let best = demos[0];
     let bestDiff = Infinity;
@@ -351,24 +319,17 @@
     };
     set('hudTitle', best.title);
     set('hudCount', countdown(when.getTime() - now.getTime()));
-    set('hudVenue', fmt(when, best.tz) + ' · ' + best.city);
+    set('hudVenue', `${fmt(when, best.tz)} · ${best.city}`);
     set('hudLocal', fmt(when, localTz));
     set('termNext', `${best.title} · Race · ${countdown(when.getTime() - now.getTime())}`);
     set('termLocal', `tune-in ${fmt(when, localTz)} (${localTz})`);
+    set(
+      'chartNow',
+      now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    );
   }
 
-  tickHud();
-  setInterval(tickHud, 1000);
-
-  // Nav shadow on scroll
-  const nav = document.getElementById('nav');
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!nav) return;
-      nav.style.boxShadow =
-        window.scrollY > 12 ? '0 12px 40px rgba(0,0,0,0.35)' : 'none';
-    },
-    { passive: true }
-  );
+  tick();
+  setInterval(tick, 1000);
+  setInterval(drawZoneChart, 60000);
 })();
