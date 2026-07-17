@@ -1,8 +1,8 @@
 # ApexTimeZones
 
-Sleek Windows **system-tray** world clock with a futuristic **3D Earth globe**, multi-city **Time Bridge**, and tools for sports, markets, and global events.
+Windows **system-tray** world clock with a real **3D Earth globe**, multi-city **Time Bridge**, and a **sports mode** that tells you exactly when to tune in, wherever you are.
 
-**Current version: 1.2.0** — in-app updates + Apex Forge branding
+**Current version: 1.4.0** — verified sports fixtures across 12 sports (F1, World Cup, UFC, WSL surfing, MotoGP, NFL, tennis, golf, cycling, cricket, rugby, marathons)
 
 **Repo:** [github.com/L0nE-F0x/Apex-Time-Zones](https://github.com/L0nE-F0x/Apex-Time-Zones)
 
@@ -62,6 +62,14 @@ Update feed: [apextimezones.netlify.app/updates/latest.json](https://apextimezon
 - Window **bounds** remembered
 - **Mini widget mode** (clocks-only UI)
 - Settings gear: quality, grid, TZ band overlay, reduced motion, home city
+
+### Sports mode
+- 12 sports on the globe: **F1** (full 22-round 2026 season), **FIFA World Cup**, **UFC** cards, **WSL surfing** (waiting-period windows), **MotoGP**, **NFL** marquee, **tennis slams**, **golf majors**, **Tour de France**, **cricket**, **rugby Nations Championship**, **marathon majors**
+- Every session shown in **venue time and your time**, with live countdowns
+- Surf-style events model real **waiting periods** (window dates + first call)
+- Venue pins on the globe; one click from pin to full schedule
+- Data schema is validated by tests; fixtures verified against official calendars
+- Sports data source of truth: `scripts/build-sports-data.mjs` → `src/data/sports-catalog.json`
 
 ### Data
 - Expanded city list (finance / sports hubs)

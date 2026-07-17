@@ -225,6 +225,10 @@ export function wallTimeToUtcDate(y, mo, d, hh, mm, timeZone) {
     best = probe;
   }
 
+  // Normalize to the top of the minute; timezone offsets are minute-granular
+  // so this cannot change the wall minute.
+  if (best) best = new Date(Math.floor(best.getTime() / 60000) * 60000);
+
   // Verify final
   if (best) {
     const w = readWallParts(best, timeZone);

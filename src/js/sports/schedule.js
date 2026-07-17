@@ -1,13 +1,43 @@
 /**
  * Pure helpers for sports schedules — dual zone times & countdowns.
+ * Supports fixed sessions and waiting-period 'window' sessions (surfing,
+ * stage races): a window counts down to first call on its start date and is
+ * "live" for the whole period.
  */
 import { wallTimeToUtcDate, formatTime, relativeDelta } from '../timeMath.js';
 
+export function isWindowSession(session) {
+  return session?.type === 'window';
+}
+
 export function sessionToInstant(session, venueTz) {
-  if (!session?.date || !session?.time || !venueTz) return null;
+  if (!session || !venueTz) return null;
+  if (isWindowSession(session)) {
+    if (!session.startDate) return null;
+    const [y, mo, d] = session.startDate.split('-').map(Number);
+    const [hh, mm] = (session.firstCallTime || '08:00').split(':').map(Number);
+    return wallTimeToUtcDate(y, mo, d, hh, mm, venueTz);
+  }
+  if (!session.date || !session.time) return null;
   const [y, mo, d] = session.date.split('-').map(Number);
   const [hh, mm] = session.time.split(':').map(Number);
   return wallTimeToUtcDate(y, mo, d, hh, mm, venueTz);
+}
+
+/** End instant of a window session (end of its last day at venue). */
+export function windowEndInstant(session, venueTz) {
+  if (!isWindowSession(session) || !session.endDate) return null;
+  const [y, mo, d] = session.endDate.split('-').map(Number);
+  return wallTimeToUtcDate(y, mo, d, 23, 59, venueTz);
+}
+
+function formatWindowLabel(session) {
+  const fmt = (iso) => {
+    const [y, mo, d] = iso.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, mo - 1, d, 12));
+    return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  };
+  return `${fmt(session.startDate)} – ${fmt(session.endDate)}`;
 }
 
 export function annotateSession(session, venueTz, localTz, hour12 = false, now = new Date()) {
@@ -15,6 +45,31 @@ export function annotateSession(session, venueTz, localTz, hour12 = false, now =
   if (!instant) {
     return { ...session, instant: null, venueTime: '—', localTime: '—', countdown: null, status: 'unknown' };
   }
+
+  if (isWindowSession(session)) {
+    const end = windowEndInstant(session, venueTz);
+    const ms = instant.getTime() - now.getTime();
+    let status = 'upcoming';
+    if (end && now.getTime() > end.getTime()) status = 'finished';
+    else if (ms < 0) status = 'live-or-recent';
+    const localFmt = formatTime(instant, localTz, { withSeconds: false, withDate: true, hour12 });
+    const delta = relativeDelta(instant, venueTz, localTz);
+    return {
+      ...session,
+      instant,
+      windowEnd: end,
+      isWindow: true,
+      venueTime: `${formatWindowLabel(session)} · first call ${session.firstCallTime || '—'}`,
+      venueDay: 'waiting period',
+      localTime: localFmt.time,
+      localDay: localFmt.day,
+      countdown: status === 'live-or-recent' ? 'window open' : formatCountdown(ms),
+      msUntil: ms,
+      status,
+      deltaLabel: delta.label,
+    };
+  }
+
   const venueFmt = formatTime(instant, venueTz, { withSeconds: false, withDate: true, hour12 });
   const localFmt = formatTime(instant, localTz, { withSeconds: false, withDate: true, hour12 });
   const ms = instant.getTime() - now.getTime();
@@ -52,18 +107,21 @@ export function formatCountdown(ms) {
   return past ? `${core} ago` : core;
 }
 
-export function nextSession(event, now = new Date()) {
-  const annotated = (event.sessions || []).map((s) =>
-    annotateSession(s, event.tz, Intl.DateTimeFormat().resolvedOptions().timeZone, false, now)
-  );
+export function nextSession(event, now = new Date(), localTz = null) {
+  const tz = localTz || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const annotated = (event.sessions || []).map((s) => annotateSession(s, event.tz, tz, false, now));
   const upcoming = annotated
-    .filter((s) => s.instant && s.msUntil > -3600000)
+    .filter((s) => {
+      if (!s.instant) return false;
+      if (s.isWindow) return !s.windowEnd || now.getTime() <= s.windowEnd.getTime();
+      return s.msUntil > -3600000;
+    })
     .sort((a, b) => a.msUntil - b.msUntil);
   return upcoming[0] || annotated[annotated.length - 1] || null;
 }
 
 export function primarySession(event) {
-  const order = ['race', 'final', 'finals', 'match', 'kickoff', 'grand final'];
+  const order = ['race', 'final', 'finals', 'match', 'kickoff', 'main-card', 'window'];
   for (const type of order) {
     const s = (event.sessions || []).find(
       (x) =>
@@ -89,4 +147,29 @@ export function sortEventsByNext(events, now = new Date()) {
     const mb = nb?.instant?.getTime() ?? Number.MAX_SAFE_INTEGER;
     return ma - mb;
   });
+}
+
+/**
+ * Upcoming sessions across many series, soonest first.
+ * seriesList: catalog series array (already filtered to followed if desired).
+ * Returns [{ series, event, session (annotated) }].
+ */
+export function upcomingAcrossSeries(seriesList, localTz, hour12 = false, now = new Date(), limit = 8) {
+  const out = [];
+  for (const series of seriesList || []) {
+    for (const event of series.events || []) {
+      for (const raw of event.sessions || []) {
+        const s = annotateSession(raw, event.tz, localTz, hour12, now);
+        if (!s.instant) continue;
+        if (s.isWindow) {
+          if (s.windowEnd && now.getTime() > s.windowEnd.getTime()) continue;
+        } else if (s.msUntil < -3600000) {
+          continue;
+        }
+        out.push({ series, event, session: s });
+      }
+    }
+  }
+  out.sort((a, b) => a.session.msUntil - b.session.msUntil);
+  return out.slice(0, limit);
 }

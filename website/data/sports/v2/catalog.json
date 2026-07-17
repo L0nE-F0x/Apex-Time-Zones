@@ -1,0 +1,2599 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-17T14:03:14.409Z",
+  "source": "scripts/build-sports-data.mjs",
+  "series": [
+    {
+      "id": "f1-2026",
+      "name": "Formula 1 World Championship",
+      "sport": "motorsport",
+      "category": "Motorsport",
+      "season": "2026",
+      "description": "2026 F1 season — 22 rounds (Bahrain and Saudi Arabia cancelled). Sprint weekends: China, Miami, Canada, Britain, Netherlands, Singapore. Saturday races: Baku, Las Vegas.",
+      "tags": [
+        "formula 1",
+        "f1",
+        "grand prix",
+        "motorsport",
+        "racing",
+        "fia"
+      ],
+      "events": [
+        {
+          "id": "f1-26-au",
+          "name": "Australian Grand Prix",
+          "round": 1,
+          "lat": -37.8497,
+          "lng": 144.968,
+          "tz": "Australia/Melbourne",
+          "city": "Melbourne",
+          "country": "Australia",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-03-06",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-03-06",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-03-07",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-03-07",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-03-08",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "albert park"
+          ]
+        },
+        {
+          "id": "f1-26-cn",
+          "name": "Chinese Grand Prix",
+          "round": 2,
+          "lat": 31.3389,
+          "lng": 121.2197,
+          "tz": "Asia/Shanghai",
+          "city": "Shanghai",
+          "country": "China",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-03-13",
+              "time": "13:30"
+            },
+            {
+              "id": "sq",
+              "name": "Sprint Qualifying",
+              "type": "qualifying",
+              "date": "2026-03-13",
+              "time": "17:30"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-03-14",
+              "time": "12:00"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-03-14",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-03-15",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "shanghai"
+          ]
+        },
+        {
+          "id": "f1-26-jp",
+          "name": "Japanese Grand Prix",
+          "round": 3,
+          "lat": 34.8431,
+          "lng": 136.5407,
+          "tz": "Asia/Tokyo",
+          "city": "Suzuka",
+          "country": "Japan",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-03-27",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-03-27",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-03-28",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-03-28",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-03-29",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "suzuka"
+          ]
+        },
+        {
+          "id": "f1-26-mi",
+          "name": "Miami Grand Prix",
+          "round": 4,
+          "lat": 25.9581,
+          "lng": -80.2389,
+          "tz": "America/New_York",
+          "city": "Miami",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-05-01",
+              "time": "13:30"
+            },
+            {
+              "id": "sq",
+              "name": "Sprint Qualifying",
+              "type": "qualifying",
+              "date": "2026-05-01",
+              "time": "17:30"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-05-02",
+              "time": "12:00"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-05-02",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-05-03",
+              "time": "16:00"
+            }
+          ],
+          "tags": [
+            "miami"
+          ]
+        },
+        {
+          "id": "f1-26-ca",
+          "name": "Canadian Grand Prix",
+          "round": 5,
+          "lat": 45.5006,
+          "lng": -73.5228,
+          "tz": "America/Toronto",
+          "city": "Montreal",
+          "country": "Canada",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-05-22",
+              "time": "13:30"
+            },
+            {
+              "id": "sq",
+              "name": "Sprint Qualifying",
+              "type": "qualifying",
+              "date": "2026-05-22",
+              "time": "17:30"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-05-23",
+              "time": "12:00"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-05-23",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-05-24",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "gilles villeneuve"
+          ]
+        },
+        {
+          "id": "f1-26-mc",
+          "name": "Monaco Grand Prix",
+          "round": 6,
+          "lat": 43.7347,
+          "lng": 7.4206,
+          "tz": "Europe/Monaco",
+          "city": "Monte Carlo",
+          "country": "Monaco",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-06-05",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-06-05",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-06-06",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-06-06",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-06-07",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "monaco"
+          ]
+        },
+        {
+          "id": "f1-26-es",
+          "name": "Barcelona-Catalunya Grand Prix",
+          "round": 7,
+          "lat": 41.57,
+          "lng": 2.2611,
+          "tz": "Europe/Madrid",
+          "city": "Barcelona",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-06-12",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-06-12",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-06-13",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-06-13",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-06-14",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "catalunya"
+          ]
+        },
+        {
+          "id": "f1-26-at",
+          "name": "Austrian Grand Prix",
+          "round": 8,
+          "lat": 47.2197,
+          "lng": 14.7647,
+          "tz": "Europe/Vienna",
+          "city": "Spielberg",
+          "country": "Austria",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-06-26",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-06-26",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-06-27",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-06-27",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-06-28",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "red bull ring"
+          ]
+        },
+        {
+          "id": "f1-26-gb",
+          "name": "British Grand Prix",
+          "round": 9,
+          "lat": 52.0786,
+          "lng": -1.0169,
+          "tz": "Europe/London",
+          "city": "Silverstone",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-07-03",
+              "time": "13:30"
+            },
+            {
+              "id": "sq",
+              "name": "Sprint Qualifying",
+              "type": "qualifying",
+              "date": "2026-07-03",
+              "time": "17:30"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-07-04",
+              "time": "12:00"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-07-04",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-07-05",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "silverstone"
+          ]
+        },
+        {
+          "id": "f1-26-be",
+          "name": "Belgian Grand Prix",
+          "round": 10,
+          "lat": 50.4372,
+          "lng": 5.9714,
+          "tz": "Europe/Brussels",
+          "city": "Spa-Francorchamps",
+          "country": "Belgium",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-07-17",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-07-17",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-07-18",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-07-18",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-07-19",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "spa"
+          ]
+        },
+        {
+          "id": "f1-26-hu",
+          "name": "Hungarian Grand Prix",
+          "round": 11,
+          "lat": 47.5789,
+          "lng": 19.2486,
+          "tz": "Europe/Budapest",
+          "city": "Budapest",
+          "country": "Hungary",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-07-24",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-07-24",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-07-25",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-07-25",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-07-26",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "hungaroring"
+          ]
+        },
+        {
+          "id": "f1-26-nl",
+          "name": "Dutch Grand Prix",
+          "round": 12,
+          "lat": 52.3888,
+          "lng": 4.5409,
+          "tz": "Europe/Amsterdam",
+          "city": "Zandvoort",
+          "country": "Netherlands",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-08-21",
+              "time": "13:30"
+            },
+            {
+              "id": "sq",
+              "name": "Sprint Qualifying",
+              "type": "qualifying",
+              "date": "2026-08-21",
+              "time": "17:30"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-08-22",
+              "time": "12:00"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-08-22",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-08-23",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "zandvoort"
+          ]
+        },
+        {
+          "id": "f1-26-it",
+          "name": "Italian Grand Prix",
+          "round": 13,
+          "lat": 45.6156,
+          "lng": 9.2811,
+          "tz": "Europe/Rome",
+          "city": "Monza",
+          "country": "Italy",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-09-04",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-09-04",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-09-05",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-09-05",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-09-06",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "monza"
+          ]
+        },
+        {
+          "id": "f1-26-md",
+          "name": "Spanish Grand Prix (Madring)",
+          "round": 14,
+          "lat": 40.468,
+          "lng": -3.616,
+          "tz": "Europe/Madrid",
+          "city": "Madrid",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-09-11",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-09-11",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-09-12",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-09-12",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-09-13",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "madrid",
+            "madring",
+            "new circuit"
+          ]
+        },
+        {
+          "id": "f1-26-az",
+          "name": "Azerbaijan Grand Prix",
+          "round": 15,
+          "lat": 40.3725,
+          "lng": 49.8533,
+          "tz": "Asia/Baku",
+          "city": "Baku",
+          "country": "Azerbaijan",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-09-24",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-09-24",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-09-25",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-09-25",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-09-26",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "baku",
+            "saturday race"
+          ]
+        },
+        {
+          "id": "f1-26-sg",
+          "name": "Singapore Grand Prix",
+          "round": 16,
+          "lat": 1.2914,
+          "lng": 103.864,
+          "tz": "Asia/Singapore",
+          "city": "Singapore",
+          "country": "Singapore",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-10-09",
+              "time": "13:30"
+            },
+            {
+              "id": "sq",
+              "name": "Sprint Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-09",
+              "time": "17:30"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-10-10",
+              "time": "12:00"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-10",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-10-11",
+              "time": "20:00"
+            }
+          ],
+          "tags": [
+            "marina bay",
+            "night"
+          ]
+        },
+        {
+          "id": "f1-26-us",
+          "name": "United States Grand Prix",
+          "round": 17,
+          "lat": 30.1328,
+          "lng": -97.6411,
+          "tz": "America/Chicago",
+          "city": "Austin",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-10-23",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-10-23",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-10-24",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-24",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-10-25",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "cota"
+          ]
+        },
+        {
+          "id": "f1-26-mx",
+          "name": "Mexico City Grand Prix",
+          "round": 18,
+          "lat": 19.4042,
+          "lng": -99.0907,
+          "tz": "America/Mexico_City",
+          "city": "Mexico City",
+          "country": "Mexico",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-10-30",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-10-30",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-10-31",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-31",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-11-01",
+              "time": "14:00"
+            }
+          ],
+          "tags": []
+        },
+        {
+          "id": "f1-26-br",
+          "name": "São Paulo Grand Prix",
+          "round": 19,
+          "lat": -23.7036,
+          "lng": -46.6997,
+          "tz": "America/Sao_Paulo",
+          "city": "São Paulo",
+          "country": "Brazil",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-11-06",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-11-06",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-11-07",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-11-07",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-11-08",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "interlagos"
+          ]
+        },
+        {
+          "id": "f1-26-lv",
+          "name": "Las Vegas Grand Prix",
+          "round": 20,
+          "lat": 36.1147,
+          "lng": -115.1728,
+          "tz": "America/Los_Angeles",
+          "city": "Las Vegas",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-11-19",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-11-19",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-11-20",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-11-20",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-11-21",
+              "time": "20:00"
+            }
+          ],
+          "tags": [
+            "night",
+            "strip",
+            "saturday race"
+          ]
+        },
+        {
+          "id": "f1-26-qa",
+          "name": "Qatar Grand Prix",
+          "round": 21,
+          "lat": 25.49,
+          "lng": 51.4542,
+          "tz": "Asia/Qatar",
+          "city": "Lusail",
+          "country": "Qatar",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-11-27",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-11-27",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-11-28",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-11-28",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-11-29",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "night"
+          ]
+        },
+        {
+          "id": "f1-26-ae",
+          "name": "Abu Dhabi Grand Prix",
+          "round": 22,
+          "lat": 24.4672,
+          "lng": 54.6031,
+          "tz": "Asia/Dubai",
+          "city": "Yas Island",
+          "country": "UAE",
+          "sessions": [
+            {
+              "id": "fp1",
+              "name": "Practice 1",
+              "type": "practice",
+              "date": "2026-12-04",
+              "time": "13:30"
+            },
+            {
+              "id": "fp2",
+              "name": "Practice 2",
+              "type": "practice",
+              "date": "2026-12-04",
+              "time": "17:00"
+            },
+            {
+              "id": "fp3",
+              "name": "Practice 3",
+              "type": "practice",
+              "date": "2026-12-05",
+              "time": "12:30"
+            },
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-12-05",
+              "time": "16:00"
+            },
+            {
+              "id": "race",
+              "name": "Race",
+              "type": "race",
+              "date": "2026-12-06",
+              "time": "17:00"
+            }
+          ],
+          "tags": [
+            "yas marina",
+            "finale"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wc-2026",
+      "name": "FIFA World Cup 2026",
+      "sport": "football",
+      "category": "Football",
+      "season": "2026",
+      "description": "World Cup finale across USA, Canada & Mexico. Semi-finals: Spain 2–0 France, Argentina 2–1 England. Final: Spain vs Argentina.",
+      "tags": [
+        "world cup",
+        "fifa",
+        "football",
+        "soccer",
+        "wc2026",
+        "spain",
+        "argentina"
+      ],
+      "events": [
+        {
+          "id": "wc-sf1",
+          "name": "Semi-final — Spain 2–0 France",
+          "lat": 32.7473,
+          "lng": -97.0945,
+          "tz": "America/Chicago",
+          "city": "Dallas",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-07-14",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "semi",
+            "att stadium"
+          ]
+        },
+        {
+          "id": "wc-sf2",
+          "name": "Semi-final — Argentina 2–1 England",
+          "lat": 33.755,
+          "lng": -84.401,
+          "tz": "America/New_York",
+          "city": "Atlanta",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-07-15",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "semi",
+            "mercedes-benz stadium"
+          ]
+        },
+        {
+          "id": "wc-3rd",
+          "name": "Third place — France vs England",
+          "lat": 25.958,
+          "lng": -80.2389,
+          "tz": "America/New_York",
+          "city": "Miami",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-07-18",
+              "time": "17:00"
+            }
+          ],
+          "tags": [
+            "third place",
+            "hard rock stadium"
+          ]
+        },
+        {
+          "id": "wc-final",
+          "name": "Final — Spain vs Argentina",
+          "lat": 40.8135,
+          "lng": -74.0745,
+          "tz": "America/New_York",
+          "city": "New York / NJ",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-07-19",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "final",
+            "metlife stadium"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tennis-2026",
+      "name": "Tennis Grand Slams 2026",
+      "sport": "tennis",
+      "category": "Tennis",
+      "season": "2026",
+      "description": "US Open — the last slam of 2026. Main draw Aug 30 – Sep 13 at Flushing Meadows.",
+      "tags": [
+        "tennis",
+        "grand slam",
+        "us open",
+        "atp",
+        "wta",
+        "flushing meadows"
+      ],
+      "events": [
+        {
+          "id": "uso-26",
+          "name": "US Open",
+          "lat": 40.75,
+          "lng": -73.847,
+          "tz": "America/New_York",
+          "city": "New York",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "open-day",
+              "name": "Opening day session",
+              "type": "session",
+              "date": "2026-08-30",
+              "time": "11:00"
+            },
+            {
+              "id": "open-night",
+              "name": "Opening night session",
+              "type": "session",
+              "date": "2026-08-30",
+              "time": "19:00"
+            },
+            {
+              "id": "final-w",
+              "name": "Women's Final",
+              "type": "final",
+              "date": "2026-09-12",
+              "time": "16:00"
+            },
+            {
+              "id": "final-m",
+              "name": "Men's Final",
+              "type": "final",
+              "date": "2026-09-13",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "flushing",
+            "hard court"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ufc-2026",
+      "name": "UFC",
+      "sport": "mma",
+      "category": "Combat",
+      "season": "2026",
+      "description": "Announced UFC cards — numbered events and Fight Nights with prelim and main-card blocks in venue time.",
+      "tags": [
+        "ufc",
+        "mma",
+        "fight night",
+        "octagon",
+        "combat"
+      ],
+      "events": [
+        {
+          "id": "ufc-fn-0718",
+          "name": "UFC Fight Night: du Plessis vs Usman",
+          "lat": 35.4634,
+          "lng": -97.5151,
+          "tz": "America/Chicago",
+          "city": "Oklahoma City",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-07-18",
+              "time": "16:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-07-18",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "paycom center"
+          ]
+        },
+        {
+          "id": "ufc-fn-0725",
+          "name": "UFC Fight Night: Ankalaev vs Guskov",
+          "lat": 24.4539,
+          "lng": 54.6021,
+          "tz": "Asia/Dubai",
+          "city": "Abu Dhabi",
+          "country": "UAE",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-07-25",
+              "time": "18:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-07-25",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "etihad arena"
+          ]
+        },
+        {
+          "id": "ufc-fn-0801",
+          "name": "UFC Fight Night: Medić vs Rodriguez",
+          "lat": 44.8145,
+          "lng": 20.4213,
+          "tz": "Europe/Belgrade",
+          "city": "Belgrade",
+          "country": "Serbia",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-08-01",
+              "time": "16:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-08-01",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "belgrade arena"
+          ]
+        },
+        {
+          "id": "ufc-fn-0808",
+          "name": "UFC Fight Night: Gamrot vs Salkilld",
+          "lat": 36.0691,
+          "lng": -115.1809,
+          "tz": "America/Los_Angeles",
+          "city": "Las Vegas",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-08-08",
+              "time": "16:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-08-08",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "ufc apex"
+          ]
+        },
+        {
+          "id": "ufc-330",
+          "name": "UFC 330: Makhachev vs Machado Garry",
+          "lat": 39.9012,
+          "lng": -75.172,
+          "tz": "America/New_York",
+          "city": "Philadelphia",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "early",
+              "name": "Early prelims",
+              "type": "prelims",
+              "date": "2026-08-15",
+              "time": "18:00"
+            },
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-08-15",
+              "time": "20:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-08-15",
+              "time": "22:00"
+            }
+          ],
+          "tags": [
+            "ppv",
+            "xfinity mobile arena"
+          ]
+        },
+        {
+          "id": "ufc-fn-0822",
+          "name": "UFC Fight Night: Hernandez vs Rodrigues",
+          "lat": 38.5802,
+          "lng": -121.4997,
+          "tz": "America/Los_Angeles",
+          "city": "Sacramento",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-08-22",
+              "time": "16:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-08-22",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "golden 1 center"
+          ]
+        },
+        {
+          "id": "ufc-fn-0829",
+          "name": "UFC Fight Night: Nurmagomedov vs Song",
+          "lat": 31.157,
+          "lng": 121.478,
+          "tz": "Asia/Shanghai",
+          "city": "Shanghai",
+          "country": "China",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-08-29",
+              "time": "15:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-08-29",
+              "time": "18:00"
+            }
+          ],
+          "tags": [
+            "oriental sports center"
+          ]
+        },
+        {
+          "id": "ufc-fn-0905",
+          "name": "UFC Fight Night — Paris",
+          "lat": 48.8387,
+          "lng": 2.3786,
+          "tz": "Europe/Paris",
+          "city": "Paris",
+          "country": "France",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-09-05",
+              "time": "18:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-09-05",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "accor arena"
+          ]
+        },
+        {
+          "id": "ufc-fn-0912",
+          "name": "UFC Fight Night — Glendale",
+          "lat": 33.532,
+          "lng": -112.2612,
+          "tz": "America/Phoenix",
+          "city": "Glendale, AZ",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-09-12",
+              "time": "16:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-09-12",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "desert diamond arena"
+          ]
+        },
+        {
+          "id": "ufc-331",
+          "name": "UFC 331",
+          "lat": 34.043,
+          "lng": -118.2673,
+          "tz": "America/Los_Angeles",
+          "city": "Los Angeles",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "early",
+              "name": "Early prelims",
+              "type": "prelims",
+              "date": "2026-09-19",
+              "time": "15:00"
+            },
+            {
+              "id": "prelims",
+              "name": "Prelims",
+              "type": "prelims",
+              "date": "2026-09-19",
+              "time": "17:00"
+            },
+            {
+              "id": "main",
+              "name": "Main card",
+              "type": "main-card",
+              "date": "2026-09-19",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "ppv",
+            "crypto.com arena"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wsl-2026",
+      "name": "WSL Championship Tour",
+      "sport": "surfing",
+      "category": "Surfing",
+      "season": "2026",
+      "description": "World Surf League Championship Tour — remaining stops run as waiting periods; heats run when the swell is on, starting from first call each morning.",
+      "tags": [
+        "wsl",
+        "surfing",
+        "surf",
+        "championship tour",
+        "waves",
+        "pipeline",
+        "teahupoo"
+      ],
+      "events": [
+        {
+          "id": "wsl-teahupoo",
+          "name": "Tahiti Pro — Teahupoʻo",
+          "lat": -17.8471,
+          "lng": -149.2672,
+          "tz": "Pacific/Tahiti",
+          "city": "Teahupoʻo",
+          "country": "French Polynesia",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Competition window",
+              "type": "window",
+              "startDate": "2026-08-08",
+              "endDate": "2026-08-18",
+              "firstCallTime": "07:00"
+            }
+          ],
+          "tags": [
+            "reef",
+            "barrels"
+          ]
+        },
+        {
+          "id": "wsl-trestles",
+          "name": "Lower Trestles",
+          "lat": 33.3853,
+          "lng": -117.5939,
+          "tz": "America/Los_Angeles",
+          "city": "San Clemente",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Competition window",
+              "type": "window",
+              "startDate": "2026-09-11",
+              "endDate": "2026-09-20",
+              "firstCallTime": "07:30"
+            }
+          ],
+          "tags": [
+            "california"
+          ]
+        },
+        {
+          "id": "wsl-portugal",
+          "name": "MEO Rip Curl Pro Portugal",
+          "lat": 39.3436,
+          "lng": -9.3618,
+          "tz": "Europe/Lisbon",
+          "city": "Peniche",
+          "country": "Portugal",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Competition window",
+              "type": "window",
+              "startDate": "2026-10-16",
+              "endDate": "2026-10-25",
+              "firstCallTime": "08:00"
+            }
+          ],
+          "tags": [
+            "supertubos",
+            "postseason"
+          ]
+        },
+        {
+          "id": "wsl-cloud9",
+          "name": "Cloud 9 — Siargao",
+          "lat": 9.8103,
+          "lng": 126.1659,
+          "tz": "Asia/Manila",
+          "city": "Siargao",
+          "country": "Philippines",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Competition window",
+              "type": "window",
+              "startDate": "2026-10-31",
+              "endDate": "2026-11-10",
+              "firstCallTime": "07:00"
+            }
+          ],
+          "tags": [
+            "new stop"
+          ]
+        },
+        {
+          "id": "wsl-abudhabi",
+          "name": "Surf Abu Dhabi Pro",
+          "lat": 24.462,
+          "lng": 54.611,
+          "tz": "Asia/Dubai",
+          "city": "Abu Dhabi",
+          "country": "UAE",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Competition window",
+              "type": "window",
+              "startDate": "2026-11-25",
+              "endDate": "2026-11-29",
+              "firstCallTime": "08:00"
+            }
+          ],
+          "tags": [
+            "wave pool",
+            "postseason"
+          ]
+        },
+        {
+          "id": "wsl-pipeline",
+          "name": "Pipeline Masters — title decider",
+          "lat": 21.665,
+          "lng": -158.053,
+          "tz": "Pacific/Honolulu",
+          "city": "Oahu",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Competition window",
+              "type": "window",
+              "startDate": "2026-12-08",
+              "endDate": "2026-12-20",
+              "firstCallTime": "07:30"
+            }
+          ],
+          "tags": [
+            "pipeline",
+            "world title"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "motogp-2026",
+      "name": "MotoGP World Championship",
+      "sport": "motorsport",
+      "category": "Motorsport",
+      "season": "2026",
+      "description": "MotoGP 2026 — remaining rounds with sprint Saturdays and Sunday Grands Prix.",
+      "tags": [
+        "motogp",
+        "moto gp",
+        "motorcycle",
+        "motorsport",
+        "racing"
+      ],
+      "events": [
+        {
+          "id": "mgp-26-gb",
+          "name": "British Grand Prix",
+          "round": 12,
+          "lat": 52.0786,
+          "lng": -1.0169,
+          "tz": "Europe/London",
+          "city": "Silverstone",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-08-08",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-08-08",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-08-09",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "silverstone"
+          ]
+        },
+        {
+          "id": "mgp-26-ar",
+          "name": "Aragón Grand Prix",
+          "round": 13,
+          "lat": 41.077,
+          "lng": -0.856,
+          "tz": "Europe/Madrid",
+          "city": "Alcañiz",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-08-29",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-08-29",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-08-30",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "motorland"
+          ]
+        },
+        {
+          "id": "mgp-26-sm",
+          "name": "San Marino Grand Prix",
+          "round": 14,
+          "lat": 43.9614,
+          "lng": 12.6833,
+          "tz": "Europe/Rome",
+          "city": "Misano",
+          "country": "San Marino",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-09-12",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-09-12",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-09-13",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "misano"
+          ]
+        },
+        {
+          "id": "mgp-26-at",
+          "name": "Austrian Grand Prix",
+          "round": 15,
+          "lat": 47.2197,
+          "lng": 14.7647,
+          "tz": "Europe/Vienna",
+          "city": "Spielberg",
+          "country": "Austria",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-09-19",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-09-19",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-09-20",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "red bull ring"
+          ]
+        },
+        {
+          "id": "mgp-26-jp",
+          "name": "Japanese Grand Prix",
+          "round": 16,
+          "lat": 36.533,
+          "lng": 140.227,
+          "tz": "Asia/Tokyo",
+          "city": "Motegi",
+          "country": "Japan",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-03",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-10-03",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-10-04",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "motegi"
+          ]
+        },
+        {
+          "id": "mgp-26-id",
+          "name": "Indonesian Grand Prix",
+          "round": 17,
+          "lat": -8.898,
+          "lng": 116.305,
+          "tz": "Asia/Makassar",
+          "city": "Mandalika",
+          "country": "Indonesia",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-10",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-10-10",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-10-11",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "lombok"
+          ]
+        },
+        {
+          "id": "mgp-26-au",
+          "name": "Australian Grand Prix",
+          "round": 18,
+          "lat": -38.5028,
+          "lng": 145.2308,
+          "tz": "Australia/Melbourne",
+          "city": "Phillip Island",
+          "country": "Australia",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-24",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-10-24",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-10-25",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "phillip island"
+          ]
+        },
+        {
+          "id": "mgp-26-my",
+          "name": "Malaysian Grand Prix",
+          "round": 19,
+          "lat": 2.7608,
+          "lng": 101.7382,
+          "tz": "Asia/Kuala_Lumpur",
+          "city": "Sepang",
+          "country": "Malaysia",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-10-31",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-10-31",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-11-01",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "sepang"
+          ]
+        },
+        {
+          "id": "mgp-26-qa",
+          "name": "Qatar Grand Prix",
+          "round": 20,
+          "lat": 25.49,
+          "lng": 51.4542,
+          "tz": "Asia/Qatar",
+          "city": "Lusail",
+          "country": "Qatar",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-11-07",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-11-07",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-11-08",
+              "time": "19:00"
+            }
+          ],
+          "tags": [
+            "night"
+          ]
+        },
+        {
+          "id": "mgp-26-pt",
+          "name": "Portuguese Grand Prix",
+          "round": 21,
+          "lat": 37.227,
+          "lng": -8.6267,
+          "tz": "Europe/Lisbon",
+          "city": "Portimão",
+          "country": "Portugal",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-11-21",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-11-21",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-11-22",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "algarve"
+          ]
+        },
+        {
+          "id": "mgp-26-va",
+          "name": "Valencia Grand Prix",
+          "round": 22,
+          "lat": 39.4854,
+          "lng": -0.6316,
+          "tz": "Europe/Madrid",
+          "city": "Valencia",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "quali",
+              "name": "Qualifying",
+              "type": "qualifying",
+              "date": "2026-11-28",
+              "time": "10:50"
+            },
+            {
+              "id": "sprint",
+              "name": "Sprint",
+              "type": "sprint",
+              "date": "2026-11-28",
+              "time": "15:00"
+            },
+            {
+              "id": "race",
+              "name": "Grand Prix Race",
+              "type": "race",
+              "date": "2026-11-29",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "finale",
+            "ricardo tormo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nfl-2026",
+      "name": "NFL 2026 — Marquee",
+      "sport": "nfl",
+      "category": "American Football",
+      "season": "2026–27",
+      "description": "NFL season landmarks — Kickoff Game and the Thanksgiving classics. Full weekly slates arrive via the live data feed.",
+      "tags": [
+        "nfl",
+        "american football",
+        "kickoff",
+        "thanksgiving",
+        "super bowl"
+      ],
+      "events": [
+        {
+          "id": "nfl-kickoff",
+          "name": "NFL Kickoff — Patriots at Seahawks",
+          "lat": 47.5952,
+          "lng": -122.3316,
+          "tz": "America/Los_Angeles",
+          "city": "Seattle",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-09",
+              "time": "17:20"
+            }
+          ],
+          "tags": [
+            "lumen field",
+            "season opener"
+          ]
+        },
+        {
+          "id": "nfl-tg-det",
+          "name": "Thanksgiving — Lions host",
+          "lat": 42.34,
+          "lng": -83.0456,
+          "tz": "America/Detroit",
+          "city": "Detroit",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-26",
+              "time": "12:30"
+            }
+          ],
+          "tags": [
+            "ford field",
+            "thanksgiving"
+          ]
+        },
+        {
+          "id": "nfl-tg-dal",
+          "name": "Thanksgiving — Cowboys host",
+          "lat": 32.7473,
+          "lng": -97.0945,
+          "tz": "America/Chicago",
+          "city": "Arlington",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-26",
+              "time": "15:30"
+            }
+          ],
+          "tags": [
+            "att stadium",
+            "thanksgiving"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "golf-2026",
+      "name": "Golf Majors 2026",
+      "sport": "golf",
+      "category": "Golf",
+      "season": "2026",
+      "description": "The 154th Open Championship at Royal Birkdale — the final men's major of 2026.",
+      "tags": [
+        "golf",
+        "the open",
+        "open championship",
+        "royal birkdale",
+        "major"
+      ],
+      "events": [
+        {
+          "id": "open-2026",
+          "name": "The Open — Royal Birkdale",
+          "lat": 53.6206,
+          "lng": -3.0325,
+          "tz": "Europe/London",
+          "city": "Southport",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "r3",
+              "name": "Round 3 (first tee)",
+              "type": "round",
+              "date": "2026-07-18",
+              "time": "09:00"
+            },
+            {
+              "id": "r4",
+              "name": "Final round (first tee)",
+              "type": "final",
+              "date": "2026-07-19",
+              "time": "09:00"
+            }
+          ],
+          "tags": [
+            "links",
+            "154th open"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cycling-2026",
+      "name": "Cycling Grand Tours 2026",
+      "sport": "cycling",
+      "category": "Cycling",
+      "season": "2026",
+      "description": "Tour de France 2026 — Barcelona start July 4, Champs-Élysées finale July 26.",
+      "tags": [
+        "cycling",
+        "tour de france",
+        "tdf",
+        "grand tour",
+        "peloton"
+      ],
+      "events": [
+        {
+          "id": "tdf-2026",
+          "name": "Tour de France",
+          "lat": 48.8698,
+          "lng": 2.3078,
+          "tz": "Europe/Paris",
+          "city": "Paris (finale)",
+          "country": "France",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Race window (21 stages)",
+              "type": "window",
+              "startDate": "2026-07-04",
+              "endDate": "2026-07-26",
+              "firstCallTime": "12:00"
+            },
+            {
+              "id": "final",
+              "name": "Final stage — Champs-Élysées",
+              "type": "final",
+              "date": "2026-07-26",
+              "time": "16:10"
+            }
+          ],
+          "tags": [
+            "champs-elysees",
+            "yellow jersey"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cricket-2026",
+      "name": "International Cricket",
+      "sport": "cricket",
+      "category": "Cricket",
+      "season": "2026",
+      "description": "England vs India ODI series decider at Lord's. Further series land via the live data feed.",
+      "tags": [
+        "cricket",
+        "odi",
+        "england",
+        "india",
+        "lords"
+      ],
+      "events": [
+        {
+          "id": "eng-ind-odi3",
+          "name": "England vs India — 3rd ODI",
+          "lat": 51.5294,
+          "lng": -0.1727,
+          "tz": "Europe/London",
+          "city": "London",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "start",
+              "name": "First ball",
+              "type": "match",
+              "date": "2026-07-19",
+              "time": "11:00"
+            }
+          ],
+          "tags": [
+            "lords",
+            "series decider"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rugby-2026",
+      "name": "Rugby Nations Championship — Autumn",
+      "sport": "rugby",
+      "category": "Rugby",
+      "season": "2026",
+      "description": "Autumn window of the first Nations Championship, Nov 1–29. Kickoff slots confirm nearer the window.",
+      "tags": [
+        "rugby",
+        "nations championship",
+        "autumn internationals",
+        "test rugby"
+      ],
+      "events": [
+        {
+          "id": "rug-eng-aus",
+          "name": "England vs Australia",
+          "lat": 51.4559,
+          "lng": -0.3415,
+          "tz": "Europe/London",
+          "city": "London",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-01",
+              "time": "15:10"
+            }
+          ],
+          "tags": [
+            "twickenham"
+          ]
+        },
+        {
+          "id": "rug-irl-nz",
+          "name": "Ireland vs New Zealand — Chicago",
+          "lat": 41.8623,
+          "lng": -87.6167,
+          "tz": "America/Chicago",
+          "city": "Chicago",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-01",
+              "time": "14:00"
+            }
+          ],
+          "tags": [
+            "soldier field"
+          ]
+        },
+        {
+          "id": "rug-fra-rsa",
+          "name": "France vs South Africa",
+          "lat": 48.9245,
+          "lng": 2.3601,
+          "tz": "Europe/Paris",
+          "city": "Paris",
+          "country": "France",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-08",
+              "time": "21:10"
+            }
+          ],
+          "tags": [
+            "stade de france"
+          ]
+        },
+        {
+          "id": "rug-eng-nz",
+          "name": "England vs New Zealand",
+          "lat": 51.4559,
+          "lng": -0.3415,
+          "tz": "Europe/London",
+          "city": "London",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-15",
+              "time": "15:10"
+            }
+          ],
+          "tags": [
+            "twickenham"
+          ]
+        },
+        {
+          "id": "rug-wal-rsa",
+          "name": "Wales vs South Africa",
+          "lat": 51.4782,
+          "lng": -3.1826,
+          "tz": "Europe/London",
+          "city": "Cardiff",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-29",
+              "time": "15:10"
+            }
+          ],
+          "tags": [
+            "principality stadium"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "marathons-2026",
+      "name": "Marathon Majors 2026",
+      "sport": "athletics",
+      "category": "Athletics",
+      "season": "2026",
+      "description": "The remaining World Marathon Majors of 2026 — Berlin, Chicago, New York.",
+      "tags": [
+        "marathon",
+        "running",
+        "athletics",
+        "berlin",
+        "chicago",
+        "new york"
+      ],
+      "events": [
+        {
+          "id": "mar-berlin",
+          "name": "Berlin Marathon",
+          "lat": 52.5163,
+          "lng": 13.3777,
+          "tz": "Europe/Berlin",
+          "city": "Berlin",
+          "country": "Germany",
+          "sessions": [
+            {
+              "id": "start",
+              "name": "Elite start",
+              "type": "race",
+              "date": "2026-09-27",
+              "time": "09:15"
+            }
+          ],
+          "tags": [
+            "brandenburg gate",
+            "world record course"
+          ]
+        },
+        {
+          "id": "mar-chicago",
+          "name": "Chicago Marathon",
+          "lat": 41.8763,
+          "lng": -87.6205,
+          "tz": "America/Chicago",
+          "city": "Chicago",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "start",
+              "name": "Elite start",
+              "type": "race",
+              "date": "2026-10-11",
+              "time": "07:30"
+            }
+          ],
+          "tags": [
+            "grant park"
+          ]
+        },
+        {
+          "id": "mar-nyc",
+          "name": "New York City Marathon",
+          "lat": 40.6021,
+          "lng": -74.0601,
+          "tz": "America/New_York",
+          "city": "New York",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "start",
+              "name": "Elite start",
+              "type": "race",
+              "date": "2026-11-01",
+              "time": "09:05"
+            }
+          ],
+          "tags": [
+            "five boroughs",
+            "staten island"
+          ]
+        }
+      ]
+    }
+  ]
+}

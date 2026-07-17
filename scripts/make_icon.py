@@ -140,7 +140,11 @@ def main() -> None:
     icon.resize((64, 64), Image.Resampling.LANCZOS).save(OUT_WEB / "icon-64.png", "PNG", optimize=True)
     icon.save(OUT_APP / "icon.png", "PNG", optimize=True)
     icon.resize((32, 32), Image.Resampling.LANCZOS).save(OUT_APP / "tray.png", "PNG", optimize=True)
-    print("ok", (OUT_WEB / "icon.png").stat().st_size)
+    # Multi-size ICO for taskbar / installer / site favicon
+    ico_sizes = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
+    icon.save(OUT_APP / "icon.ico", format="ICO", sizes=ico_sizes)
+    icon.save(OUT_WEB / "icon.ico", format="ICO", sizes=ico_sizes)
+    print("ok", (OUT_WEB / "icon.png").stat().st_size, "+ico")
 
 
 if __name__ == "__main__":
