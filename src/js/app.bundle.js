@@ -21696,13 +21696,13 @@ void main() {
     return lines.join("\n");
   }
   function quickEventPresets(now = /* @__PURE__ */ new Date(), localTz2 = getLocalTimeZone()) {
-    const pad = (n) => String(n).padStart(2, "0");
+    const pad2 = (n) => String(n).padStart(2, "0");
     const localParts = readWallParts(now, localTz2);
-    const dateStr = `${localParts.year}-${pad(localParts.month)}-${pad(localParts.day)}`;
+    const dateStr = `${localParts.year}-${pad2(localParts.month)}-${pad2(localParts.day)}`;
     const in2 = new Date(now.getTime() + 2 * 36e5);
     const p2 = readWallParts(in2, localTz2);
-    const in2Date = `${p2.year}-${pad(p2.month)}-${pad(p2.day)}`;
-    const in2Time = `${pad(p2.hour)}:${pad(p2.minute)}`;
+    const in2Date = `${p2.year}-${pad2(p2.month)}-${pad2(p2.day)}`;
+    const in2Time = `${pad2(p2.hour)}:${pad2(p2.minute)}`;
     const tonightTime = "20:00";
     const tonightDate = dateStr;
     const nyDate = new Intl.DateTimeFormat("en-CA", {
@@ -22523,8 +22523,10 @@ void main() {
     onboardingDone: false,
     reminders: [],
     // { id, title, dateStr, timeStr, tz, notifyMinutes, fired }
-    trayCityIds: null
+    trayCityIds: null,
     // null → first 4 pins
+    followedSeriesIds: []
+    // starred sports series (Up Next + tray + auto-reminders)
   };
   function loadSettings() {
     try {
@@ -22555,6 +22557,7 @@ void main() {
       base.favoriteGroups = { ...DEFAULT_SETTINGS.favoriteGroups };
     }
     if (!Array.isArray(base.reminders)) base.reminders = [];
+    if (!Array.isArray(base.followedSeriesIds)) base.followedSeriesIds = [];
     base.version = SETTINGS_VERSION;
     return base;
   }
@@ -25185,6 +25188,19 @@ void main() {
 
   // src/js/sports/catalog.js
   var CATALOG_SCHEMA_VERSION = 2;
+  var SPORT_META = {
+    motorsport: { label: "Motorsport", color: 16765286 },
+    football: { label: "Football", color: 6222530 },
+    tennis: { label: "Tennis", color: 11730777 },
+    mma: { label: "MMA", color: 16739179 },
+    surfing: { label: "Surfing", color: 5097983 },
+    nfl: { label: "American Football", color: 13073919 },
+    golf: { label: "Golf", color: 8449433 },
+    cycling: { label: "Cycling", color: 16769126 },
+    cricket: { label: "Cricket", color: 9494767 },
+    rugby: { label: "Rugby", color: 16032353 },
+    athletics: { label: "Athletics", color: 16752237 }
+  };
   var SPORT_SERIES = sports_catalog_default.series;
   var CATALOG_INFO = {
     schemaVersion: sports_catalog_default.schemaVersion,
@@ -25242,28 +25258,55 @@ void main() {
     scored.sort((a, b) => b.score - a.score);
     return scored.map((x) => x.series);
   }
+  function searchEvents(query, limit = 10) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const scored = [];
+    for (const s of SPORT_SERIES) {
+      for (const e of s.events) {
+        let score = 0;
+        const name = e.name.toLowerCase();
+        if (name === q) score = 100;
+        else if (name.includes(q)) score = 70;
+        const hay = [e.city, e.country, ...e.tags || []].join(" ").toLowerCase();
+        if (hay.includes(q)) score = Math.max(score, 45);
+        const words = q.split(/\s+/);
+        if (words.length > 1 && words.every((w) => (name + " " + hay).includes(w))) {
+          score = Math.max(score, 60);
+        }
+        if (score > 0) scored.push({ series: s, event: e, score });
+      }
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, limit);
+  }
 
   // src/js/sports/schedule.js
   function isWindowSession(session) {
     return session?.type === "window";
   }
+  var instantCache = /* @__PURE__ */ new Map();
+  function cachedWallInstant(dateStr, timeStr, venueTz) {
+    const key = `${venueTz}|${dateStr}|${timeStr}`;
+    if (instantCache.has(key)) return instantCache.get(key);
+    const [y, mo, d] = dateStr.split("-").map(Number);
+    const [hh, mm] = timeStr.split(":").map(Number);
+    const instant = wallTimeToUtcDate(y, mo, d, hh, mm, venueTz);
+    instantCache.set(key, instant);
+    return instant;
+  }
   function sessionToInstant(session, venueTz) {
     if (!session || !venueTz) return null;
     if (isWindowSession(session)) {
       if (!session.startDate) return null;
-      const [y2, mo2, d2] = session.startDate.split("-").map(Number);
-      const [hh2, mm2] = (session.firstCallTime || "08:00").split(":").map(Number);
-      return wallTimeToUtcDate(y2, mo2, d2, hh2, mm2, venueTz);
+      return cachedWallInstant(session.startDate, session.firstCallTime || "08:00", venueTz);
     }
     if (!session.date || !session.time) return null;
-    const [y, mo, d] = session.date.split("-").map(Number);
-    const [hh, mm] = session.time.split(":").map(Number);
-    return wallTimeToUtcDate(y, mo, d, hh, mm, venueTz);
+    return cachedWallInstant(session.date, session.time, venueTz);
   }
   function windowEndInstant(session, venueTz) {
     if (!isWindowSession(session) || !session.endDate) return null;
-    const [y, mo, d] = session.endDate.split("-").map(Number);
-    return wallTimeToUtcDate(y, mo, d, 23, 59, venueTz);
+    return cachedWallInstant(session.endDate, "23:59", venueTz);
   }
   function formatWindowLabel(session) {
     const fmt = (iso) => {
@@ -25370,12 +25413,92 @@ void main() {
       return ma - mb;
     });
   }
+  function upcomingAcrossSeries(seriesList, localTz2, hour122 = false, now = /* @__PURE__ */ new Date(), limit = 8) {
+    const nowMs = now.getTime();
+    const cands = [];
+    for (const series of seriesList || []) {
+      for (const event of series.events || []) {
+        for (const raw of event.sessions || []) {
+          const instant = sessionToInstant(raw, event.tz);
+          if (!instant) continue;
+          if (isWindowSession(raw)) {
+            const end = windowEndInstant(raw, event.tz);
+            if (end && nowMs > end.getTime()) continue;
+          } else if (instant.getTime() - nowMs < -36e5) {
+            continue;
+          }
+          cands.push({ series, event, raw, t: instant.getTime() });
+        }
+      }
+    }
+    cands.sort((a, b) => a.t - b.t);
+    return cands.slice(0, limit).map((c) => ({
+      series: c.series,
+      event: c.event,
+      session: annotateSession(c.raw, c.event.tz, localTz2, hour122, now)
+    }));
+  }
+
+  // src/js/sports/ics.js
+  function pad(n) {
+    return String(n).padStart(2, "0");
+  }
+  function icsUtcStamp(date) {
+    return date.getUTCFullYear() + pad(date.getUTCMonth() + 1) + pad(date.getUTCDate()) + "T" + pad(date.getUTCHours()) + pad(date.getUTCMinutes()) + pad(date.getUTCSeconds()) + "Z";
+  }
+  function escapeText(s) {
+    return String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  }
+  var DEFAULT_DURATION_MIN = 120;
+  function eventToVevents(seriesName, event, now = /* @__PURE__ */ new Date()) {
+    const out = [];
+    for (const session of event.sessions || []) {
+      const start = sessionToInstant(session, event.tz);
+      if (!start) continue;
+      const isWindow = isWindowSession(session);
+      const end = isWindow ? windowEndInstant(session, event.tz) || new Date(start.getTime() + DEFAULT_DURATION_MIN * 6e4) : new Date(start.getTime() + DEFAULT_DURATION_MIN * 6e4);
+      const summary = isWindow ? `${event.name} \u2014 ${session.name} (waiting period)` : `${event.name} \u2014 ${session.name}`;
+      out.push(
+        [
+          "BEGIN:VEVENT",
+          `UID:apex-${event.id}-${session.id}@apextimezones`,
+          `DTSTAMP:${icsUtcStamp(now)}`,
+          `DTSTART:${icsUtcStamp(start)}`,
+          `DTEND:${icsUtcStamp(end)}`,
+          `SUMMARY:${escapeText(summary)}`,
+          `LOCATION:${escapeText(`${event.city}, ${event.country}`)}`,
+          `DESCRIPTION:${escapeText(`${seriesName}. Venue timezone: ${event.tz}. Added from ApexTimeZones.`)}`,
+          "END:VEVENT"
+        ].join("\r\n")
+      );
+    }
+    return out;
+  }
+  function buildIcs(seriesName, events, now = /* @__PURE__ */ new Date()) {
+    const vevents = [];
+    for (const ev of Array.isArray(events) ? events : [events]) {
+      vevents.push(...eventToVevents(seriesName, ev, now));
+    }
+    return [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//ApexTimeZones//Sports//EN",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      ...vevents,
+      "END:VCALENDAR",
+      ""
+    ].join("\r\n");
+  }
 
   // src/js/sports/ui.js
   function createSportsUI(ctx) {
     const localTz2 = getLocalTimeZone();
     let activeSeriesId = null;
     let activeEventId = null;
+    let upNextRows = [];
+    let upNextKey = "";
+    let upNextRefreshedAt = 0;
     const els2 = {
       search: document.getElementById("sportsSearch"),
       chips: document.getElementById("sportsChips"),
@@ -25391,6 +25514,8 @@ void main() {
       schedule: document.getElementById("sportsSchedule"),
       clear: document.getElementById("btnClearSports"),
       toBridge: document.getElementById("btnSportsToBridge"),
+      exportIcs: document.getElementById("btnSportsIcs"),
+      upNext: document.getElementById("upNextRail"),
       tabClocks: document.getElementById("tabClocks"),
       tabSports: document.getElementById("tabSports"),
       panelClocks: document.getElementById("panelClocks"),
@@ -25398,6 +25523,13 @@ void main() {
     };
     function escapeHtml2(str) {
       return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function followedIds() {
+      return ctx.getFollowed?.() || [];
+    }
+    function followedSeries() {
+      const ids = followedIds();
+      return ids.length ? SPORT_SERIES.filter((s) => ids.includes(s.id)) : SPORT_SERIES;
     }
     function switchTab(tab) {
       const sports = tab === "sports";
@@ -25424,16 +25556,44 @@ void main() {
       if (!els2.seriesList) return;
       let list = query.trim() ? searchSports(query) : SPORT_SERIES.slice();
       if (category) list = list.filter((s) => s.category === category);
-      els2.seriesList.innerHTML = list.map(
+      const followed = new Set(followedIds());
+      const eventHits = query.trim() ? searchEvents(query, 5) : [];
+      const hitsHtml = eventHits.length ? `<div class="event-hits">
+          ${eventHits.map(
+        (h) => `
+            <button type="button" class="event-hit" data-series="${h.series.id}" data-event="${h.event.id}">
+              <span class="eh-name">${escapeHtml2(h.event.name)}</span>
+              <span class="eh-meta">${escapeHtml2(h.series.name)} \xB7 ${escapeHtml2(h.event.city)}</span>
+            </button>`
+      ).join("")}
+         </div>` : "";
+      els2.seriesList.innerHTML = hitsHtml + list.map(
         (s) => `
       <button type="button" class="sports-series-card ${activeSeriesId === s.id ? "active" : ""}" data-id="${s.id}">
         <span class="ss-cat">${escapeHtml2(s.category)} \xB7 ${escapeHtml2(s.season)}</span>
         <span class="ss-name">${escapeHtml2(s.name)}</span>
         <span class="ss-meta">${s.events.length} events on the globe</span>
+        <span class="ss-star ${followed.has(s.id) ? "on" : ""}" data-star="${s.id}" title="${followed.has(s.id) ? "Unfollow" : "Follow \u2014 adds to Up Next and tray"}">${followed.has(s.id) ? "\u2605" : "\u2606"}</span>
       </button>`
       ).join("");
       els2.seriesList.querySelectorAll(".sports-series-card").forEach((btn) => {
-        btn.addEventListener("click", () => selectSeries(btn.dataset.id));
+        btn.addEventListener("click", (e) => {
+          const star = e.target.closest(".ss-star");
+          if (star) {
+            e.stopPropagation();
+            ctx.toggleFollowed?.(star.dataset.star);
+            renderSeriesList(els2.search?.value || "", category);
+            refreshUpNext(true);
+            return;
+          }
+          selectSeries(btn.dataset.id);
+        });
+      });
+      els2.seriesList.querySelectorAll(".event-hit").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectSeries(btn.dataset.series);
+          selectEvent(btn.dataset.event);
+        });
       });
     }
     function selectSeries(id) {
@@ -25461,7 +25621,7 @@ void main() {
             <div class="se-name">${escapeHtml2(ev.name)}</div>
             <div class="se-venue">${escapeHtml2(ev.city)} \xB7 ${escapeHtml2(ev.tz.split("/").pop().replace(/_/g, " "))}</div>
             <div class="se-times">
-              <span>Local tune-in: <strong>${escapeHtml2(head?.localTime || "\u2014")}</strong></span>
+              <span>Your time: <strong>${escapeHtml2(head?.localTime || "\u2014")}</strong></span>
               <span>Venue: <strong>${escapeHtml2(head?.venueTime || "\u2014")}</strong></span>
             </div>
           </button>`;
@@ -25477,6 +25637,7 @@ void main() {
           lat: ev.lat,
           lng: ev.lng,
           name: ev.name,
+          sport: series.sport,
           highlight: false
         }))
       );
@@ -25493,11 +25654,23 @@ void main() {
           lat: e.lat,
           lng: e.lng,
           name: e.name,
+          sport: series.sport,
           highlight: e.id === eventId
         }))
       );
       globe2?.flyTo(ev.lat, ev.lng, 1);
       renderEventDetail(ev);
+    }
+    function sessionReminderPayload(ev, session) {
+      if (isWindowSession(session)) {
+        return {
+          title: `${ev.name} \u2014 ${session.name}`,
+          dateStr: session.startDate,
+          timeStr: session.firstCallTime || "08:00",
+          tz: ev.tz
+        };
+      }
+      return { title: `${ev.name} \u2014 ${session.name}`, dateStr: session.date, timeStr: session.time, tz: ev.tz };
     }
     function renderEventDetail(ev) {
       if (els2.eventPanel) els2.eventPanel.hidden = false;
@@ -25506,7 +25679,7 @@ void main() {
       const head = eventHeadlineTime(ev, localTz2, ctx.hour12?.(), now);
       if (els2.countdown) {
         els2.countdown.innerHTML = head ? `<span class="cd-big">${escapeHtml2(head.countdown)}</span>
-           <span class="cd-sub">${escapeHtml2(head.name)} \xB7 ${head.status === "finished" ? "completed" : "to start"}</span>` : "\u2014";
+           <span class="cd-sub">${escapeHtml2(head.name)} \xB7 ${head.status === "finished" ? "completed" : head.status === "live-or-recent" ? "in progress" : "to start"}</span>` : "\u2014";
       }
       if (els2.tuneIn) {
         els2.tuneIn.innerHTML = head ? `
@@ -25516,50 +25689,114 @@ void main() {
         </div>` : "";
       }
       if (els2.schedule) {
-        const rows = (ev.sessions || []).map(
-          (s) => annotateSession(s, ev.tz, localTz2, ctx.hour12?.(), now)
-        );
+        const rows = (ev.sessions || []).map((s) => annotateSession(s, ev.tz, localTz2, ctx.hour12?.(), now));
         els2.schedule.innerHTML = `
-        <div class="sched-head">Full weekend / event schedule</div>
+        <div class="sched-head">Full schedule</div>
         <table class="sched-table">
-          <thead><tr><th>Session</th><th>Venue</th><th>Your time</th><th></th></tr></thead>
+          <thead><tr><th>Session</th><th>Venue</th><th>Your time</th><th></th><th></th></tr></thead>
           <tbody>
             ${rows.map(
-          (r) => `<tr class="${r.status}">
+          (r) => `<tr class="${r.status}" data-session="${r.id}">
                   <td>${escapeHtml2(r.name)}</td>
                   <td>${escapeHtml2(r.venueTime)}<div class="muted">${escapeHtml2(r.venueDay || "")}</div></td>
                   <td class="mint">${escapeHtml2(r.localTime)}<div class="muted">${escapeHtml2(r.localDay || "")}</div></td>
-                  <td class="cd-cell">${escapeHtml2(r.countdown || "")}</td>
+                  <td class="cd-cell" data-cd="${r.id}">${escapeHtml2(r.countdown || "")}</td>
+                  <td>${r.status === "upcoming" ? `<button type="button" class="bell-btn" data-remind="${r.id}" title="Remind me before this session">\u{1F514}</button>` : ""}</td>
                 </tr>`
         ).join("")}
           </tbody>
         </table>`;
+        els2.schedule.querySelectorAll("[data-remind]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const session = (ev.sessions || []).find((s) => s.id === btn.dataset.remind);
+            if (!session) return;
+            ctx.addReminder?.(sessionReminderPayload(ev, session));
+            btn.textContent = "\u2713";
+            btn.disabled = true;
+          });
+        });
       }
     }
-    function tick2() {
-      if (!activeSeriesId) return;
+    function downloadIcs() {
       const series = getSeriesById(activeSeriesId);
       if (!series) return;
-      if (activeEventId) {
-        const ev = series.events.find((e) => e.id === activeEventId);
-        if (ev) renderEventDetail(ev);
+      const ev = activeEventId ? series.events.find((e) => e.id === activeEventId) : null;
+      const ics = buildIcs(series.name, ev || series.events);
+      const blob = new Blob([ics], { type: "text/calendar" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${(ev ? ev.name : series.name).replace(/[^\w-]+/g, "-").toLowerCase()}.ics`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    function refreshUpNext(force = false) {
+      if (!els2.upNext) return;
+      const now = Date.now();
+      if (!force && now - upNextRefreshedAt < 3e4) return;
+      upNextRefreshedAt = now;
+      upNextRows = upcomingAcrossSeries(followedSeries(), localTz2, ctx.hour12?.(), /* @__PURE__ */ new Date(), 5);
+      const key = upNextRows.map((r) => `${r.event.id}:${r.session.id}`).join("|");
+      if (key === upNextKey && !force) {
+        updateUpNextCountdowns();
+        return;
       }
-      if (els2.eventsList && !els2.detail?.hidden) {
-        selectSeries(activeSeriesId);
-        if (activeEventId) {
-          const ev = series.events.find((e) => e.id === activeEventId);
-          if (ev) {
-            activeEventId = ev.id;
-            renderEventDetail(ev);
-          }
+      upNextKey = key;
+      els2.upNext.innerHTML = upNextRows.length ? `<span class="un-label">Up next</span>` + upNextRows.map(
+        (r, i) => `
+        <button type="button" class="un-chip ${r.session.status === "live-or-recent" ? "live" : ""}" data-idx="${i}" title="${escapeHtml2(r.series.name)} \u2014 ${escapeHtml2(r.event.city)}">
+          <span class="un-sport">${escapeHtml2(SPORT_META[r.series.sport]?.label || r.series.category)}</span>
+          <span class="un-name">${escapeHtml2(r.event.name)}</span>
+          <span class="un-cd" data-uncd="${i}">${escapeHtml2(r.session.countdown || "")}</span>
+          <span class="un-time">${escapeHtml2(r.session.localTime || "")}</span>
+        </button>`
+      ).join("") : "";
+      els2.upNext.querySelectorAll(".un-chip").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const row = upNextRows[Number(btn.dataset.idx)];
+          if (!row) return;
+          switchTab("sports");
+          selectSeries(row.series.id);
+          selectEvent(row.event.id);
+        });
+      });
+    }
+    function updateUpNextCountdowns() {
+      if (!els2.upNext) return;
+      const now = Date.now();
+      els2.upNext.querySelectorAll("[data-uncd]").forEach((el) => {
+        const row = upNextRows[Number(el.dataset.uncd)];
+        if (!row?.session?.instant) return;
+        const ms = row.session.instant.getTime() - now;
+        if (row.session.isWindow && ms < 0) {
+          const end = row.session.windowEnd;
+          el.textContent = end && now > end.getTime() ? "done" : "window open";
+        } else {
+          el.textContent = formatCountdown(ms);
         }
-      }
+      });
+    }
+    function nextFollowed() {
+      return upNextRows[0] || null;
     }
     function tickLight() {
+      refreshUpNext(false);
+      updateUpNextCountdowns();
       if (!activeEventId || !activeSeriesId) return;
       const series = getSeriesById(activeSeriesId);
       const ev = series?.events.find((e) => e.id === activeEventId);
-      if (ev) renderEventDetail(ev);
+      if (!ev || !els2.schedule) return;
+      const now = /* @__PURE__ */ new Date();
+      for (const raw of ev.sessions || []) {
+        const cell = els2.schedule.querySelector(`[data-cd="${raw.id}"]`);
+        if (!cell) continue;
+        const a = annotateSession(raw, ev.tz, localTz2, ctx.hour12?.(), now);
+        cell.textContent = a.countdown || "";
+      }
+      if (els2.countdown) {
+        const head = eventHeadlineTime(ev, localTz2, ctx.hour12?.(), now);
+        const big = els2.countdown.querySelector(".cd-big");
+        if (big && head) big.textContent = head.countdown;
+      }
     }
     els2.search?.addEventListener("input", () => {
       const cat = els2.chips?.querySelector(".chip-btn.active")?.dataset.cat || "";
@@ -25579,13 +25816,14 @@ void main() {
       const ev = series?.events.find((e) => e.id === activeEventId);
       const primary = primarySession(ev);
       if (!ev || !primary) return;
-      ctx.setBridge?.({
-        dateStr: primary.date,
-        timeStr: primary.time,
-        fromTz: ev.tz
-      });
+      if (isWindowSession(primary)) {
+        ctx.setBridge?.({ dateStr: primary.startDate, timeStr: primary.firstCallTime || "08:00", fromTz: ev.tz });
+      } else {
+        ctx.setBridge?.({ dateStr: primary.date, timeStr: primary.time, fromTz: ev.tz });
+      }
       switchTab("clocks");
     });
+    els2.exportIcs?.addEventListener("click", downloadIcs);
     ctx.registerGlobeHandlers?.({
       onEventClick: (ev) => {
         for (const s of SPORT_SERIES) {
@@ -25602,6 +25840,7 @@ void main() {
       renderChips2();
       const cat = els2.chips?.querySelector(".chip-btn.active")?.dataset.cat || "";
       renderSeriesList(els2.search?.value || "", cat);
+      refreshUpNext(true);
       if (activeSeriesId && getSeriesById(activeSeriesId)) {
         selectSeries(activeSeriesId);
         const ev = getSeriesById(activeSeriesId)?.events.find((e) => e.id === activeEventId);
@@ -25619,10 +25858,12 @@ void main() {
     });
     renderChips2();
     renderSeriesList();
+    refreshUpNext(true);
     return {
       tick: tickLight,
       switchTab,
       selectSeries,
+      nextFollowed,
       openSportsSearch(q) {
         switchTab("sports");
         if (els2.search) {
@@ -26121,19 +26362,24 @@ void main() {
       });
     });
   }
-  els.btnSaveReminder?.addEventListener("click", () => {
-    const title = els.reminderTitle?.value?.trim() || "Event";
-    const dateStr = els.eventDate.value;
-    const timeStr = els.eventTime.value;
-    const tz = els.eventZone.value;
-    const notifyMinutes = Number(els.reminderNotify?.value || 15);
-    const id = "r_" + Date.now();
+  function addReminder({ title, dateStr, timeStr, tz, notifyMinutes = 15 }) {
+    if (!dateStr || !timeStr) return;
+    const id = "r_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
     const reminders = [
       ...settings.reminders || [],
-      { id, title, dateStr, timeStr, tz, notifyMinutes, fired: false }
+      { id, title: title || "Event", dateStr, timeStr, tz, notifyMinutes, fired: false }
     ];
     settings = updateSettings({ reminders });
     scheduleRemindersToMain();
+  }
+  els.btnSaveReminder?.addEventListener("click", () => {
+    addReminder({
+      title: els.reminderTitle?.value?.trim() || "Event",
+      dateStr: els.eventDate.value,
+      timeStr: els.eventTime.value,
+      tz: els.eventZone.value,
+      notifyMinutes: Number(els.reminderNotify?.value || 15)
+    });
     if (els.reminderTitle) els.reminderTitle.value = "";
   });
   function wireUpdates() {
@@ -26316,6 +26562,12 @@ void main() {
       name: c.name,
       time: formatTime(now, c.tz, { withSeconds: false, hour12: hour12() })
     }));
+    const next = sportsUi?.nextFollowed?.();
+    if (next?.session?.instant) {
+      const ms = next.session.instant.getTime() - now.getTime();
+      const cd = next.session.isWindow && ms < 0 ? "window open" : formatCountdown(ms);
+      payload.unshift({ id: "next-event", name: `\u25B8 ${next.event.name}`, time: cd });
+    }
     apex?.setTrayTimes?.(payload);
   }
   function setMaxIcon(maximized) {
@@ -26353,7 +26605,16 @@ void main() {
       },
       registerGlobeHandlers: (h) => {
         pendingGlobeHandlers = h;
-      }
+      },
+      getFollowed: () => settings.followedSeriesIds || [],
+      toggleFollowed: (id) => {
+        const cur = new Set(settings.followedSeriesIds || []);
+        if (cur.has(id)) cur.delete(id);
+        else cur.add(id);
+        settings = updateSettings({ followedSeriesIds: [...cur] });
+        return [...cur];
+      },
+      addReminder
     });
     try {
       const feedCatalog = await apex?.getSportsCatalog?.();

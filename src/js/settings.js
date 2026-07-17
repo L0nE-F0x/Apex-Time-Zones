@@ -30,6 +30,7 @@ export const DEFAULT_SETTINGS = {
   onboardingDone: false,
   reminders: [], // { id, title, dateStr, timeStr, tz, notifyMinutes, fired }
   trayCityIds: null, // null → first 4 pins
+  followedSeriesIds: [], // starred sports series (Up Next + tray + auto-reminders)
 };
 
 export function loadSettings() {
@@ -64,6 +65,7 @@ export function migrateSettings(parsed) {
     base.favoriteGroups = { ...DEFAULT_SETTINGS.favoriteGroups };
   }
   if (!Array.isArray(base.reminders)) base.reminders = [];
+  if (!Array.isArray(base.followedSeriesIds)) base.followedSeriesIds = [];
   base.version = SETTINGS_VERSION;
   return base;
 }

@@ -128,6 +128,31 @@ describe('catalog feed swap', () => {
   });
 });
 
+describe('ics export', () => {
+  it('builds a valid calendar for the WC final', async () => {
+    const { buildIcs } = await import('../src/js/sports/ics.js');
+    const wc = SPORT_SERIES.find((s) => s.id === 'wc-2026');
+    const final = wc.events.find((e) => e.id === 'wc-final');
+    const ics = buildIcs(wc.name, final, new Date('2026-07-17T00:00:00Z'));
+    assert.match(ics, /BEGIN:VCALENDAR/);
+    assert.match(ics, /BEGIN:VEVENT/);
+    // 15:00 EDT kickoff = 19:00 UTC
+    assert.match(ics, /DTSTART:20260719T190000Z/);
+    assert.match(ics, /SUMMARY:Final — Spain vs Argentina — Kickoff/);
+    assert.match(ics, /END:VCALENDAR/);
+  });
+
+  it('window sessions span the whole waiting period', async () => {
+    const { buildIcs } = await import('../src/js/sports/ics.js');
+    const wsl = SPORT_SERIES.find((s) => s.id === 'wsl-2026');
+    const tahiti = wsl.events.find((e) => e.id === 'wsl-teahupoo');
+    const ics = buildIcs(wsl.name, tahiti);
+    assert.match(ics, /waiting period/);
+    // ends on the last window day (Aug 18 local Tahiti = Aug 19 UTC by 23:59-10:00)
+    assert.match(ics, /DTEND:20260819T\d{4}00Z/);
+  });
+});
+
 describe('cities expansion', () => {
   it('includes Denpasar Bali on Asia/Makassar', () => {
     const dps = getCityById('dps');

@@ -17,9 +17,6 @@ contextBridge.exposeInMainWorld('apex', {
   setHotkey: (accel) => ipcRenderer.invoke('set-hotkey', accel),
   notify: (payload) => ipcRenderer.send('show-notification', payload),
   setTrayTimes: (payload) => ipcRenderer.send('set-tray-times', payload),
-  openWidget: () => ipcRenderer.send('open-widget'),
-  closeWidget: () => ipcRenderer.send('close-widget'),
-  setWidgetMode: (v) => ipcRenderer.send('set-widget-mode', v),
   onWindowState: (cb) => {
     const handler = (_e, state) => cb(state);
     ipcRenderer.on('window-state', handler);

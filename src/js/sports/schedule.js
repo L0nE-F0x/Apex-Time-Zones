@@ -10,25 +10,34 @@ export function isWindowSession(session) {
   return session?.type === 'window';
 }
 
+// Wall-time → instant is deterministic, and wallTimeToUtcDate is Intl-heavy;
+// memoize so cross-series scans (Up Next, tray) stay cheap.
+const instantCache = new Map();
+
+function cachedWallInstant(dateStr, timeStr, venueTz) {
+  const key = `${venueTz}|${dateStr}|${timeStr}`;
+  if (instantCache.has(key)) return instantCache.get(key);
+  const [y, mo, d] = dateStr.split('-').map(Number);
+  const [hh, mm] = timeStr.split(':').map(Number);
+  const instant = wallTimeToUtcDate(y, mo, d, hh, mm, venueTz);
+  instantCache.set(key, instant);
+  return instant;
+}
+
 export function sessionToInstant(session, venueTz) {
   if (!session || !venueTz) return null;
   if (isWindowSession(session)) {
     if (!session.startDate) return null;
-    const [y, mo, d] = session.startDate.split('-').map(Number);
-    const [hh, mm] = (session.firstCallTime || '08:00').split(':').map(Number);
-    return wallTimeToUtcDate(y, mo, d, hh, mm, venueTz);
+    return cachedWallInstant(session.startDate, session.firstCallTime || '08:00', venueTz);
   }
   if (!session.date || !session.time) return null;
-  const [y, mo, d] = session.date.split('-').map(Number);
-  const [hh, mm] = session.time.split(':').map(Number);
-  return wallTimeToUtcDate(y, mo, d, hh, mm, venueTz);
+  return cachedWallInstant(session.date, session.time, venueTz);
 }
 
 /** End instant of a window session (end of its last day at venue). */
 export function windowEndInstant(session, venueTz) {
   if (!isWindowSession(session) || !session.endDate) return null;
-  const [y, mo, d] = session.endDate.split('-').map(Number);
-  return wallTimeToUtcDate(y, mo, d, 23, 59, venueTz);
+  return cachedWallInstant(session.endDate, '23:59', venueTz);
 }
 
 function formatWindowLabel(session) {
@@ -152,24 +161,32 @@ export function sortEventsByNext(events, now = new Date()) {
 /**
  * Upcoming sessions across many series, soonest first.
  * seriesList: catalog series array (already filtered to followed if desired).
+ * Candidates are filtered/sorted on memoized instants; only the top `limit`
+ * get the (Intl-heavy) full annotation.
  * Returns [{ series, event, session (annotated) }].
  */
 export function upcomingAcrossSeries(seriesList, localTz, hour12 = false, now = new Date(), limit = 8) {
-  const out = [];
+  const nowMs = now.getTime();
+  const cands = [];
   for (const series of seriesList || []) {
     for (const event of series.events || []) {
       for (const raw of event.sessions || []) {
-        const s = annotateSession(raw, event.tz, localTz, hour12, now);
-        if (!s.instant) continue;
-        if (s.isWindow) {
-          if (s.windowEnd && now.getTime() > s.windowEnd.getTime()) continue;
-        } else if (s.msUntil < -3600000) {
+        const instant = sessionToInstant(raw, event.tz);
+        if (!instant) continue;
+        if (isWindowSession(raw)) {
+          const end = windowEndInstant(raw, event.tz);
+          if (end && nowMs > end.getTime()) continue;
+        } else if (instant.getTime() - nowMs < -3600000) {
           continue;
         }
-        out.push({ series, event, session: s });
+        cands.push({ series, event, raw, t: instant.getTime() });
       }
     }
   }
-  out.sort((a, b) => a.session.msUntil - b.session.msUntil);
-  return out.slice(0, limit);
+  cands.sort((a, b) => a.t - b.t);
+  return cands.slice(0, limit).map((c) => ({
+    series: c.series,
+    event: c.event,
+    session: annotateSession(c.raw, c.event.tz, localTz, hour12, now),
+  }));
 }

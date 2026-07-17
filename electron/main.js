@@ -24,7 +24,6 @@ const updater = require('./updater');
 const sportsFeed = require('./sportsFeed');
 const APEX_FORGE_URL = 'https://ame-apexforge.org/';
 let mainWindow = null;
-let widgetWindow = null;
 let tray = null;
 let isQuitting = false;
 let trayTimes = []; // { name, time, id }
@@ -323,38 +322,6 @@ function registerHotkey(accel) {
   }
 }
 
-function createWidgetWindow() {
-  if (widgetWindow && !widgetWindow.isDestroyed()) {
-    widgetWindow.show();
-    return;
-  }
-  widgetWindow = new BrowserWindow({
-    width: 360,
-    height: 420,
-    minWidth: 280,
-    minHeight: 200,
-    frame: false,
-    alwaysOnTop: true,
-    resizable: true,
-    skipTaskbar: true,
-    backgroundColor: '#05080f',
-    show: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: false,
-    },
-  });
-  widgetWindow.loadFile(path.join(__dirname, '..', 'src', 'index.html'), {
-    query: { widget: '1' },
-  });
-  widgetWindow.once('ready-to-show', () => widgetWindow.show());
-  widgetWindow.on('closed', () => {
-    widgetWindow = null;
-  });
-}
-
 function setupIpc() {
   ipcMain.on('window-minimize', () => {
     if (mainWindow) mainWindow.minimize();
@@ -428,15 +395,6 @@ function setupIpc() {
     }
   });
 
-  ipcMain.on('open-widget', () => createWidgetWindow());
-  ipcMain.on('close-widget', () => {
-    if (widgetWindow && !widgetWindow.isDestroyed()) widgetWindow.close();
-  });
-
-  ipcMain.on('set-widget-mode', () => {
-    /* renderer handles CSS mode; optional separate window */
-  });
-
   ipcMain.on('open-external', (_e, url) => {
     if (typeof url === 'string' && /^https?:\/\//i.test(url)) {
       shell.openExternal(url);
@@ -452,32 +410,46 @@ function setupIpc() {
   ipcMain.on('open-apex-forge', () => shell.openExternal(APEX_FORGE_URL));
 }
 
+function checkReminders() {
+  const settings = store.read();
+  const reminders = settings.reminders || [];
+  if (!reminders.length) return;
+  const now = Date.now();
+  let changed = false;
+  const next = reminders.map((r) => {
+    if (r.fired || !r.fireAt) return r;
+    const fireAt = Number(r.fireAt);
+    // Fire late rather than never (sleep/hibernate can skip the exact
+    // minute) — up to 24h after, with an honest "running late" body.
+    if (now >= fireAt && now < fireAt + 24 * 3600000) {
+      if (Notification.isSupported()) {
+        const lateMin = Math.round((now - fireAt) / 60000);
+        const body =
+          lateMin > 2 ? `${r.title || 'Event'} — started ~${lateMin} min ago` : r.body || 'Event starting soon';
+        new Notification({
+          title: r.title || 'Upcoming event',
+          body,
+          icon: getIconPath() || undefined,
+        }).show();
+      }
+      changed = true;
+      return { ...r, fired: true };
+    }
+    return r;
+  });
+  if (changed) store.update({ reminders: next });
+}
+
 function startReminderWatcher() {
   clearInterval(reminderTimer);
-  reminderTimer = setInterval(() => {
-    const settings = store.read();
-    const reminders = settings.reminders || [];
-    if (!reminders.length) return;
-    const now = Date.now();
-    let changed = false;
-    const next = reminders.map((r) => {
-      if (r.fired || !r.fireAt) return r;
-      const fireAt = Number(r.fireAt);
-      if (now >= fireAt && now < fireAt + 120000) {
-        if (Notification.isSupported()) {
-          new Notification({
-            title: r.title || 'Upcoming event',
-            body: r.body || 'Event starting soon',
-            icon: getIconPath() || undefined,
-          }).show();
-        }
-        changed = true;
-        return { ...r, fired: true };
-      }
-      return r;
-    });
-    if (changed) store.update({ reminders: next });
-  }, 30000);
+  reminderTimer = setInterval(checkReminders, 30000);
+  // Re-check immediately when the machine wakes up
+  try {
+    const { powerMonitor } = require('electron');
+    powerMonitor.on('resume', () => setTimeout(checkReminders, 2000));
+  } catch {
+    /* powerMonitor unavailable — interval alone still works */
+  }
 }
 
 const gotLock = app.requestSingleInstanceLock();

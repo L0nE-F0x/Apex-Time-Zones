@@ -28,6 +28,7 @@ import {
 } from './settings.js';
 import { createSportsUI } from './sports/ui.js';
 import { applyCatalog } from './sports/catalog.js';
+import { formatCountdown } from './sports/schedule.js';
 
 const apex = window.apex;
 const isWidgetQuery = new URLSearchParams(location.search).get('widget') === '1';
@@ -589,19 +590,25 @@ function renderReminders() {
   });
 }
 
-els.btnSaveReminder?.addEventListener('click', () => {
-  const title = els.reminderTitle?.value?.trim() || 'Event';
-  const dateStr = els.eventDate.value;
-  const timeStr = els.eventTime.value;
-  const tz = els.eventZone.value;
-  const notifyMinutes = Number(els.reminderNotify?.value || 15);
-  const id = 'r_' + Date.now();
+function addReminder({ title, dateStr, timeStr, tz, notifyMinutes = 15 }) {
+  if (!dateStr || !timeStr) return;
+  const id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
   const reminders = [
     ...(settings.reminders || []),
-    { id, title, dateStr, timeStr, tz, notifyMinutes, fired: false },
+    { id, title: title || 'Event', dateStr, timeStr, tz, notifyMinutes, fired: false },
   ];
   settings = updateSettings({ reminders });
   scheduleRemindersToMain();
+}
+
+els.btnSaveReminder?.addEventListener('click', () => {
+  addReminder({
+    title: els.reminderTitle?.value?.trim() || 'Event',
+    dateStr: els.eventDate.value,
+    timeStr: els.eventTime.value,
+    tz: els.eventZone.value,
+    notifyMinutes: Number(els.reminderNotify?.value || 15),
+  });
   if (els.reminderTitle) els.reminderTitle.value = '';
 });
 
@@ -811,6 +818,13 @@ function syncTrayTimes() {
       name: c.name,
       time: formatTime(now, c.tz, { withSeconds: false, hour12: hour12() }),
     }));
+  // Next followed sports session leads the tray
+  const next = sportsUi?.nextFollowed?.();
+  if (next?.session?.instant) {
+    const ms = next.session.instant.getTime() - now.getTime();
+    const cd = next.session.isWindow && ms < 0 ? 'window open' : formatCountdown(ms);
+    payload.unshift({ id: 'next-event', name: `▸ ${next.event.name}`, time: cd });
+  }
   apex?.setTrayTimes?.(payload);
 }
 
@@ -856,6 +870,15 @@ async function boot() {
     registerGlobeHandlers: (h) => {
       pendingGlobeHandlers = h;
     },
+    getFollowed: () => settings.followedSeriesIds || [],
+    toggleFollowed: (id) => {
+      const cur = new Set(settings.followedSeriesIds || []);
+      if (cur.has(id)) cur.delete(id);
+      else cur.add(id);
+      settings = updateSettings({ followedSeriesIds: [...cur] });
+      return [...cur];
+    },
+    addReminder,
   });
   // Fresher sports data than the bundled snapshot, when available
   try {
