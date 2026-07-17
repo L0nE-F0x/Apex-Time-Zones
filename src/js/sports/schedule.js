@@ -149,13 +149,20 @@ export function eventHeadlineTime(event, localTz, hour12 = false, now = new Date
 }
 
 export function sortEventsByNext(events, now = new Date()) {
-  return [...events].sort((a, b) => {
-    const na = nextSession(a, now);
-    const nb = nextSession(b, now);
-    const ma = na?.instant?.getTime() ?? Number.MAX_SAFE_INTEGER;
-    const mb = nb?.instant?.getTime() ?? Number.MAX_SAFE_INTEGER;
-    return ma - mb;
+  // Upcoming first (soonest → latest), then finished events (most recent
+  // first) — nobody opens a season to see March at the top in July.
+  const nowMs = now.getTime();
+  const scored = events.map((e) => {
+    const n = nextSession(e, now);
+    const t = n?.instant?.getTime() ?? Number.MAX_SAFE_INTEGER;
+    const upcoming = n && (n.status !== 'finished') && t >= nowMs - 3600000;
+    return { e, t, upcoming };
   });
+  scored.sort((a, b) => {
+    if (a.upcoming !== b.upcoming) return a.upcoming ? -1 : 1;
+    return a.upcoming ? a.t - b.t : b.t - a.t;
+  });
+  return scored.map((x) => x.e);
 }
 
 /**

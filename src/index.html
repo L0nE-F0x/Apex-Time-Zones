@@ -23,6 +23,7 @@
         </div>
       </div>
       <div class="titlebar-controls">
+        <button class="win-btn" id="btnHelp" title="Quick tour" aria-label="Quick tour">?</button>
         <button class="win-btn" id="btnSettings" title="Settings" aria-label="Settings">⚙</button>
         <button class="win-btn" id="btnMin" title="Minimize" aria-label="Minimize">─</button>
         <button class="win-btn" id="btnMax" title="Maximize" aria-label="Maximize">□</button>
@@ -37,21 +38,10 @@
 
         <div class="up-next-rail hide-in-widget" id="upNextRail"></div>
 
-        <div class="stage-hud top-left hide-in-widget">
-          <div class="hud-panel">
-            <div class="hud-title">Globe</div>
-            <div class="hud-hint">Drag to rotate · scroll to zoom · click a pin</div>
-          </div>
-        </div>
-
         <div class="stage-hud top-right hide-in-widget">
-          <div class="hud-panel sun-panel">
-            <div class="hud-title">Sun</div>
-            <div class="sun-row">
-              <span class="sun-dot"></span>
-              <span id="utcNow">UTC —</span>
-            </div>
-            <div class="sun-row subtle" id="dayNightLabel">Day/night follows the live sun position</div>
+          <div class="hud-panel sun-panel" title="Day/night on the globe follows the live sun position">
+            <span class="sun-dot"></span>
+            <span id="utcNow">UTC —</span>
           </div>
         </div>
 
@@ -73,11 +63,12 @@
         <div class="panel-tabs" role="tablist">
           <button type="button" class="panel-tab active" data-tab="clocks" id="tabClocks">Clocks</button>
           <button type="button" class="panel-tab" data-tab="sports" id="tabSports">Sports</button>
+          <button type="button" class="panel-tab" data-tab="convert" id="tabConvert">Convert</button>
         </div>
 
         <div class="tab-panel" id="panelClocks">
         <div class="panel-section">
-          <label class="field-label" for="searchInput">Find city / timezone</label>
+          <label class="field-label" for="searchInput">Add a city</label>
           <div class="search-wrap">
             <input type="search" id="searchInput" class="search-input" placeholder="Tokyo, EST, Europe/London…" autocomplete="off" spellcheck="false" />
             <button class="search-clear" id="searchClear" title="Clear" hidden>✕</button>
@@ -90,24 +81,27 @@
 
         <div class="panel-section">
           <div class="section-head">
-            <h2>Pinned Clocks</h2>
-            <button class="ghost-btn" id="btnResetPins" title="Reset to defaults">Reset</button>
+            <h2>Your clocks</h2>
           </div>
           <div class="groups-bar" id="groupsBar"></div>
           <div class="clock-list" id="clockList"></div>
-          <div class="row-actions">
-            <button type="button" class="ghost-btn" id="btnExportPins">Export JSON</button>
-            <button type="button" class="ghost-btn" id="btnImportPins">Import JSON</button>
-            <input type="file" id="importFile" accept="application/json,.json" hidden />
+          <div class="legend-inline hide-in-widget" title="Pin colors on the globe">
+            <span><i class="pin pin-day"></i>day</span>
+            <span><i class="pin pin-night"></i>night</span>
+            <span><i class="pin pin-pinned"></i>pinned</span>
+            <span><i class="pin pin-local"></i>home</span>
+            <span><i class="pin pin-selected"></i>selected</span>
           </div>
         </div>
+        </div><!-- /panelClocks -->
 
+        <div class="tab-panel" id="panelConvert" hidden>
         <div class="panel-section converter">
           <div class="section-head">
             <h2>Time Bridge</h2>
             <button type="button" class="ghost-btn" id="btnCopyBridge">Copy conversion</button>
           </div>
-          <p class="converter-help">Convert an event time into your zone and all pinned cities.</p>
+          <p class="converter-help">Any event time → your time and every pinned city's.</p>
           <div class="bridge-chips" id="bridgeChips"></div>
           <div class="converter-grid">
             <div>
@@ -127,36 +121,27 @@
             <span class="bridge-delta" id="bridgeDelta"></span>
           </div>
           <div class="bridge-table-wrap" id="bridgeTable"></div>
+        </div>
 
-          <div class="reminder-box">
-            <div class="section-head"><h2>Event reminder</h2></div>
-            <input type="text" id="reminderTitle" class="field-input" placeholder="Match / market / stream name" />
-            <div class="converter-grid" style="margin-top:8px">
-              <div>
-                <label class="field-label" for="reminderNotify">Notify minutes before</label>
-                <input type="number" id="reminderNotify" class="field-input" value="15" min="1" max="180" />
-              </div>
-              <div style="display:flex;align-items:flex-end">
-                <button type="button" class="ghost-btn" id="btnSaveReminder" style="width:100%;padding:9px">Save event</button>
-              </div>
+        <div class="panel-section">
+          <div class="section-head"><h2>Remind me</h2></div>
+          <input type="text" id="reminderTitle" class="field-input" placeholder="Name this event (optional)" />
+          <div class="converter-grid" style="margin-top:8px">
+            <div>
+              <label class="field-label" for="reminderNotify">Minutes before</label>
+              <input type="number" id="reminderNotify" class="field-input" value="15" min="1" max="180" />
             </div>
-            <div id="reminderList" class="reminder-list"></div>
+            <div style="display:flex;align-items:flex-end">
+              <button type="button" class="ghost-btn" id="btnSaveReminder" style="width:100%;padding:9px">Save reminder</button>
+            </div>
           </div>
+          <div id="reminderList" class="reminder-list"></div>
         </div>
-
-        <div class="panel-section legend hide-in-widget">
-          <div class="section-head"><h2>Legend</h2></div>
-          <div class="legend-row"><span class="pin pin-day"></span> Daylight (solar)</div>
-          <div class="legend-row"><span class="pin pin-night"></span> Night (solar)</div>
-          <div class="legend-row"><span class="pin pin-selected"></span> Selected / focus</div>
-          <div class="legend-row"><span class="pin pin-local"></span> Home / local</div>
-          <div class="legend-row"><span class="pin pin-pinned"></span> Pinned clock</div>
-        </div>
-        </div><!-- /panelClocks -->
+        </div><!-- /panelConvert -->
 
         <div class="tab-panel" id="panelSports" hidden>
-          <div class="panel-section">
-            <label class="field-label" for="sportsSearch">Sports</label>
+          <div class="panel-section" id="sportsBrowse">
+            <label class="field-label" for="sportsSearch">Find a sport or event</label>
             <div class="search-wrap">
               <input type="search" id="sportsSearch" class="search-input" placeholder="F1, UFC, World Cup, surfing, tennis…" autocomplete="off" spellcheck="false" />
             </div>
@@ -165,8 +150,8 @@
           </div>
           <div class="panel-section" id="sportsDetail" hidden>
             <div class="section-head">
+              <button type="button" class="ghost-btn" id="btnClearSports" title="Back to all sports">‹ All sports</button>
               <h2 id="sportsDetailTitle">Season</h2>
-              <button type="button" class="ghost-btn" id="btnClearSports">Clear map</button>
             </div>
             <p class="sports-desc" id="sportsDetailDesc"></p>
             <div class="sports-events" id="sportsEventsList"></div>
@@ -246,6 +231,13 @@
           <button type="button" class="ghost-btn" id="btnToggleWidget">Toggle mini widget mode</button>
           <button type="button" class="ghost-btn" id="btnCheckUpdates">Check for updates</button>
         </div>
+        <label class="field-label" style="margin-top:12px">Pinned clocks</label>
+        <div class="row-actions">
+          <button type="button" class="ghost-btn" id="btnExportPins">Export JSON</button>
+          <button type="button" class="ghost-btn" id="btnImportPins">Import JSON</button>
+          <button type="button" class="ghost-btn" id="btnResetPins">Reset to defaults</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden />
+        </div>
         <p class="muted" style="margin-top:12px">
           Global hotkey: Ctrl+Alt+T. Updates download from the ApexTimeZones site (Netlify feed) and relaunch automatically.
         </p>
@@ -255,25 +247,41 @@
       </div>
     </div>
 
-    <!-- Onboarding -->
+    <!-- Welcome tour -->
     <div id="onboarding" class="onboarding" hidden>
       <div class="onboarding-card">
-        <h2>Welcome to ApexTimeZones</h2>
-        <p>Set your home city and pin a few zones you track for sports, markets, and streams.</p>
-        <label class="field-label" for="onboardHome">Home city</label>
-        <select id="onboardHome" class="field-input select"></select>
-        <label class="field-label">Quick pins</label>
-        <div id="onboardPins" class="onboard-pins">
-          <label><input type="checkbox" value="nyc" checked /> New York</label>
-          <label><input type="checkbox" value="lon" checked /> London</label>
-          <label><input type="checkbox" value="tyo" checked /> Tokyo</label>
-          <label><input type="checkbox" value="syd" /> Sydney</label>
-          <label><input type="checkbox" value="dxb" /> Dubai</label>
-          <label><input type="checkbox" value="sgp" /> Singapore</label>
+        <div class="tour-step" data-step="0">
+          <h2>Welcome to ApexTimeZones</h2>
+          <p>A world clock on a real 3D Earth, living in your system tray. Start by telling it where home is and pinning a few cities — they become live clocks and glowing pins on the globe.</p>
+          <label class="field-label" for="onboardHome">Home city</label>
+          <select id="onboardHome" class="field-input select"></select>
+          <label class="field-label">Quick pins</label>
+          <div id="onboardPins" class="onboard-pins">
+            <label><input type="checkbox" value="nyc" checked /> New York</label>
+            <label><input type="checkbox" value="lon" checked /> London</label>
+            <label><input type="checkbox" value="tyo" checked /> Tokyo</label>
+            <label><input type="checkbox" value="syd" /> Sydney</label>
+            <label><input type="checkbox" value="dxb" /> Dubai</label>
+            <label><input type="checkbox" value="sgp" /> Singapore</label>
+          </div>
         </div>
-        <div class="row-actions">
-          <button type="button" class="ghost-btn" id="onboardSkip">Skip</button>
-          <button type="button" class="primary-btn" id="onboardFinish">Start</button>
+        <div class="tour-step" data-step="1" hidden>
+          <h2>Sports, in your time</h2>
+          <p>The <strong>Sports</strong> tab maps whole seasons onto the globe — F1, the World Cup, UFC, surfing, and more. Every session shows the venue time <em>and</em> your time.</p>
+          <p>Star <span class="gold">★</span> a series to follow it: its next sessions appear in the <strong>Up Next</strong> strip above the globe and in your tray. Tap <strong>🔔</strong> on any session to get a reminder before it starts.</p>
+        </div>
+        <div class="tour-step" data-step="2" hidden>
+          <h2>Convert anything, from anywhere</h2>
+          <p>The <strong>Convert</strong> tab turns any event time into your time and every pinned city's — copy it, or save a reminder.</p>
+          <p>The app stays in your tray. Press <strong>Ctrl+Alt+T</strong> anywhere to show or hide it. Replay this tour anytime with the <strong>?</strong> button.</p>
+        </div>
+        <div class="tour-nav">
+          <div class="tour-dots" id="tourDots"></div>
+          <div class="row-actions">
+            <button type="button" class="ghost-btn" id="onboardSkip">Skip</button>
+            <button type="button" class="ghost-btn" id="onboardBack" hidden>Back</button>
+            <button type="button" class="primary-btn" id="onboardNext">Next</button>
+          </div>
         </div>
       </div>
     </div>

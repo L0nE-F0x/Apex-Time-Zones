@@ -1,10 +1,10 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "publishedAt": "2026-07-17",
   "downloadPath": "/downloads/ApexTimeZones-Portable.exe",
-  "downloadUrl": "https://github.com/L0nE-F0x/Apex-Time-Zones/releases/download/v2.0.0/ApexTimeZones-Portable-2.0.0.exe",
+  "downloadUrl": "https://github.com/L0nE-F0x/Apex-Time-Zones/releases/download/v2.1.0/ApexTimeZones-Portable-2.1.0.exe",
   "mandatory": false,
-  "releaseNotes": "2.0: 12 sports with verified fixtures (F1, World Cup, UFC, WSL surfing, MotoGP, NFL, tennis, golf, cycling, cricket, rugby, marathons); esports removed. Follow series for an Up Next rail, tray countdowns, session reminders, and calendar export. Schedules now update over the air. Downloads are SHA-256 verified.",
-  "sha256": "0e7779a3c0e6ced2b54b6ae72ce30d0786c7b5241d2c1eb6ddaa920991f1d475",
-  "sizeBytes": 76680342
+  "releaseNotes": "2.1: a calmer, easier app. Three tabs (Clocks / Sports / Convert), drill-down sports navigation with an All-sports back button, decluttered globe overlays, and a replayable 3-step welcome tour (? in the titlebar). Fixes: season lists now show upcoming events first, duplicate venue labels removed, local time chip no longer mixes home city with a different timezone.",
+  "sha256": "b8049a4255ed76f2d4dee4a3e63ad9a63c5e31a3071ce01201183f06052ec861",
+  "sizeBytes": 76682163
 }

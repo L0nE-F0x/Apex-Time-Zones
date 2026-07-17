@@ -42,10 +42,13 @@ export function createSportsUI(ctx) {
     toBridge: document.getElementById('btnSportsToBridge'),
     exportIcs: document.getElementById('btnSportsIcs'),
     upNext: document.getElementById('upNextRail'),
+    browse: document.getElementById('sportsBrowse'),
     tabClocks: document.getElementById('tabClocks'),
     tabSports: document.getElementById('tabSports'),
+    tabConvert: document.getElementById('tabConvert'),
     panelClocks: document.getElementById('panelClocks'),
     panelSports: document.getElementById('panelSports'),
+    panelConvert: document.getElementById('panelConvert'),
   };
 
   function escapeHtml(str) {
@@ -54,6 +57,10 @@ export function createSportsUI(ctx) {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function sameCityTz(ev) {
+    return ev.tz.split('/').pop().replace(/_/g, ' ').toLowerCase() === ev.city.toLowerCase();
   }
 
   function followedIds() {
@@ -66,15 +73,28 @@ export function createSportsUI(ctx) {
   }
 
   function switchTab(tab) {
-    const sports = tab === 'sports';
-    els.tabClocks?.classList.toggle('active', !sports);
-    els.tabSports?.classList.toggle('active', sports);
-    if (els.panelClocks) els.panelClocks.hidden = sports;
-    if (els.panelSports) els.panelSports.hidden = !sports;
+    const map = [
+      ['clocks', els.tabClocks, els.panelClocks],
+      ['sports', els.tabSports, els.panelSports],
+      ['convert', els.tabConvert, els.panelConvert],
+    ];
+    for (const [name, btn, panel] of map) {
+      btn?.classList.toggle('active', name === tab);
+      if (panel) panel.hidden = name !== tab;
+    }
   }
 
   els.tabClocks?.addEventListener('click', () => switchTab('clocks'));
   els.tabSports?.addEventListener('click', () => switchTab('sports'));
+  els.tabConvert?.addEventListener('click', () => switchTab('convert'));
+
+  function showBrowse() {
+    activeSeriesId = null;
+    activeEventId = null;
+    if (els.browse) els.browse.hidden = false;
+    if (els.detail) els.detail.hidden = true;
+    if (els.eventPanel) els.eventPanel.hidden = true;
+  }
 
   function renderChips() {
     if (!els.chips) return;
@@ -156,6 +176,7 @@ export function createSportsUI(ctx) {
     const series = getSeriesById(id);
     if (!series) return;
     renderSeriesList(els.search?.value || '', els.chips?.querySelector('.chip-btn.active')?.dataset.cat || '');
+    if (els.browse) els.browse.hidden = true;
     if (els.detail) els.detail.hidden = false;
     if (els.eventPanel) els.eventPanel.hidden = true;
     if (els.detailTitle) els.detailTitle.textContent = series.name;
@@ -175,7 +196,7 @@ export function createSportsUI(ctx) {
               <span class="se-cd ${status}">${escapeHtml(cd)}</span>
             </div>
             <div class="se-name">${escapeHtml(ev.name)}</div>
-            <div class="se-venue">${escapeHtml(ev.city)} · ${escapeHtml(ev.tz.split('/').pop().replace(/_/g, ' '))}</div>
+            <div class="se-venue">${escapeHtml(sameCityTz(ev) ? ev.city : `${ev.city} · ${ev.tz.split('/').pop().replace(/_/g, ' ')}`)}</div>
             <div class="se-times">
               <span>Your time: <strong>${escapeHtml(head?.localTime || '—')}</strong></span>
               <span>Venue: <strong>${escapeHtml(head?.venueTime || '—')}</strong></span>
@@ -382,15 +403,14 @@ export function createSportsUI(ctx) {
   }
 
   els.search?.addEventListener('input', () => {
+    // Typing returns you to browse mode
+    if (activeSeriesId) showBrowse();
     const cat = els.chips?.querySelector('.chip-btn.active')?.dataset.cat || '';
     renderSeriesList(els.search.value, cat);
   });
 
   els.clear?.addEventListener('click', () => {
-    activeSeriesId = null;
-    activeEventId = null;
-    if (els.detail) els.detail.hidden = true;
-    if (els.eventPanel) els.eventPanel.hidden = true;
+    showBrowse();
     ctx.getGlobe?.()?.clearEventMarkers?.();
     renderSeriesList(els.search?.value || '');
   });
@@ -406,7 +426,7 @@ export function createSportsUI(ctx) {
     } else {
       ctx.setBridge?.({ dateStr: primary.date, timeStr: primary.time, fromTz: ev.tz });
     }
-    switchTab('clocks');
+    switchTab('convert');
   });
 
   els.exportIcs?.addEventListener('click', downloadIcs);
@@ -440,10 +460,7 @@ export function createSportsUI(ctx) {
         if (els.eventPanel) els.eventPanel.hidden = true;
       }
     } else {
-      activeSeriesId = null;
-      activeEventId = null;
-      if (els.detail) els.detail.hidden = true;
-      if (els.eventPanel) els.eventPanel.hidden = true;
+      showBrowse();
     }
   });
 

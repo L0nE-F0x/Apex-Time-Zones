@@ -1154,3 +1154,66 @@ body.reduced-motion * {
 .bridge-value {
   font-variant-numeric: tabular-nums;
 }
+
+/* ——— v2.1 ease-of-use pass ——— */
+
+/* Up Next lives at the top of the stage; hover card owns the bottom */
+.up-next-rail {
+  top: 14px;
+  bottom: auto;
+  max-width: min(58%, 720px);
+}
+
+/* Slimmer sun chip */
+.sun-panel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+/* Inline pin-color legend under the clock list */
+.legend-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--text-mute);
+}
+.legend-inline span { display: inline-flex; align-items: center; gap: 4px; }
+.legend-inline .pin { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* Sports drill-down header: back link + title inline */
+#sportsDetail .section-head {
+  justify-content: flex-start;
+  gap: 10px;
+}
+#sportsDetail .section-head h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Welcome tour */
+.tour-step p { margin: 8px 0; line-height: 1.5; color: var(--text-dim); }
+.tour-step p strong { color: var(--text); }
+.tour-step .gold { color: var(--gold); }
+.tour-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  gap: 12px;
+}
+.tour-dots { display: flex; gap: 6px; }
+.tour-dots .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-mute);
+  opacity: 0.45;
+}
+.tour-dots .dot.active { background: var(--cyan); opacity: 1; }

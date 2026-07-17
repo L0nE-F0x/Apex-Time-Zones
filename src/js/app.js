@@ -332,10 +332,13 @@ function tickHeader(now) {
     els.localTime.textContent = formatTime(now, localTz, { withSeconds: true, hour12: hour12() });
   }
   if (els.localZone) {
+    // Only show the home city's name when it actually matches the machine's
+    // timezone — "New York · Asia/Makassar" helps nobody.
     const home = settings.homeCityId ? getCityById(settings.homeCityId) : null;
-    els.localZone.textContent = home
-      ? `${home.name} · ${localTz.replace(/_/g, ' ')}`
-      : localTz.replace(/_/g, ' ');
+    els.localZone.textContent =
+      home && home.tz === localTz
+        ? `${home.name} · ${localTz.replace(/_/g, ' ')}`
+        : localTz.replace(/_/g, ' ');
   }
   if (els.utcNow) {
     const utc = formatTime(now, 'UTC', { withSeconds: true, hour12: hour12() });
@@ -690,6 +693,10 @@ function wireUpdates() {
   });
 }
 
+function wireHelp() {
+  document.getElementById('btnHelp')?.addEventListener('click', () => startTour());
+}
+
 function wireApexForge() {
   const open = () => {
     if (apex?.openApexForge) apex.openApexForge();
@@ -841,38 +848,70 @@ function setWidgetMode(on) {
   });
 }
 
-// ——— Onboarding ———
+// ——— Welcome tour ———
+function startTour() {
+  if (!els.onboarding) return;
+  const firstRun = !settings.onboardingDone;
+  const steps = [...els.onboarding.querySelectorAll('.tour-step')];
+  const dots = document.getElementById('tourDots');
+  const next = document.getElementById('onboardNext');
+  const back = document.getElementById('onboardBack');
+  const skip = document.getElementById('onboardSkip');
+  const home = document.getElementById('onboardHome');
+  let idx = 0;
+
+  if (home && !home.dataset.filled) {
+    home.innerHTML = CITIES.map(
+      (c) => `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.region)})</option>`
+    ).join('');
+    home.dataset.filled = '1';
+  }
+  if (home && settings.homeCityId) home.value = settings.homeCityId;
+
+  const render = () => {
+    steps.forEach((s, i) => (s.hidden = i !== idx));
+    if (dots) {
+      dots.innerHTML = steps
+        .map((_, i) => `<span class="dot ${i === idx ? 'active' : ''}"></span>`)
+        .join('');
+    }
+    if (back) back.hidden = idx === 0;
+    if (next) next.textContent = idx === steps.length - 1 ? "Let's go" : 'Next';
+  };
+
+  const finish = (applySelections) => {
+    // City/pin choices only apply on the first run — replaying the tour
+    // must never clobber an existing setup.
+    if (applySelections && firstRun) {
+      const homeId = home?.value || null;
+      const picks = [...document.querySelectorAll('#onboardPins input:checked')].map((i) => i.value);
+      if (homeId) settings = updateSettings({ homeCityId: homeId });
+      if (picks.length) {
+        pinnedIds = picks.filter((id) => getCityById(id));
+        persistPins();
+      }
+      globe?.setHomeCity(settings.homeCityId);
+      populateHomeSelect();
+      updateClockTimes(new Date());
+    }
+    settings = updateSettings({ onboardingDone: true });
+    els.onboarding.hidden = true;
+  };
+
+  if (next) next.onclick = () => (idx < steps.length - 1 ? (idx++, render()) : finish(true));
+  if (back) back.onclick = () => ((idx = Math.max(0, idx - 1)), render());
+  if (skip) skip.onclick = () => finish(false);
+
+  els.onboarding.hidden = false;
+  render();
+}
+
 function maybeOnboard() {
   if (settings.onboardingDone || isWidgetQuery) {
     els.onboarding && (els.onboarding.hidden = true);
     return;
   }
-  if (!els.onboarding) return;
-  els.onboarding.hidden = false;
-  const home = document.getElementById('onboardHome');
-  if (home) {
-    home.innerHTML = CITIES.map(
-      (c) => `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.region)})</option>`
-    ).join('');
-  }
-  document.getElementById('onboardFinish')?.addEventListener('click', () => {
-    const homeId = home?.value || null;
-    const picks = [...document.querySelectorAll('#onboardPins input:checked')].map((i) => i.value);
-    if (homeId) settings = updateSettings({ homeCityId: homeId });
-    if (picks.length) {
-      pinnedIds = picks.filter((id) => getCityById(id));
-      persistPins();
-    }
-    settings = updateSettings({ onboardingDone: true });
-    els.onboarding.hidden = true;
-    globe?.setHomeCity(settings.homeCityId);
-    populateHomeSelect();
-    updateClockTimes(new Date());
-  });
-  document.getElementById('onboardSkip')?.addEventListener('click', () => {
-    settings = updateSettings({ onboardingDone: true });
-    els.onboarding.hidden = true;
-  });
+  startTour();
 }
 
 // ——— Tray sync ———
@@ -930,6 +969,7 @@ async function boot() {
   wireSettings();
   wireUpdates();
   wireApexForge();
+  wireHelp();
   sportsUi = createSportsUI({
     hour12,
     getGlobe: () => globe,
