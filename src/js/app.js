@@ -26,6 +26,7 @@ import {
   importPinsPayload,
   DEFAULT_SETTINGS,
 } from './settings.js';
+import { createSportsUI } from './sports/ui.js';
 
 const apex = window.apex;
 const isWidgetQuery = new URLSearchParams(location.search).get('widget') === '1';
@@ -38,6 +39,8 @@ let hoverCity = null;
 let globe = null;
 let searchActiveIndex = -1;
 let widgetMode = settings.widgetMode || isWidgetQuery;
+let sportsUi = null;
+let pendingGlobeHandlers = null;
 
 const els = {
   localTime: document.getElementById('localTime'),
@@ -822,7 +825,7 @@ function tick() {
   updateClockTimes(now);
   updateHoverCard(now);
   globe?.updateClocks(now);
-  // bridge table times don't need every second — light refresh
+  sportsUi?.tick?.();
   syncTrayTimes();
 }
 
@@ -840,6 +843,19 @@ async function boot() {
   wireSettings();
   wireUpdates();
   wireApexForge();
+  sportsUi = createSportsUI({
+    hour12,
+    getGlobe: () => globe,
+    setBridge: ({ dateStr, timeStr, fromTz }) => {
+      if (els.eventDate && dateStr) els.eventDate.value = dateStr;
+      if (els.eventTime && timeStr) els.eventTime.value = timeStr;
+      if (els.eventZone && fromTz) els.eventZone.value = fromTz;
+      updateBridge();
+    },
+    registerGlobeHandlers: (h) => {
+      pendingGlobeHandlers = h;
+    },
+  });
   maybeOnboard();
   scheduleRemindersToMain();
   updateClockTimes(new Date());
@@ -908,6 +924,14 @@ async function boot() {
         selectedId = id;
         updateClockTimes(new Date());
         updatePinButton();
+      },
+      onEventClick: (ev) => pendingGlobeHandlers?.onEventClick?.(ev),
+      onEventHover: (ev) => {
+        if (!ev || !els.hoverCard) return;
+        els.hoverCity.textContent = ev.name;
+        els.hoverTime.textContent = 'Sports event';
+        els.hoverMeta.textContent = `${ev.city || ''} · click for schedule`;
+        els.hoverCard.hidden = false;
       },
     });
     globe.setPinned(pinnedIds);

@@ -68,6 +68,12 @@
       </section>
 
       <aside class="sidepanel">
+        <div class="panel-tabs" role="tablist">
+          <button type="button" class="panel-tab active" data-tab="clocks" id="tabClocks">Clocks</button>
+          <button type="button" class="panel-tab" data-tab="sports" id="tabSports">Sports</button>
+        </div>
+
+        <div class="tab-panel" id="panelClocks">
         <div class="panel-section">
           <label class="field-label" for="searchInput">Find city / timezone</label>
           <div class="search-wrap">
@@ -143,6 +149,37 @@
           <div class="legend-row"><span class="pin pin-selected"></span> Selected / focus</div>
           <div class="legend-row"><span class="pin pin-local"></span> Home / local</div>
           <div class="legend-row"><span class="pin pin-pinned"></span> Pinned clock</div>
+        </div>
+        </div><!-- /panelClocks -->
+
+        <div class="tab-panel" id="panelSports" hidden>
+          <div class="panel-section">
+            <label class="field-label" for="sportsSearch">Sports &amp; esports</label>
+            <div class="search-wrap">
+              <input type="search" id="sportsSearch" class="search-input" placeholder="Formula 1, World Cup, MTG, tennis…" autocomplete="off" spellcheck="false" />
+            </div>
+            <div class="sports-chips" id="sportsChips"></div>
+            <div class="sports-series-list" id="sportsSeriesList"></div>
+          </div>
+          <div class="panel-section" id="sportsDetail" hidden>
+            <div class="section-head">
+              <h2 id="sportsDetailTitle">Season</h2>
+              <button type="button" class="ghost-btn" id="btnClearSports">Clear map</button>
+            </div>
+            <p class="sports-desc" id="sportsDetailDesc"></p>
+            <div class="sports-events" id="sportsEventsList"></div>
+          </div>
+          <div class="panel-section" id="sportsEventPanel" hidden>
+            <div class="section-head">
+              <h2 id="sportsEventTitle">Event</h2>
+            </div>
+            <div class="sports-countdown" id="sportsCountdown">—</div>
+            <div class="sports-tunein" id="sportsTuneIn"></div>
+            <div class="sports-schedule" id="sportsSchedule"></div>
+            <div class="row-actions">
+              <button type="button" class="ghost-btn" id="btnSportsToBridge">Send main session to Time Bridge</button>
+            </div>
+          </div>
         </div>
 
         <footer class="panel-footer">

@@ -7,6 +7,7 @@ This is the **project method** for every feature batch from now on.
 1. **Ship end-to-end:** app → portable EXE → marketing site download → `latest.json` feed → git push → Netlify auto-deploy → in-app update notice.
 2. **Users should not need Chrome** to get updates: the installed/portable app checks the feed and can download + relaunch.
 3. **Branding:** always show **Built by Apex Forge** → https://ame-apexforge.org/ in the app footer and marketing site footer.
+4. **Sports data:** season calendars live in `src/js/sports/catalog.js` — update schedules when rolling seasons; keep venue `tz` + wall-clock sessions accurate for dual-zone tune-in.
 
 ## Channels
 

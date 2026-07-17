@@ -97,6 +97,67 @@ export class ApexGlobe {
     this._refreshPinStyles();
   }
 
+  /**
+   * Map sports events as diamond markers. events: [{ id, lat, lng, name, highlight? }]
+   */
+  setEventMarkers(events = []) {
+    if (!this.earthGroup) return;
+    if (this.eventGroup) {
+      this.earthGroup.remove(this.eventGroup);
+      this.eventGroup.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          if (Array.isArray(o.material)) o.material.forEach((m) => m.dispose());
+          else o.material.dispose();
+        }
+      });
+    }
+    this.eventMarkers = new Map();
+    this.eventGroup = new THREE.Group();
+    this.earthGroup.add(this.eventGroup);
+
+    for (const ev of events) {
+      if (typeof ev.lat !== 'number' || typeof ev.lng !== 'number') continue;
+      const pos = latLngToVector3(ev.lat, ev.lng, PIN_RADIUS * 1.02);
+      const color = ev.highlight ? 0xff6bcb : 0xffd166;
+      const glow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.038, 12, 12),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45, depthWrite: false })
+      );
+      const core = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.022, 0),
+        new THREE.MeshBasicMaterial({ color })
+      );
+      const g = new THREE.Group();
+      g.add(glow, core);
+      g.position.set(pos.x, pos.y, pos.z);
+      g.lookAt(0, 0, 0);
+      g.userData = { event: ev, core, glow };
+      const hit = new THREE.Mesh(
+        new THREE.SphereGeometry(0.06, 8, 8),
+        new THREE.MeshBasicMaterial({ visible: false })
+      );
+      g.add(hit);
+      g.userData.hit = hit;
+      this.eventGroup.add(g);
+      this.eventMarkers.set(ev.id, g);
+
+      if (!this.labels.has('ev:' + ev.id) && this._labelLayer) {
+        const el = document.createElement('div');
+        el.className = 'globe-label event-label';
+        el.textContent = ev.name || 'Event';
+        el.style.display = 'none';
+        this._labelLayer.appendChild(el);
+        this.labels.set('ev:' + ev.id, el);
+      }
+    }
+    this._updateLabelsVisibility();
+  }
+
+  clearEventMarkers() {
+    this.setEventMarkers([]);
+  }
+
   selectCity(id, fly = true) {
     this.selectedId = id;
     this._refreshPinStyles();
@@ -512,7 +573,6 @@ export class ApexGlobe {
         el.style.display = 'none';
         continue;
       }
-      // Facing camera?
       tmp.copy(pin.position).normalize();
       const camDir = this.camera.position.clone().normalize();
       if (tmp.dot(camDir) < 0.15) {
@@ -525,6 +585,32 @@ export class ApexGlobe {
       el.style.display = 'block';
       el.style.transform = `translate(-50%, -120%) translate(${x}px, ${y}px)`;
       el.classList.toggle('active', id === this.selectedId);
+    }
+    // Sports event labels
+    if (this.eventMarkers) {
+      for (const [eid, marker] of this.eventMarkers) {
+        const el = this.labels.get('ev:' + eid);
+        if (!el) continue;
+        const show =
+          this._hoverEventId === eid ||
+          marker.userData.event?.highlight ||
+          zoomed;
+        if (!show) {
+          el.style.display = 'none';
+          continue;
+        }
+        tmp.copy(marker.position).normalize();
+        const camDir = this.camera.position.clone().normalize();
+        if (tmp.dot(camDir) < 0.12) {
+          el.style.display = 'none';
+          continue;
+        }
+        tmp.copy(marker.position).project(this.camera);
+        const x = (tmp.x * 0.5 + 0.5) * this._labelLayer.clientWidth;
+        const y = (-tmp.y * 0.5 + 0.5) * this._labelLayer.clientHeight;
+        el.style.display = 'block';
+        el.style.transform = `translate(-50%, -130%) translate(${x}px, ${y}px)`;
+      }
     }
   }
 
@@ -602,17 +688,41 @@ export class ApexGlobe {
     this.pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     this.raycaster.setFromCamera(this.pointer, this.camera);
 
+    // Event markers first (sports mode)
+    if (this.eventMarkers && this.eventMarkers.size) {
+      const evHits = [];
+      for (const marker of this.eventMarkers.values()) {
+        const intersects = this.raycaster.intersectObject(marker.userData.hit, false);
+        if (intersects.length) {
+          evHits.push({ marker, dist: intersects[0].distance });
+        }
+      }
+      evHits.sort((a, b) => a.dist - b.dist);
+      if (evHits.length) {
+        const ev = evHits[0].marker.userData.event;
+        this.canvas.style.cursor = 'pointer';
+        if (this._hoverEventId !== ev.id) {
+          this._hoverEventId = ev.id;
+          this.callbacks.onEventHover?.(ev);
+        }
+        if (isClick) {
+          this.flyTo(ev.lat, ev.lng);
+          this.callbacks.onEventClick?.(ev);
+        }
+        return;
+      }
+      this._hoverEventId = null;
+    }
+
     const hits = [];
     for (const pin of this.pins.values()) {
       const intersects = this.raycaster.intersectObject(pin.userData.hit, false);
       if (intersects.length) {
-        // Prefer closer pins and those facing camera
         const facing = pin.position.clone().normalize().dot(this.camera.position.clone().normalize());
         hits.push({ pin, dist: intersects[0].distance, facing });
       }
     }
     hits.sort((a, b) => {
-      // Prefer facing pins, then distance
       if (a.facing > 0.2 && b.facing <= 0.2) return -1;
       if (b.facing > 0.2 && a.facing <= 0.2) return 1;
       return a.dist - b.dist;
@@ -627,7 +737,6 @@ export class ApexGlobe {
         this._updateLabelsVisibility();
       }
       if (isClick) {
-        // Select only — do NOT auto-pin
         this.selectCity(city.id, true);
         this.callbacks.onPinClick?.(city);
       }
