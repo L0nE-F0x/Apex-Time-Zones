@@ -3,259 +3,185 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ApexTimeZones — Global System Dashboard</title>
-  <meta name="description" content="Global sports time telemetry. F1, World Cup, tennis, esports on a 3D globe. Dual-zone schedules for Windows." />
+  <title>ApexTimeZones — Global sports time, on a living Earth</title>
+  <meta name="description" content="Map F1, World Cup, tennis & esports on a 3D globe. Countdowns, full weekend schedules, and exact tune-in times in your timezone." />
   <meta property="og:title" content="ApexTimeZones" />
-  <meta property="og:description" content="Global liquidity of time — venue vs local, mapped to Earth." />
+  <meta property="og:description" content="Never miss a lights-out, kickoff, or finals block again." />
   <meta property="og:image" content="assets/icon.png" />
   <link rel="icon" href="assets/icon.png" type="image/png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <canvas id="fx-bg" aria-hidden="true"></canvas>
-  <div class="vignette" aria-hidden="true"></div>
-
-  <!-- Top security strip -->
-  <div class="sec-bar">
-    <div class="wrap sec-inner">
-      <span class="node-tag"><i></i> NODE_01</span>
-      <span class="sec-item">SYSTEM SECURE</span>
-      <span class="sec-dot">·</span>
-      <span class="sec-item muted">INGEST PROTOCOL ALPHA</span>
-      <span class="sec-dot">·</span>
-      <span class="sec-item muted">ROUTING SYNC</span>
-      <span class="sec-right">PRIMARY_KEY ···· ···· ···· 8942</span>
-    </div>
-  </div>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <div class="noise" aria-hidden="true"></div>
 
   <header class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="#">
-        <img src="assets/icon.png" width="28" height="28" alt="" />
-        <span>
-          <strong>ApexTimeZones</strong>
-          <em>GLOBAL SYSTEM / ORBIT</em>
-        </span>
-      </a>
-      <nav class="links">
-        <a href="#liquidity">Liquidity</a>
-        <a href="#nodes">Nodes</a>
-        <a href="#compute">Compute</a>
-        <a href="#download">Deploy</a>
-      </nav>
-      <a class="btn btn-primary" href="downloads/ApexTimeZones-Portable.exe" download>Initialize</a>
-    </div>
+    <a class="brand" href="#">
+      <img src="assets/icon.png" width="32" height="32" alt="" />
+      <span>APEX<span class="accent">TIME</span>ZONES</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#sports">Sports</a>
+      <a href="#features">Features</a>
+      <a href="#demo">Live demo</a>
+      <a href="#download">Download</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="downloads/ApexTimeZones-Portable.exe" download>Download free</a>
   </header>
 
   <main>
-    <!-- First viewport: global liquidity + focal dashboard -->
-    <section class="hero" id="liquidity">
-      <div class="wrap">
-        <div class="hero-top reveal">
-          <p class="label">Compute allocation · Sector 04</p>
-          <h1 class="display">Global Liquidity</h1>
-          <p class="lede">
-            Available bandwidth across all active time nodes.
-            Sports calendars, city pins, and dual-zone schedules rendered in one secure desktop field.
-          </p>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="pill-row">
+          <span class="pill">WINDOWS DESKTOP</span>
+          <span class="pill pulse">F1 · WORLD CUP · ESPORTS</span>
         </div>
-
-        <div class="dash-board reveal" data-d="1">
-          <!-- Big metric -->
-          <article class="tile tile-hero">
-            <div class="tile-head">
-              <span class="label">Global liquidity</span>
-              <span class="delta up">+2.4%</span>
-            </div>
-            <div class="big-metric" id="liquidityVal">$0</div>
-            <p class="tile-note">Active timezone nodes online · matrix nominal</p>
-            <canvas class="tile-chart" id="liqChart" height="64"></canvas>
-          </article>
-
-          <article class="tile">
-            <div class="tile-head">
-              <span class="label">Yield retention</span>
-              <div class="seg">
-                <button type="button" class="seg-btn active" data-range="1H">1H</button>
-                <button type="button" class="seg-btn" data-range="24H">24H</button>
-                <button type="button" class="seg-btn" data-range="7D">7D</button>
-                <button type="button" class="seg-btn" data-range="30D">30D</button>
-              </div>
-            </div>
-            <div class="big-metric sm" id="yieldVal">$0</div>
-            <canvas class="tile-chart" id="yieldChart" height="72"></canvas>
-          </article>
-
-          <article class="tile tile-key">
-            <span class="label">Primary key</span>
-            <div class="key-row">**** **** **** <b>8942</b></div>
-            <p class="tile-note">Initialize parameters · encrypted uplink</p>
-            <a class="btn btn-ghost btn-block" href="downloads/ApexTimeZones-Portable.exe" download>Initialize parameters</a>
-          </article>
-
-          <article class="tile tile-network">
-            <div class="tile-head">
-              <span class="label">Network node</span>
-              <span class="chip">.04 +</span>
-            </div>
-            <div class="orbit-mini" id="orbitMini">
-              <div class="sphere">
-                <span class="n n1"></span>
-                <span class="n n2"></span>
-                <span class="n n3"></span>
-              </div>
-            </div>
-            <div class="net-stats">
-              <div><span class="label">Next</span><strong id="hudTitle">British GP</strong></div>
-              <div><span class="label">Countdown</span><strong class="text-primary" id="hudCount">—</strong></div>
-              <div><span class="label">Venue</span><strong id="hudVenue">—</strong></div>
-              <div><span class="label">You</span><strong class="text-accent" id="hudLocal">—</strong></div>
-            </div>
-          </article>
+        <h1>
+          The world’s schedule,<br />
+          <span class="gradient">mapped to your clock.</span>
+        </h1>
+        <p class="lede">
+          ApexTimeZones is a system-tray command center for sports and global time.
+          Pull up Formula 1, football, tennis, or Magic: The Gathering — pin every venue on a living 3D Earth,
+          get race-weekend countdowns, and know exactly when to tune in from <em>your</em> timezone.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="downloads/ApexTimeZones-Portable.exe" download>
+            Download for Windows
+            <span class="btn-sub">Portable · ~80 MB · Auto-updates</span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="#demo">See the demo</a>
+        </div>
+        <div class="stat-row">
+          <div><strong>24</strong><span>F1 grands prix</span></div>
+          <div><strong>6</strong><span>sport series packs</span></div>
+          <div><strong>100+</strong><span>major cities</span></div>
         </div>
       </div>
-    </section>
-
-    <!-- Nodes / sports -->
-    <section class="section" id="nodes">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <p class="label">Active nodes</p>
-          <h2 class="display-md">Ingest protocol — sports matrix</h2>
-        </div>
-
-        <div class="node-grid">
-          <article class="tile node reveal" data-d="0">
-            <div class="node-id">NODE_F1</div>
-            <h3>Formula 1</h3>
-            <p>24-circuit season map. Full weekend telemetry: practice, quali, sprint, race.</p>
-            <div class="bar"><span style="width:92%"></span></div>
-            <span class="label">Allocation 92%</span>
-          </article>
-          <article class="tile node reveal" data-d="1">
-            <div class="node-id">NODE_WC</div>
-            <h3>World Cup 2026</h3>
-            <p>USA · Canada · Mexico venues. Kickoff routing with local tune-in.</p>
-            <div class="bar"><span style="width:78%"></span></div>
-            <span class="label">Allocation 78%</span>
-          </article>
-          <article class="tile node reveal" data-d="2">
-            <div class="node-id">NODE_TN</div>
-            <h3>Grand Slams</h3>
-            <p>AO · RG · Wimbledon · US Open session windows.</p>
-            <div class="bar"><span style="width:64%"></span></div>
-            <span class="label">Allocation 64%</span>
-          </article>
-          <article class="tile node reveal" data-d="3">
-            <div class="node-id">NODE_ES</div>
-            <h3>MTG · LoL · CS</h3>
-            <p>Pro Tours, Worlds, majors — same dual-zone compute path.</p>
-            <div class="bar"><span style="width:71%"></span></div>
-            <span class="label">Allocation 71%</span>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Compute / system -->
-    <section class="section" id="compute">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <p class="label">Compute allocation</p>
-          <h2 class="display-md">Routing sync · desktop field</h2>
-        </div>
-
-        <div class="compute-grid">
-          <div class="tile terminal reveal">
-            <div class="tile-head">
-              <span class="label">Console / alpha</span>
-              <span class="chip chip-ok">Nominal</span>
-            </div>
-            <pre class="term"><code><span class="c-dim">// global system</span>
-<span class="c-muted">&gt;</span> uplink <span class="c-blue">apextimezones.netlify.app</span>
-<span class="c-ok">✓</span> feed secure · latest.json
-<span class="c-muted">&gt;</span> track <span class="c-blue">"Formula 1"</span>
-<span class="c-ok">✓</span> 24 nodes mapped to globe
-<span class="c-muted">&gt;</span> next
-<span class="c-ok" id="termNext">…</span>
-<span class="c-muted">&gt;</span> pin city <span class="c-blue">Denpasar</span>
-<span class="c-ok">✓</span> Asia/Makassar · online</code></pre>
+      <div class="hero-stage">
+        <div class="orb-shell">
+          <div class="orb-glow"></div>
+          <div class="orb" id="heroOrb">
+            <div class="orb-grid"></div>
+            <div class="orb-shine"></div>
+            <button type="button" class="hotspot hs1" data-label="Silverstone · British GP" style="--x:62%;--y:32%"></button>
+            <button type="button" class="hotspot hs2" data-label="Suzuka · Japanese GP" style="--x:78%;--y:42%"></button>
+            <button type="button" class="hotspot hs3" data-label="MetLife · WC Final" style="--x:28%;--y:38%"></button>
+            <button type="button" class="hotspot hs4" data-label="Denpasar · Bali" style="--x:72%;--y:58%"></button>
           </div>
-
-          <div class="compute-side">
-            <article class="tile reveal" data-d="1">
-              <span class="label">System capabilities</span>
-              <ul class="list">
-                <li>3D Earth · solar terminator · sports markers</li>
-                <li>Countdowns + full weekend tables</li>
-                <li>Time Bridge multi-city convert</li>
-                <li>Tray · Ctrl+Alt+T · mini widget</li>
-                <li>In-app updates from this host</li>
-                <li>120+ cities (incl. Denpasar / Bali)</li>
-              </ul>
-            </article>
-            <article class="tile reveal" data-d="2">
-              <div class="tile-head">
-                <span class="label">Bandwidth sample</span>
-                <span class="label" id="clockNow">—</span>
-              </div>
-              <canvas id="bandChart" height="100"></canvas>
-            </article>
+          <div class="hud-card hud-a" id="hudCard">
+            <span class="hud-kicker">NEXT UP</span>
+            <strong id="hudTitle">British Grand Prix</strong>
+            <div class="hud-count" id="hudCount">—</div>
+            <div class="hud-times">
+              <span>Venue <b id="hudVenue">—</b></span>
+              <span>You <b id="hudLocal">—</b></span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Deploy -->
-    <section class="section" id="download">
-      <div class="wrap">
-        <div class="tile deploy reveal">
-          <div class="deploy-grid">
-            <div>
-              <p class="label">Deploy artifact</p>
-              <h2 class="display-md">Download ApexTimeZones</h2>
-              <p class="lede tight">
-                Portable Windows binary. No installer. System tray resident.
-                Update channel locked to this dashboard host.
-              </p>
-              <a class="btn btn-primary btn-lg" href="downloads/ApexTimeZones-Portable.exe" download>
-                Download portable EXE
-              </a>
-              <p class="fine">
-                v1.3.0 · ~80 MB · Win 10/11 x64<br />
-                SmartScreen may appear once — <em>More info → Run anyway</em>.
-              </p>
-            </div>
-            <div class="deploy-keys">
-              <div class="kv"><span class="label">Host</span><span>apextimezones.netlify.app</span></div>
-              <div class="kv"><span class="label">Feed</span><span><a href="updates/latest.json">/updates/latest.json</a></span></div>
-              <div class="kv"><span class="label">Source</span><span><a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">GitHub</a></span></div>
-              <div class="kv"><span class="label">Studio</span><span><a href="https://ame-apexforge.org/" target="_blank" rel="noopener">Apex Forge</a></span></div>
+    <section class="sports-band" id="sports">
+      <div class="section-head">
+        <p class="eyebrow">SPORTS MODE</p>
+        <h2>Search a series. Own the weekend.</h2>
+        <p>Type “Formula 1”, “World Cup”, “Wimbledon”, or “Magic” — the season maps onto the globe with full schedules.</p>
+      </div>
+      <div class="sport-cards">
+        <article class="sport-card" data-sport="f1">
+          <div class="sc-icon">🏎️</div>
+          <h3>Formula 1</h3>
+          <p>Every GP on the map. FP, quali, sprint & race with dual-zone times and live countdowns.</p>
+          <span class="sc-tag">24 rounds · 2026</span>
+        </article>
+        <article class="sport-card" data-sport="wc">
+          <div class="sc-icon">⚽</div>
+          <h3>FIFA World Cup</h3>
+          <p>USA / Canada / Mexico venues — kickoff at the stadium and your exact tune-in time.</p>
+          <span class="sc-tag">2026 tournament</span>
+        </article>
+        <article class="sport-card" data-sport="tennis">
+          <div class="sc-icon">🎾</div>
+          <h3>Grand Slams</h3>
+          <p>AO, Roland-Garros, Wimbledon, US Open session blocks with day/night start times.</p>
+          <span class="sc-tag">Majors 2026</span>
+        </article>
+        <article class="sport-card" data-sport="mtg">
+          <div class="sc-icon">🃏</div>
+          <h3>MTG & Esports</h3>
+          <p>Pro Tours, Worlds, LoL international windows, CS majors — same dual-time toolkit.</p>
+          <span class="sc-tag">TCG · LoL · CS</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="feature-split">
+        <div>
+          <p class="eyebrow">WHY APEX</p>
+          <h2>Built for people who live on world clocks.</h2>
+          <ul class="checklist">
+            <li>3D Earth with solar day/night and sports event markers</li>
+            <li>Countdown + full session tables (venue vs you)</li>
+            <li>Time Bridge for any one-off stream or kickoff</li>
+            <li>100+ cities including Denpasar (Bali) and F1 circuits</li>
+            <li>System tray, hotkey, mini widget, in-app updates</li>
+            <li>Free portable Windows app — no install required</li>
+          </ul>
+        </div>
+        <div class="feature-visual" id="demo">
+          <div class="terminal">
+            <div class="term-bar"><span></span><span></span><span></span></div>
+            <div class="term-body">
+              <p class="term-line"><span class="t-muted">// sports search</span></p>
+              <p class="term-line">> track <span class="t-cyan">"Formula 1 Grand Prix"</span></p>
+              <p class="term-line t-ok">✓ mapped 24 circuits to globe</p>
+              <p class="term-line">> next session</p>
+              <p class="term-line"><span class="t-gold" id="termNext">British GP · Race · countdown…</span></p>
+              <p class="term-line">> tune-in --local</p>
+              <p class="term-line"><span class="t-mint" id="termLocal">your time loading…</span></p>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="download" id="download">
+      <div class="download-card">
+        <div class="dl-glow"></div>
+        <img src="assets/icon.png" width="72" height="72" alt="ApexTimeZones" class="dl-icon" />
+        <h2>Download ApexTimeZones</h2>
+        <p>Portable Windows build with sports mode, globe mapping, and auto-updates from this site.</p>
+        <a class="btn btn-primary btn-xl" href="downloads/ApexTimeZones-Portable.exe" download>
+          Get ApexTimeZones-Portable.exe
+        </a>
+        <p class="dl-meta">
+          Version 1.3.0 · Windows 10/11 x64 · ~80 MB<br />
+          First launch may show SmartScreen (unsigned) — <em>More info → Run anyway</em>.
+        </p>
+        <div class="dl-links">
+          <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">Source on GitHub</a>
+          <a href="updates/latest.json" target="_blank" rel="noopener">Update feed</a>
         </div>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="wrap footer-inner">
-      <div>
-        <strong>ApexTimeZones</strong>
-        <p class="fine">Global system dashboard for sports &amp; world clocks</p>
-        <p class="built-by"><a href="https://ame-apexforge.org/" target="_blank" rel="noopener">Built by Apex Forge</a></p>
-      </div>
-      <div class="footer-links">
-        <a href="#nodes">Nodes</a>
-        <a href="#download">Deploy</a>
-        <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">Source</a>
-      </div>
+    <div>
+      <strong>ApexTimeZones</strong>
+      <span>Global schedules · sports · markets · streams</span>
+      <p class="built-by"><a href="https://ame-apexforge.org/" target="_blank" rel="noopener">Built by Apex Forge</a></p>
+    </div>
+    <div class="footer-links">
+      <a href="https://ame-apexforge.org/" target="_blank" rel="noopener">Apex Forge</a>
+      <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">GitHub</a>
+      <a href="downloads/ApexTimeZones-Portable.exe" download>Download</a>
     </div>
   </footer>
 
+  <div class="tooltip" id="tip" hidden></div>
   <script src="script.js"></script>
 </body>
 </html>
