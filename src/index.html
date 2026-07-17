@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:;" />
+  <title>ApexTimeZones</title>
+  <link rel="stylesheet" href="styles/app.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="titlebar" id="titlebar">
+      <div class="titlebar-brand">
+        <span class="brand-glyph" aria-hidden="true"></span>
+        <span class="brand-name">APEX<span class="brand-accent">TIME</span>ZONES</span>
+        <span class="brand-tag">ORBITAL CLOCK</span>
+      </div>
+      <div class="titlebar-center">
+        <div class="local-chip" id="localChip" title="Your local time">
+          <span class="chip-label">LOCAL</span>
+          <span class="chip-time" id="localTime">--:--:--</span>
+          <span class="chip-zone" id="localZone">—</span>
+        </div>
+      </div>
+      <div class="titlebar-controls">
+        <button class="win-btn" id="btnSettings" title="Settings" aria-label="Settings">⚙</button>
+        <button class="win-btn" id="btnMin" title="Minimize" aria-label="Minimize">─</button>
+        <button class="win-btn" id="btnMax" title="Maximize" aria-label="Maximize">□</button>
+        <button class="win-btn win-btn-tray" id="btnTray" title="Hide to system tray" aria-label="Hide to tray">↓</button>
+        <button class="win-btn win-btn-close" id="btnClose" title="Close to tray" aria-label="Close">✕</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="stage" id="stage">
+        <canvas id="globeCanvas"></canvas>
+
+        <div class="stage-hud top-left hide-in-widget">
+          <div class="hud-panel">
+            <div class="hud-title">NAVIGATION</div>
+            <div class="hud-hint">Drag rotate · Scroll zoom · Click pin to focus · Pin from panel</div>
+          </div>
+        </div>
+
+        <div class="stage-hud top-right hide-in-widget">
+          <div class="hud-panel sun-panel">
+            <div class="hud-title">SOLAR STATUS</div>
+            <div class="sun-row">
+              <span class="sun-dot"></span>
+              <span id="utcNow">UTC —</span>
+            </div>
+            <div class="sun-row subtle" id="dayNightLabel">Terminator + solar pin day/night</div>
+          </div>
+        </div>
+
+        <div class="stage-hud bottom-center" id="hoverCard" hidden>
+          <div class="hover-card">
+            <div class="hover-city" id="hoverCity">—</div>
+            <div class="hover-time" id="hoverTime">—</div>
+            <div class="hover-meta" id="hoverMeta">—</div>
+          </div>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="loader-ring"></div>
+          <div class="loader-text">ACQUIRING ORBITAL LINK…</div>
+        </div>
+      </section>
+
+      <aside class="sidepanel">
+        <div class="panel-section">
+          <label class="field-label" for="searchInput">Find city / timezone</label>
+          <div class="search-wrap">
+            <input type="search" id="searchInput" class="search-input" placeholder="Tokyo, EST, Europe/London…" autocomplete="off" spellcheck="false" />
+            <button class="search-clear" id="searchClear" title="Clear" hidden>✕</button>
+          </div>
+          <div class="search-results" id="searchResults" hidden></div>
+          <div class="row-actions">
+            <button type="button" class="ghost-btn" id="btnPinSelected" disabled>Pin selected</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-head">
+            <h2>Pinned Clocks</h2>
+            <button class="ghost-btn" id="btnResetPins" title="Reset to defaults">Reset</button>
+          </div>
+          <div class="groups-bar" id="groupsBar"></div>
+          <div class="clock-list" id="clockList"></div>
+          <div class="row-actions">
+            <button type="button" class="ghost-btn" id="btnExportPins">Export JSON</button>
+            <button type="button" class="ghost-btn" id="btnImportPins">Import JSON</button>
+            <input type="file" id="importFile" accept="application/json,.json" hidden />
+          </div>
+        </div>
+
+        <div class="panel-section converter">
+          <div class="section-head">
+            <h2>Time Bridge</h2>
+            <button type="button" class="ghost-btn" id="btnCopyBridge">Copy conversion</button>
+          </div>
+          <p class="converter-help">Convert an event time into your zone and all pinned cities.</p>
+          <div class="bridge-chips" id="bridgeChips"></div>
+          <div class="converter-grid">
+            <div>
+              <label class="field-label" for="eventTime">Event time</label>
+              <input type="time" id="eventTime" class="field-input" value="15:00" />
+            </div>
+            <div>
+              <label class="field-label" for="eventDate">Date</label>
+              <input type="date" id="eventDate" class="field-input" />
+            </div>
+          </div>
+          <label class="field-label" for="eventZone">Event timezone</label>
+          <select id="eventZone" class="field-input select"></select>
+          <div class="bridge-result" id="bridgeResult">
+            <span class="bridge-label">Your local time</span>
+            <span class="bridge-value" id="bridgeValue">—</span>
+            <span class="bridge-delta" id="bridgeDelta"></span>
+          </div>
+          <div class="bridge-table-wrap" id="bridgeTable"></div>
+
+          <div class="reminder-box">
+            <div class="section-head"><h2>Event reminder</h2></div>
+            <input type="text" id="reminderTitle" class="field-input" placeholder="Match / market / stream name" />
+            <div class="converter-grid" style="margin-top:8px">
+              <div>
+                <label class="field-label" for="reminderNotify">Notify minutes before</label>
+                <input type="number" id="reminderNotify" class="field-input" value="15" min="1" max="180" />
+              </div>
+              <div style="display:flex;align-items:flex-end">
+                <button type="button" class="ghost-btn" id="btnSaveReminder" style="width:100%;padding:9px">Save event</button>
+              </div>
+            </div>
+            <div id="reminderList" class="reminder-list"></div>
+          </div>
+        </div>
+
+        <div class="panel-section legend hide-in-widget">
+          <div class="section-head"><h2>Legend</h2></div>
+          <div class="legend-row"><span class="pin pin-day"></span> Daylight (solar)</div>
+          <div class="legend-row"><span class="pin pin-night"></span> Night (solar)</div>
+          <div class="legend-row"><span class="pin pin-selected"></span> Selected / focus</div>
+          <div class="legend-row"><span class="pin pin-local"></span> Home / local</div>
+          <div class="legend-row"><span class="pin pin-pinned"></span> Pinned clock</div>
+        </div>
+
+        <footer class="panel-footer">
+          <span id="appVersion">v—</span>
+          <span class="footer-dot">·</span>
+          <span>Tray · Hotkey Ctrl+Alt+T</span>
+        </footer>
+      </aside>
+    </main>
+
+    <!-- Settings overlay -->
+    <div id="settingsPanel" class="settings-panel" hidden>
+      <div class="settings-card">
+        <div class="section-head">
+          <h2>Settings</h2>
+          <button type="button" class="ghost-btn" id="btnCloseSettings">Close</button>
+        </div>
+        <label class="check-row"><input type="checkbox" id="setHour12" /> 12-hour clocks</label>
+        <label class="check-row"><input type="checkbox" id="setAlwaysOnTop" /> Always on top</label>
+        <label class="check-row"><input type="checkbox" id="setStartWindows" /> Start with Windows</label>
+        <label class="check-row"><input type="checkbox" id="setAutoRotate" /> Auto-rotate globe</label>
+        <label class="check-row"><input type="checkbox" id="setReducedMotion" /> Reduced motion</label>
+        <label class="check-row"><input type="checkbox" id="setShowGrid" /> Lat/lon grid</label>
+        <label class="check-row"><input type="checkbox" id="setShowBands" /> Timezone band overlay</label>
+        <label class="field-label" for="setQuality">Render quality</label>
+        <select id="setQuality" class="field-input select">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <label class="field-label" for="homeSelect">Home city</label>
+        <select id="homeSelect" class="field-input select"></select>
+        <div class="row-actions" style="margin-top:12px">
+          <button type="button" class="ghost-btn" id="btnToggleWidget">Toggle mini widget mode</button>
+        </div>
+        <p class="muted" style="margin-top:12px">
+          Global hotkey: Ctrl+Alt+T (Cmd+Alt+T). Code signing / auto-update not configured in this build — see README.
+        </p>
+      </div>
+    </div>
+
+    <!-- Onboarding -->
+    <div id="onboarding" class="onboarding" hidden>
+      <div class="onboarding-card">
+        <h2>Welcome to ApexTimeZones</h2>
+        <p>Set your home city and pin a few zones you track for sports, markets, and streams.</p>
+        <label class="field-label" for="onboardHome">Home city</label>
+        <select id="onboardHome" class="field-input select"></select>
+        <label class="field-label">Quick pins</label>
+        <div id="onboardPins" class="onboard-pins">
+          <label><input type="checkbox" value="nyc" checked /> New York</label>
+          <label><input type="checkbox" value="lon" checked /> London</label>
+          <label><input type="checkbox" value="tyo" checked /> Tokyo</label>
+          <label><input type="checkbox" value="syd" /> Sydney</label>
+          <label><input type="checkbox" value="dxb" /> Dubai</label>
+          <label><input type="checkbox" value="sgp" /> Singapore</label>
+        </div>
+        <div class="row-actions">
+          <button type="button" class="ghost-btn" id="onboardSkip">Skip</button>
+          <button type="button" class="primary-btn" id="onboardFinish">Start</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/chrome.js"></script>
+  <script src="js/app.bundle.js"></script>
+</body>
+</html>

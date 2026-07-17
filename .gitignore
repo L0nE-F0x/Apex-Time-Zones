@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+Thumbs.db
+out/
+*.map
+src/js/app.bundle.js.map
+.vscode/
+.idea/
+*.local
+
+# Keep marketing portable binary tracked under website/downloads/
+# (do not ignore website/downloads/*.exe)

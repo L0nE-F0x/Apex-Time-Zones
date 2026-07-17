@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexTimeZones — Orbital World Clock for Windows</title>
+  <meta name="description" content="Sleek system-tray world clock with a futuristic 3D Earth globe. Convert event times across cities for sports, markets, and streams." />
+  <meta property="og:title" content="ApexTimeZones" />
+  <meta property="og:description" content="Global time at a glance — 3D globe, Time Bridge, tray clocks for Windows." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/icon.png" />
+  <link rel="icon" href="assets/icon.png" type="image/png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-orb orb-a" aria-hidden="true"></div>
+  <div class="bg-orb orb-b" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a class="brand" href="#">
+      <img src="assets/icon.png" width="28" height="28" alt="" class="brand-icon" />
+      <span>APEX<span class="accent">TIME</span>ZONES</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#bridge">Time Bridge</a>
+      <a href="#download">Download</a>
+    </nav>
+    <a class="btn btn-sm btn-primary" href="downloads/ApexTimeZones-Portable.exe" download>Get for Windows</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">WINDOWS · SYSTEM TRAY · ORBITAL CLOCK</p>
+        <h1>Know the world’s time<br /><span class="gradient-text">without the Google tab.</span></h1>
+        <p class="lede">
+          ApexTimeZones is a discreet desktop app for people who follow sports, markets, streams, and events across the planet.
+          Spin a living 3D Earth, pin the cities you care about, and convert any kickoff or open bell into <em>your</em> local time.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" id="downloadBtn" href="downloads/ApexTimeZones-Portable.exe" download>
+            Download Portable EXE
+            <span class="btn-sub">Windows · ~80 MB · No install</span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">View on GitHub</a>
+        </div>
+        <ul class="trust-row">
+          <li>Lives in the system tray</li>
+          <li>Hotkey Ctrl+Alt+T</li>
+          <li>Offline-ready globe</li>
+          <li>Free &amp; open source</li>
+        </ul>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="globe-card">
+          <div class="globe-ring"></div>
+          <div class="globe-sphere">
+            <div class="globe-shine"></div>
+            <div class="pin p1"></div>
+            <div class="pin p2"></div>
+            <div class="pin p3"></div>
+          </div>
+          <div class="float-chip chip-1">
+            <span class="chip-label">TOKYO</span>
+            <span class="chip-time" data-tz="Asia/Tokyo">--:--</span>
+          </div>
+          <div class="float-chip chip-2">
+            <span class="chip-label">LONDON</span>
+            <span class="chip-time" data-tz="Europe/London">--:--</span>
+          </div>
+          <div class="float-chip chip-3">
+            <span class="chip-label">NEW YORK</span>
+            <span class="chip-time" data-tz="America/New_York">--:--</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="section-head">
+        <h2>Built for global schedules</h2>
+        <p>Everything you need when the match is at 20:00 London and you’re not.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">🌍</div>
+          <h3>3D Earth globe</h3>
+          <p>Drag, zoom, and explore realistic day/night Earth with glowing city pins and solar terminator.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📌</div>
+          <h3>Pinned world clocks</h3>
+          <p>Keep finance hubs and sports cities at a glance — with live deltas (“14h ahead · next day”).</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🌉</div>
+          <h3>Time Bridge</h3>
+          <p>Convert one event wall-time into every pinned city. Copy the whole table for group chats.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🖥️</div>
+          <h3>Tray-native Windows app</h3>
+          <p>Close to tray, always-on-top, start with Windows, mini widget mode, and a global hotkey.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Event reminders</h3>
+          <p>Save a kickoff or market open and get a desktop notification before it hits.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Quick presets</h3>
+          <p>One-click chips for “In 2 hours”, “Tonight 8pm”, US market open, London 3pm, Tokyo open.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="bridge" id="bridge">
+      <div class="bridge-inner">
+        <div>
+          <p class="eyebrow">TIME BRIDGE</p>
+          <h2>One event. Every city that matters.</h2>
+          <p class="lede tight">
+            Paste the broadcast time, pick the event zone, and instantly see what that means for you — and for every pin on your list.
+          </p>
+          <ul class="checklist">
+            <li>Multi-city conversion table</li>
+            <li>Relative offsets with calendar-day notes</li>
+            <li>Copy-ready text for WhatsApp &amp; Discord</li>
+            <li>DST-aware IANA timezones</li>
+          </ul>
+        </div>
+        <div class="mock-panel" aria-hidden="true">
+          <div class="mock-row mock-head">Event · 15:00 · Europe/London</div>
+          <div class="mock-row"><span>Your local</span><strong id="mockLocal">—</strong></div>
+          <div class="mock-row"><span>New York</span><strong data-mock-tz="America/New_York">—</strong></div>
+          <div class="mock-row"><span>Tokyo</span><strong data-mock-tz="Asia/Tokyo">—</strong></div>
+          <div class="mock-row"><span>Sydney</span><strong data-mock-tz="Australia/Sydney">—</strong></div>
+          <div class="mock-row"><span>Dubai</span><strong data-mock-tz="Asia/Dubai">—</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="download" id="download">
+      <div class="download-card">
+        <img src="assets/icon.png" width="64" height="64" alt="ApexTimeZones icon" class="dl-icon" />
+        <h2>Download ApexTimeZones</h2>
+        <p>Portable Windows build — double-click to run. No installer required. Closes to the system tray.</p>
+        <a class="btn btn-primary btn-lg" href="downloads/ApexTimeZones-Portable.exe" download id="downloadBtn2">
+          Download ApexTimeZones-Portable.exe
+        </a>
+        <p class="dl-meta">
+          Version 1.1.0 · Windows 10/11 x64 · ~80 MB<br />
+          SmartScreen may warn on first run (unsigned personal build) — choose <em>More info → Run anyway</em>.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <strong>ApexTimeZones</strong>
+      <span>Open source MIT · Made for global schedules</span>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">GitHub</a>
+      <a href="downloads/ApexTimeZones-Portable.exe" download>Download</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

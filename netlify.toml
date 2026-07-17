@@ -1,0 +1,26 @@
+# Netlify: connect this GitHub repo and deploy the marketing site.
+# Site settings → Build & deploy → Publish directory: website
+# (This file sets it automatically.)
+
+[build]
+  publish = "website"
+  # No build command — static HTML + portable EXE in /downloads
+
+[[headers]]
+  for = "/downloads/*"
+  [headers.values]
+    Content-Type = "application/octet-stream"
+    Content-Disposition = "attachment"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[redirects]]
+  from = "/download"
+  to = "/downloads/ApexTimeZones-Portable.exe"
+  status = 302
