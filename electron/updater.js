@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const https = require('https');
 const http = require('http');
+const crypto = require('crypto');
 const { spawn } = require('child_process');
 const store = require('./store');
 
@@ -220,6 +221,35 @@ async function checkForUpdates({ silent = true } = {}) {
   return { ok: false, reason: lastError?.message || 'unreachable' };
 }
 
+function sha256File(file) {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha256');
+    const stream = fs.createReadStream(file);
+    stream.on('data', (c) => hash.update(c));
+    stream.on('end', () => resolve(hash.digest('hex')));
+    stream.on('error', reject);
+  });
+}
+
+/** Remove stale downloaded update EXEs, keeping only `keep` (optional). */
+function cleanUpdatesDir(dir, keep) {
+  try {
+    for (const name of fs.readdirSync(dir)) {
+      const full = path.join(dir, name);
+      if (full === keep) continue;
+      if (/\.(exe|part|cmd)$/i.test(name)) {
+        try {
+          fs.unlinkSync(full);
+        } catch {
+          /* in use — next run gets it */
+        }
+      }
+    }
+  } catch {
+    /* dir may not exist yet */
+  }
+}
+
 async function downloadAndInstall() {
   if (downloading) return { ok: false, reason: 'busy' };
   if (!lastInfo) {
@@ -235,26 +265,48 @@ async function downloadAndInstall() {
   try {
     const dir = path.join(app.getPath('userData'), 'updates');
     fs.mkdirSync(dir, { recursive: true });
+    cleanUpdatesDir(dir);
     const dest = path.join(dir, `ApexTimeZones-Portable-${info.version}.exe`);
 
     await downloadFile(url, dest, (percent) => {
       sendToWindows('update-progress', { percent, status: 'downloading' });
     });
 
+    // Integrity: if the feed publishes a hash, the download must match it.
+    if (info.sha256) {
+      sendToWindows('update-progress', { percent: 100, status: 'verifying' });
+      const actual = await sha256File(dest);
+      if (actual.toLowerCase() !== String(info.sha256).toLowerCase()) {
+        try {
+          fs.unlinkSync(dest);
+        } catch {
+          /* ignore */
+        }
+        throw new Error('Downloaded file failed integrity check (sha256 mismatch)');
+      }
+    }
+
     sendToWindows('update-progress', { percent: 100, status: 'installing' });
 
-    // Launch new portable build and quit current instance
-    const child = spawn(dest, [], {
+    // Relaunch via a short-delay script so the new instance never races the
+    // old one for the single-instance lock: the old process exits first, the
+    // new EXE starts ~2s later.
+    const script = path.join(dir, 'relaunch.cmd');
+    fs.writeFileSync(
+      script,
+      ['@echo off', 'ping -n 3 127.0.0.1 >nul', `start "" "${dest}"`, ''].join('\r\n'),
+      'utf8'
+    );
+    const child = spawn('cmd.exe', ['/c', script], {
       detached: true,
       stdio: 'ignore',
-      windowsHide: false,
+      windowsHide: true,
     });
     child.unref();
 
-    // Force-exit so hide-to-tray close handler does not intercept
     setTimeout(() => {
       app.exit(0);
-    }, 900);
+    }, 300);
 
     return { ok: true, path: dest };
   } catch (e) {
@@ -311,5 +363,6 @@ module.exports = {
   startPeriodicChecks,
   stopPeriodicChecks,
   isNewer,
+  fetchJson,
   DEFAULT_FEED_URLS,
 };

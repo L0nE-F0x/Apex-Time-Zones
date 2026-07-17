@@ -5,6 +5,7 @@
  */
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -48,6 +49,14 @@ const latest = {
   mandatory: false,
   releaseNotes,
 };
+
+// Integrity metadata — the in-app updater verifies sha256 before installing.
+if (fs.existsSync(destExe)) {
+  const buf = fs.readFileSync(destExe);
+  latest.sha256 = crypto.createHash('sha256').update(buf).digest('hex');
+  latest.sizeBytes = buf.length;
+  console.log('sha256:', latest.sha256);
+}
 
 fs.writeFileSync(path.join(updatesDir, 'latest.json'), JSON.stringify(latest, null, 2) + '\n');
 console.log('Wrote website/updates/latest.json for', version);

@@ -27,6 +27,7 @@ import {
   DEFAULT_SETTINGS,
 } from './settings.js';
 import { createSportsUI } from './sports/ui.js';
+import { applyCatalog } from './sports/catalog.js';
 
 const apex = window.apex;
 const isWidgetQuery = new URLSearchParams(location.search).get('widget') === '1';
@@ -856,6 +857,15 @@ async function boot() {
       pendingGlobeHandlers = h;
     },
   });
+  // Fresher sports data than the bundled snapshot, when available
+  try {
+    const feedCatalog = await apex?.getSportsCatalog?.();
+    if (feedCatalog) applyCatalog(feedCatalog, 'feed-cache');
+  } catch {
+    /* bundled snapshot stays active */
+  }
+  apex?.onSportsCatalog?.((catalog) => applyCatalog(catalog, 'feed'));
+
   maybeOnboard();
   scheduleRemindersToMain();
   updateClockTimes(new Date());

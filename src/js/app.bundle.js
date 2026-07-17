@@ -25184,12 +25184,42 @@ void main() {
   };
 
   // src/js/sports/catalog.js
+  var CATALOG_SCHEMA_VERSION = 2;
   var SPORT_SERIES = sports_catalog_default.series;
   var CATALOG_INFO = {
     schemaVersion: sports_catalog_default.schemaVersion,
     generatedAt: sports_catalog_default.generatedAt,
     origin: "bundled"
   };
+  var changeListeners = /* @__PURE__ */ new Set();
+  function onCatalogChange(fn) {
+    changeListeners.add(fn);
+    return () => changeListeners.delete(fn);
+  }
+  function applyCatalog(catalog, origin = "feed") {
+    if (!catalog || catalog.schemaVersion !== CATALOG_SCHEMA_VERSION) return false;
+    if (!Array.isArray(catalog.series) || !catalog.series.length) return false;
+    for (const s of catalog.series) {
+      if (!s.id || !s.name || !Array.isArray(s.events)) return false;
+      for (const e of s.events) {
+        if (!e.id || typeof e.lat !== "number" || typeof e.lng !== "number" || !e.tz) return false;
+        if (!Array.isArray(e.sessions) || !e.sessions.length) return false;
+      }
+    }
+    SPORT_SERIES = catalog.series;
+    CATALOG_INFO = {
+      schemaVersion: catalog.schemaVersion,
+      generatedAt: catalog.generatedAt || null,
+      origin
+    };
+    for (const fn of changeListeners) {
+      try {
+        fn(CATALOG_INFO);
+      } catch {
+      }
+    }
+    return true;
+  }
   function getSeriesById(id) {
     return SPORT_SERIES.find((s) => s.id === id);
   }
@@ -25566,6 +25596,25 @@ void main() {
             break;
           }
         }
+      }
+    });
+    onCatalogChange(() => {
+      renderChips2();
+      const cat = els2.chips?.querySelector(".chip-btn.active")?.dataset.cat || "";
+      renderSeriesList(els2.search?.value || "", cat);
+      if (activeSeriesId && getSeriesById(activeSeriesId)) {
+        selectSeries(activeSeriesId);
+        const ev = getSeriesById(activeSeriesId)?.events.find((e) => e.id === activeEventId);
+        if (ev) renderEventDetail(ev);
+        else {
+          activeEventId = null;
+          if (els2.eventPanel) els2.eventPanel.hidden = true;
+        }
+      } else {
+        activeSeriesId = null;
+        activeEventId = null;
+        if (els2.detail) els2.detail.hidden = true;
+        if (els2.eventPanel) els2.eventPanel.hidden = true;
       }
     });
     renderChips2();
@@ -26306,6 +26355,12 @@ void main() {
         pendingGlobeHandlers = h;
       }
     });
+    try {
+      const feedCatalog = await apex?.getSportsCatalog?.();
+      if (feedCatalog) applyCatalog(feedCatalog, "feed-cache");
+    } catch {
+    }
+    apex?.onSportsCatalog?.((catalog) => applyCatalog(catalog, "feed"));
     maybeOnboard();
     scheduleRemindersToMain();
     updateClockTimes(/* @__PURE__ */ new Date());

@@ -37,6 +37,15 @@ contextBridge.exposeInMainWorld('apex', {
   },
   isMaximized: () => ipcRenderer.invoke('is-maximized'),
 
+  // sports data feed
+  getSportsCatalog: () => ipcRenderer.invoke('get-sports-catalog'),
+  refreshSportsCatalog: () => ipcRenderer.invoke('refresh-sports-catalog'),
+  onSportsCatalog: (cb) => {
+    const handler = (_e, catalog) => cb(catalog);
+    ipcRenderer.on('sports-catalog', handler);
+    return () => ipcRenderer.removeListener('sports-catalog', handler);
+  },
+
   // updates
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   downloadUpdate: () => ipcRenderer.invoke('download-update'),

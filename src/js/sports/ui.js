@@ -1,4 +1,4 @@
-import { SPORT_SERIES, searchSports, getSeriesById } from './catalog.js';
+import { SPORT_SERIES, searchSports, getSeriesById, onCatalogChange } from './catalog.js';
 import {
   annotateSession,
   eventHeadlineTime,
@@ -276,6 +276,27 @@ export function createSportsUI(ctx) {
         }
       }
     },
+  });
+
+  // Re-render when a fresher catalog arrives over the air
+  onCatalogChange(() => {
+    renderChips();
+    const cat = els.chips?.querySelector('.chip-btn.active')?.dataset.cat || '';
+    renderSeriesList(els.search?.value || '', cat);
+    if (activeSeriesId && getSeriesById(activeSeriesId)) {
+      selectSeries(activeSeriesId);
+      const ev = getSeriesById(activeSeriesId)?.events.find((e) => e.id === activeEventId);
+      if (ev) renderEventDetail(ev);
+      else {
+        activeEventId = null;
+        if (els.eventPanel) els.eventPanel.hidden = true;
+      }
+    } else {
+      activeSeriesId = null;
+      activeEventId = null;
+      if (els.detail) els.detail.hidden = true;
+      if (els.eventPanel) els.eventPanel.hidden = true;
+    }
   });
 
   renderChips();

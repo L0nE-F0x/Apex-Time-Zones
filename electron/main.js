@@ -12,10 +12,16 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const isDev = process.argv.includes('--dev');
+// Keep dev fully isolated from an installed/portable instance: separate
+// settings AND a separate single-instance lock (both live in userData).
+if (isDev) {
+  app.setPath('userData', path.join(app.getPath('appData'), 'apex-timezones-dev'));
+}
+
 const store = require('./store');
 const updater = require('./updater');
-
-const isDev = process.argv.includes('--dev');
+const sportsFeed = require('./sportsFeed');
 const APEX_FORGE_URL = 'https://ame-apexforge.org/';
 let mainWindow = null;
 let widgetWindow = null;
@@ -437,6 +443,9 @@ function setupIpc() {
     }
   });
 
+  ipcMain.handle('get-sports-catalog', () => sportsFeed.getCatalog());
+  ipcMain.handle('refresh-sports-catalog', async () => sportsFeed.refresh());
+
   ipcMain.handle('check-for-updates', async () => updater.checkForUpdates({ silent: false }));
   ipcMain.handle('download-update', async () => updater.downloadAndInstall());
   ipcMain.on('open-update-page', () => updater.openDownloadPage());
@@ -492,6 +501,7 @@ if (!gotLock) {
     const s = store.read();
     if (s.startWithWindows) applyStartWithWindows(true);
     startReminderWatcher();
+    sportsFeed.startPeriodicChecks();
     if (!isDev) {
       updater.startPeriodicChecks();
     }
@@ -511,6 +521,7 @@ app.on('before-quit', () => {
   globalShortcut.unregisterAll();
   clearInterval(reminderTimer);
   updater.stopPeriodicChecks();
+  sportsFeed.stopPeriodicChecks();
 });
 
 app.on('will-quit', () => {
