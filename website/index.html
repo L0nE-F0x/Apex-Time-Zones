@@ -3,115 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ApexTimeZones — Global sports time, on a living Earth</title>
-  <meta name="description" content="Map F1, World Cup, tennis & esports on a 3D globe. Countdowns, full weekend schedules, and exact tune-in times in your timezone." />
+  <title>ApexTimeZones — sports times on a real 3D Earth</title>
+  <meta name="description" content="Windows tray app for world clocks and sports schedules. F1, World Cup, tennis, esports — venue time and your local time on a 3D globe." />
   <meta property="og:title" content="ApexTimeZones" />
-  <meta property="og:description" content="Never miss a lights-out, kickoff, or finals block again." />
+  <meta property="og:description" content="Know when to tune in — from your timezone." />
   <meta property="og:image" content="assets/icon.png" />
   <link rel="icon" href="assets/icon.png" type="image/png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
-  <div class="noise" aria-hidden="true"></div>
 
   <header class="nav">
     <a class="brand" href="#">
-      <img src="assets/icon.png" width="32" height="32" alt="" />
-      <span>APEX<span class="accent">TIME</span>ZONES</span>
+      <img src="assets/icon.png" width="32" height="32" alt="" class="brand-mark" />
+      <span class="brand-word">ApexTimeZones</span>
     </a>
     <nav class="nav-links">
       <a href="#sports">Sports</a>
       <a href="#features">Features</a>
-      <a href="#demo">Live demo</a>
       <a href="#download">Download</a>
     </nav>
-    <a class="btn btn-primary btn-sm" href="downloads/ApexTimeZones-Portable.exe" download>Download free</a>
+    <a class="btn btn-primary btn-sm" href="downloads/ApexTimeZones-Portable.exe" download>Download</a>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <div class="pill-row">
-          <span class="pill">WINDOWS DESKTOP</span>
-          <span class="pill pulse">F1 · WORLD CUP · ESPORTS</span>
-        </div>
-        <h1>
-          The world’s schedule,<br />
-          <span class="gradient">mapped to your clock.</span>
-        </h1>
+        <p class="kicker">Windows · system tray</p>
+        <h1>Know when to tune in — from your timezone.</h1>
         <p class="lede">
-          ApexTimeZones is a system-tray command center for sports and global time.
-          Pull up Formula 1, football, tennis, or Magic: The Gathering — pin every venue on a living 3D Earth,
-          get race-weekend countdowns, and know exactly when to tune in from <em>your</em> timezone.
+          A small desktop app for people who follow sports and events across the planet.
+          Pin cities, drop a Formula&nbsp;1 season or World Cup venues on a real 3D Earth,
+          and read venue kickoff next to your local time.
         </p>
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="downloads/ApexTimeZones-Portable.exe" download>
             Download for Windows
-            <span class="btn-sub">Portable · ~80 MB · Auto-updates</span>
           </a>
-          <a class="btn btn-ghost btn-lg" href="#demo">See the demo</a>
+          <a class="btn btn-ghost btn-lg" href="#features">See what’s included</a>
         </div>
-        <div class="stat-row">
-          <div><strong>24</strong><span>F1 grands prix</span></div>
-          <div><strong>6</strong><span>sport series packs</span></div>
-          <div><strong>100+</strong><span>major cities</span></div>
-        </div>
+        <ul class="meta-row">
+          <li><strong>24</strong> F1 grands prix</li>
+          <li><strong>6</strong> sports packs</li>
+          <li><strong>120+</strong> cities &amp; venues</li>
+        </ul>
       </div>
+
       <div class="hero-stage">
-        <div class="orb-shell">
-          <div class="orb-glow"></div>
-          <div class="orb" id="heroOrb">
-            <div class="orb-grid"></div>
-            <div class="orb-shine"></div>
-            <button type="button" class="hotspot hs1" data-label="Silverstone · British GP" style="--x:62%;--y:32%"></button>
-            <button type="button" class="hotspot hs2" data-label="Suzuka · Japanese GP" style="--x:78%;--y:42%"></button>
-            <button type="button" class="hotspot hs3" data-label="MetLife · WC Final" style="--x:28%;--y:38%"></button>
-            <button type="button" class="hotspot hs4" data-label="Denpasar · Bali" style="--x:72%;--y:58%"></button>
+        <div class="globe-frame">
+          <canvas id="heroGlobe" width="480" height="480" aria-label="Interactive Earth preview"></canvas>
+          <div class="globe-fallback" id="globeFallback" hidden>
+            <img src="assets/earth_day.jpg" alt="" />
           </div>
-          <div class="hud-card hud-a" id="hudCard">
-            <span class="hud-kicker">NEXT UP</span>
-            <strong id="hudTitle">British Grand Prix</strong>
+          <aside class="hud-card" id="hudCard">
+            <span class="hud-kicker">Next up</span>
+            <strong id="hudTitle">Belgian Grand Prix</strong>
             <div class="hud-count" id="hudCount">—</div>
             <div class="hud-times">
-              <span>Venue <b id="hudVenue">—</b></span>
-              <span>You <b id="hudLocal">—</b></span>
+              <div><span>Venue</span><b id="hudVenue">—</b></div>
+              <div><span>You</span><b id="hudLocal">—</b></div>
             </div>
-          </div>
+          </aside>
         </div>
+        <p class="globe-caption">Same Earth textures as the app · drag to rotate</p>
       </div>
     </section>
 
     <section class="sports-band" id="sports">
       <div class="section-head">
-        <p class="eyebrow">SPORTS MODE</p>
-        <h2>Search a series. Own the weekend.</h2>
-        <p>Type “Formula 1”, “World Cup”, “Wimbledon”, or “Magic” — the season maps onto the globe with full schedules.</p>
+        <h2>Search a series. Map the season.</h2>
+        <p>
+          Open Sports, type a series name, and venues land on the globe with countdowns
+          and full session tables — practice through race, or match day through final.
+        </p>
       </div>
       <div class="sport-cards">
-        <article class="sport-card" data-sport="f1">
-          <div class="sc-icon">🏎️</div>
+        <article class="sport-card">
           <h3>Formula 1</h3>
-          <p>Every GP on the map. FP, quali, sprint & race with dual-zone times and live countdowns.</p>
-          <span class="sc-tag">24 rounds · 2026</span>
+          <p>Full season on the map — practice, qualifying, sprint, and race with venue vs local times.</p>
         </article>
-        <article class="sport-card" data-sport="wc">
-          <div class="sc-icon">⚽</div>
+        <article class="sport-card">
           <h3>FIFA World Cup</h3>
-          <p>USA / Canada / Mexico venues — kickoff at the stadium and your exact tune-in time.</p>
-          <span class="sc-tag">2026 tournament</span>
+          <p>2026 venues across the US, Canada, and Mexico. Kickoff at the stadium and for you.</p>
         </article>
-        <article class="sport-card" data-sport="tennis">
-          <div class="sc-icon">🎾</div>
+        <article class="sport-card">
           <h3>Grand Slams</h3>
-          <p>AO, Roland-Garros, Wimbledon, US Open session blocks with day/night start times.</p>
-          <span class="sc-tag">Majors 2026</span>
+          <p>Australian Open, Roland-Garros, Wimbledon, and US Open session windows.</p>
         </article>
-        <article class="sport-card" data-sport="mtg">
-          <div class="sc-icon">🃏</div>
-          <h3>MTG & Esports</h3>
-          <p>Pro Tours, Worlds, LoL international windows, CS majors — same dual-time toolkit.</p>
-          <span class="sc-tag">TCG · LoL · CS</span>
+        <article class="sport-card">
+          <h3>Esports &amp; MTG</h3>
+          <p>Magic Pro Tours, LoL international windows, CS majors — same dual-time tools.</p>
         </article>
       </div>
     </section>
@@ -119,46 +101,37 @@
     <section class="features" id="features">
       <div class="feature-split">
         <div>
-          <p class="eyebrow">WHY APEX</p>
           <h2>Built for people who live on world clocks.</h2>
           <ul class="checklist">
-            <li>3D Earth with solar day/night and sports event markers</li>
-            <li>Countdown + full session tables (venue vs you)</li>
-            <li>Time Bridge for any one-off stream or kickoff</li>
-            <li>100+ cities including Denpasar (Bali) and F1 circuits</li>
+            <li>3D Earth with day/night terminator and sports markers</li>
+            <li>Countdowns and full weekend / event schedules</li>
+            <li>Time Bridge: convert any event into your zone</li>
+            <li>120+ cities including Denpasar (Bali) and F1 circuits</li>
             <li>System tray, hotkey, mini widget, in-app updates</li>
-            <li>Free portable Windows app — no install required</li>
+            <li>Portable Windows build — no installer required</li>
           </ul>
         </div>
-        <div class="feature-visual" id="demo">
-          <div class="terminal">
-            <div class="term-bar"><span></span><span></span><span></span></div>
-            <div class="term-body">
-              <p class="term-line"><span class="t-muted">// sports search</span></p>
-              <p class="term-line">> track <span class="t-cyan">"Formula 1 Grand Prix"</span></p>
-              <p class="term-line t-ok">✓ mapped 24 circuits to globe</p>
-              <p class="term-line">> next session</p>
-              <p class="term-line"><span class="t-gold" id="termNext">British GP · Race · countdown…</span></p>
-              <p class="term-line">> tune-in --local</p>
-              <p class="term-line"><span class="t-mint" id="termLocal">your time loading…</span></p>
-            </div>
-          </div>
+        <div class="feature-panel" id="demo">
+          <div class="panel-row"><span>Search</span><code>Formula 1 Grand Prix</code></div>
+          <div class="panel-row"><span>Result</span><span>24 circuits on the globe</span></div>
+          <div class="panel-row"><span>Next session</span><span id="termNext">—</span></div>
+          <div class="panel-row highlight"><span>Tune in (local)</span><span id="termLocal">—</span></div>
+          <div class="panel-row"><span>Also</span><span>Pin Denpasar · Asia/Makassar</span></div>
         </div>
       </div>
     </section>
 
     <section class="download" id="download">
       <div class="download-card">
-        <div class="dl-glow"></div>
-        <img src="assets/icon.png" width="72" height="72" alt="ApexTimeZones" class="dl-icon" />
+        <img src="assets/icon.png" width="72" height="72" alt="" class="dl-icon" />
         <h2>Download ApexTimeZones</h2>
-        <p>Portable Windows build with sports mode, globe mapping, and auto-updates from this site.</p>
+        <p>Portable for Windows. Double-click to run. Updates check this site when a new build ships.</p>
         <a class="btn btn-primary btn-xl" href="downloads/ApexTimeZones-Portable.exe" download>
           Get ApexTimeZones-Portable.exe
         </a>
         <p class="dl-meta">
-          Version 1.3.0 · Windows 10/11 x64 · ~80 MB<br />
-          First launch may show SmartScreen (unsigned) — <em>More info → Run anyway</em>.
+          Version 1.3.0 · Windows 10/11 x64 · about 80&nbsp;MB<br />
+          First launch may show SmartScreen (unsigned) — More info → Run anyway.
         </p>
         <div class="dl-links">
           <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">Source on GitHub</a>
@@ -171,7 +144,7 @@
   <footer class="footer">
     <div>
       <strong>ApexTimeZones</strong>
-      <span>Global schedules · sports · markets · streams</span>
+      <span>Sports schedules · world clocks · system tray</span>
       <p class="built-by"><a href="https://ame-apexforge.org/" target="_blank" rel="noopener">Built by Apex Forge</a></p>
     </div>
     <div class="footer-links">
@@ -181,7 +154,15 @@
     </div>
   </footer>
 
-  <div class="tooltip" id="tip" hidden></div>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.171.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="globe-preview.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -1,48 +1,59 @@
+/**
+ * Site chrome: quiet starfield + live countdown HUD.
+ * Globe preview: globe-preview.js (Three.js).
+ */
 (function () {
-  // ——— Starfield ———
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const canvas = document.getElementById('starfield');
   const ctx = canvas?.getContext('2d');
+  let w = 0;
+  let h = 0;
   let stars = [];
-  let w = 0, h = 0, raf;
 
   function resize() {
-    if (!canvas) return;
+    if (!canvas || !ctx) return;
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
-    stars = Array.from({ length: Math.min(220, Math.floor((w * h) / 12000)) }, () => ({
+    const count = Math.min(110, Math.floor((w * h) / 20000));
+    stars = Array.from({ length: count }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      z: Math.random() * 0.8 + 0.2,
-      a: Math.random(),
+      r: Math.random() * 1.0 + 0.2,
+      a: Math.random() * Math.PI * 2,
+      s: 0.003 + Math.random() * 0.008,
     }));
   }
 
-  function drawStars() {
+  function draw() {
     if (!ctx) return;
     ctx.clearRect(0, 0, w, h);
-    const g = ctx.createRadialGradient(w * 0.7, h * 0.2, 0, w * 0.7, h * 0.2, w * 0.5);
-    g.addColorStop(0, 'rgba(20,60,120,0.25)');
+    const g = ctx.createRadialGradient(w * 0.55, h * 0.3, 0, w * 0.55, h * 0.3, w * 0.55);
+    g.addColorStop(0, 'rgba(14, 32, 58, 0.18)');
     g.addColorStop(1, 'transparent');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
+
     for (const s of stars) {
-      s.a += 0.01;
-      const tw = 0.4 + Math.sin(s.a) * 0.3;
-      ctx.fillStyle = `rgba(200,230,255,${tw})`;
+      if (!reduce) s.a += s.s;
+      const tw = 0.3 + Math.sin(s.a) * 0.2;
+      ctx.fillStyle = `rgba(190, 210, 230, ${tw})`;
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.z * 1.4, 0, Math.PI * 2);
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
     }
-    raf = requestAnimationFrame(drawStars);
+    if (!reduce) requestAnimationFrame(draw);
   }
 
   if (canvas && ctx) {
     resize();
-    drawStars();
-    window.addEventListener('resize', resize);
+    draw();
+    window.addEventListener('resize', () => {
+      resize();
+      if (reduce) draw();
+    });
   }
 
-  // ——— Live clocks / demo HUD (British GP Silverstone style sample) ———
   function fmt(date, tz) {
     try {
       return new Intl.DateTimeFormat(undefined, {
@@ -56,25 +67,10 @@
     }
   }
 
-  // Demo target: next Sunday 15:00 Europe/London (or fixed upcoming sample)
-  function nextSundayLondon15() {
-    const now = new Date();
-    // Find a stable demo: 2026-07-05 15:00 London if still useful, else rolling next Sunday
-    const candidates = [
-      wallApprox('2026-07-05', '15:00', 'Europe/London'),
-      wallApprox('2026-07-26', '15:00', 'Europe/Brussels'),
-      wallApprox('2026-08-02', '15:00', 'Europe/Budapest'),
-    ].filter(Boolean);
-    const upcoming = candidates.find((d) => d.getTime() > now.getTime() - 3600000);
-    return upcoming || candidates[candidates.length - 1] || new Date(now.getTime() + 86400000 * 3);
-  }
-
   function wallApprox(dateStr, timeStr, tz) {
-    // coarse: treat as UTC shift by reading offset at midday
     try {
       const [y, m, d] = dateStr.split('-').map(Number);
       const [hh, mm] = timeStr.split(':').map(Number);
-      // binary search light
       let lo = Date.UTC(y, m - 1, d - 1);
       let hi = Date.UTC(y, m - 1, d + 2);
       for (let i = 0; i < 40; i++) {
@@ -91,7 +87,8 @@
         const get = (t) => Number(parts.find((p) => p.type === t)?.value);
         let hour = get('hour');
         if (hour === 24) hour = 0;
-        const key = get('year') * 1e8 + get('month') * 1e6 + get('day') * 1e4 + hour * 100 + get('minute');
+        const key =
+          get('year') * 1e8 + get('month') * 1e6 + get('day') * 1e4 + hour * 100 + get('minute');
         const target = y * 1e8 + m * 1e6 + d * 1e4 + hh * 100 + mm;
         if (key === target) return new Date(mid);
         if (key < target) lo = mid + 1;
@@ -114,84 +111,53 @@
     return past ? core + ' ago' : core;
   }
 
-  const demoMeta = [
-    { title: 'British Grand Prix', venueTz: 'Europe/London', city: 'Silverstone' },
-    { title: 'Belgian Grand Prix', venueTz: 'Europe/Brussels', city: 'Spa' },
-    { title: 'Hungarian Grand Prix', venueTz: 'Europe/Budapest', city: 'Budapest' },
+  const demos = [
+    {
+      title: 'Belgian Grand Prix',
+      venueTz: 'Europe/Brussels',
+      city: 'Spa',
+      when: wallApprox('2026-07-26', '15:00', 'Europe/Brussels'),
+    },
+    {
+      title: 'Hungarian Grand Prix',
+      venueTz: 'Europe/Budapest',
+      city: 'Budapest',
+      when: wallApprox('2026-08-02', '15:00', 'Europe/Budapest'),
+    },
+    {
+      title: 'Dutch Grand Prix',
+      venueTz: 'Europe/Amsterdam',
+      city: 'Zandvoort',
+      when: wallApprox('2026-08-30', '15:00', 'Europe/Amsterdam'),
+    },
   ];
-  let demoIdx = 0;
 
   function tickHud() {
     const now = new Date();
-    const targets = [
-      wallApprox('2026-07-05', '15:00', 'Europe/London'),
-      wallApprox('2026-07-26', '15:00', 'Europe/Brussels'),
-      wallApprox('2026-08-02', '15:00', 'Europe/Budapest'),
-    ];
-    // pick soonest future
-    let bestI = 0;
-    let bestT = Infinity;
-    targets.forEach((t, i) => {
-      if (!t) return;
-      const diff = t.getTime() - now.getTime();
-      if (diff > -3600000 && diff < bestT) {
-        bestT = diff;
-        bestI = i;
+    let best = demos[0];
+    let bestDiff = Infinity;
+    for (const d of demos) {
+      if (!d.when) continue;
+      const diff = d.when.getTime() - now.getTime();
+      if (diff > -3600000 && diff < bestDiff) {
+        bestDiff = diff;
+        best = d;
       }
-    });
-    demoIdx = bestI;
-    const meta = demoMeta[demoIdx];
-    const when = targets[demoIdx] || new Date(now.getTime() + 3 * 86400000);
+    }
+    const when = best.when || new Date(now.getTime() + 3 * 86400000);
     const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    const hudTitle = document.getElementById('hudTitle');
-    const hudCount = document.getElementById('hudCount');
-    const hudVenue = document.getElementById('hudVenue');
-    const hudLocal = document.getElementById('hudLocal');
-    const termNext = document.getElementById('termNext');
-    const termLocal = document.getElementById('termLocal');
-
-    if (hudTitle) hudTitle.textContent = meta.title;
-    if (hudCount) hudCount.textContent = countdown(when.getTime() - now.getTime());
-    if (hudVenue) hudVenue.textContent = fmt(when, meta.venueTz) + ' · ' + meta.city;
-    if (hudLocal) hudLocal.textContent = fmt(when, localTz);
-    if (termNext) termNext.textContent = `${meta.title} · Race · ${countdown(when.getTime() - now.getTime())}`;
-    if (termLocal) termLocal.textContent = `tune-in ${fmt(when, localTz)} (${localTz})`;
+    const set = (id, v) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = v;
+    };
+    set('hudTitle', best.title);
+    set('hudCount', countdown(when.getTime() - now.getTime()));
+    set('hudVenue', `${fmt(when, best.venueTz)} · ${best.city}`);
+    set('hudLocal', fmt(when, localTz));
+    set('termNext', `${best.title} · ${countdown(when.getTime() - now.getTime())}`);
+    set('termLocal', `${fmt(when, localTz)} (${localTz.split('/').pop().replace(/_/g, ' ')})`);
   }
 
   tickHud();
   setInterval(tickHud, 1000);
-
-  // Hotspot tooltips
-  const tip = document.getElementById('tip');
-  document.querySelectorAll('.hotspot').forEach((hs) => {
-    hs.addEventListener('mouseenter', (e) => {
-      if (!tip) return;
-      tip.hidden = false;
-      tip.textContent = hs.dataset.label || '';
-      tip.style.left = e.clientX + 12 + 'px';
-      tip.style.top = e.clientY + 12 + 'px';
-    });
-    hs.addEventListener('mousemove', (e) => {
-      if (!tip || tip.hidden) return;
-      tip.style.left = e.clientX + 12 + 'px';
-      tip.style.top = e.clientY + 12 + 'px';
-    });
-    hs.addEventListener('mouseleave', () => {
-      if (tip) tip.hidden = true;
-    });
-  });
-
-  // Sport card tilt
-  document.querySelectorAll('.sport-card').forEach((card) => {
-    card.addEventListener('pointermove', (e) => {
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      card.style.transform = `translateY(-4px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg)`;
-    });
-    card.addEventListener('pointerleave', () => {
-      card.style.transform = '';
-    });
-  });
 })();
