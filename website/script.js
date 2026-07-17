@@ -1,18 +1,18 @@
 /**
- * Aether Prime telemetry interactions for ApexTimeZones marketing site.
+ * Global System Dashboard — atmospheric FX + dashboard telemetry for ApexTimeZones.
  */
 (function () {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ——— Dither / matrix field (light dashboard atmosphere) ———
-  const canvas = document.getElementById('matrix-bg');
+  // ——— WebGL / canvas atmospheric field ———
+  const canvas = document.getElementById('fx-bg');
   const ctx = canvas?.getContext('2d');
   let w = 0;
   let h = 0;
-  let t = 0;
   let particles = [];
+  let t = 0;
 
-  function resizeMatrix() {
+  function resize() {
     if (!canvas || !ctx) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = window.innerWidth;
@@ -22,32 +22,42 @@
     canvas.style.width = w + 'px';
     canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    particles = Array.from({ length: Math.floor((w * h) / 18000) }, () => ({
+    particles = Array.from({ length: Math.min(180, Math.floor((w * h) / 14000)) }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      v: 0.15 + Math.random() * 0.45,
-      s: Math.random() * 1.2 + 0.3,
+      z: Math.random(),
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: -0.15 - Math.random() * 0.35,
     }));
   }
 
-  function drawMatrix() {
+  function frame() {
     if (!ctx) return;
-    t += 0.008;
-    ctx.clearRect(0, 0, w, h);
+    t += 0.01;
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, w, h);
 
-    // soft blue wash
-    const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0, 'rgba(59,130,246,0.04)');
-    g.addColorStop(0.5, 'rgba(255,255,255,0)');
-    g.addColorStop(1, 'rgba(52,211,153,0.05)');
+    // deep indigo wash
+    const g = ctx.createRadialGradient(w * 0.7, h * 0.15, 0, w * 0.7, h * 0.15, w * 0.55);
+    g.addColorStop(0, 'rgba(59,130,246,0.16)');
+    g.addColorStop(0.45, 'rgba(30,27,75,0.35)');
+    g.addColorStop(1, 'transparent');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
 
-    // grid
-    ctx.strokeStyle = 'rgba(229,231,235,0.7)';
+    // scanlines / dither
+    ctx.globalAlpha = 0.04;
+    for (let y = 0; y < h; y += 3) {
+      ctx.fillStyle = y % 6 === 0 ? '#fff' : '#1e1b4b';
+      ctx.fillRect(0, y, w, 1);
+    }
+    ctx.globalAlpha = 1;
+
+    // soft grid
+    ctx.strokeStyle = 'rgba(39,39,42,0.85)';
     ctx.lineWidth = 1;
-    const step = 48;
-    const ox = (t * 8) % step;
+    const step = 56;
+    const ox = reduce ? 0 : (t * 6) % step;
     for (let x = -step + ox; x < w + step; x += step) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -61,102 +71,92 @@
       ctx.stroke();
     }
 
-    // dither dots
+    // particles
     for (const p of particles) {
       if (!reduce) {
-        p.y += p.v;
-        if (p.y > h) {
-          p.y = -4;
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y < -4) {
+          p.y = h + 4;
           p.x = Math.random() * w;
         }
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
       }
-      ctx.fillStyle = 'rgba(59,130,246,0.35)';
-      ctx.fillRect(p.x, p.y, p.s, p.s);
+      const a = 0.15 + p.z * 0.55;
+      ctx.fillStyle = `rgba(96,165,250,${a})`;
+      ctx.fillRect(p.x, p.y, 1.2 + p.z * 1.8, 1.2 + p.z * 1.8);
     }
 
-    if (!reduce) requestAnimationFrame(drawMatrix);
+    // connecting lines (sparse)
+    ctx.strokeStyle = 'rgba(59,130,246,0.08)';
+    for (let i = 0; i < particles.length; i += 7) {
+      const a = particles[i];
+      const b = particles[(i + 11) % particles.length];
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      if (dx * dx + dy * dy < 12000) {
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
+
+    if (!reduce) requestAnimationFrame(frame);
   }
 
   if (canvas && ctx) {
-    resizeMatrix();
-    drawMatrix();
+    resize();
+    frame();
     window.addEventListener('resize', () => {
-      resizeMatrix();
-      if (reduce) drawMatrix();
+      resize();
+      if (reduce) frame();
     });
   }
 
-  // ——— Reveal on scroll ———
+  // ——— Reveal ———
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) e.target.classList.add('is-in');
+          if (e.isIntersecting) e.target.classList.add('in');
         });
       },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+      { threshold: 0.12 }
     );
     document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
   } else {
-    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-in'));
+    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
   }
 
-  // ——— Sparkline charts on modules ———
-  function spark(canvasEl, color) {
-    const c = canvasEl.getContext('2d');
-    if (!c) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const rect = canvasEl.parentElement.getBoundingClientRect();
-    const W = Math.max(120, rect.width);
-    const H = 40;
-    canvasEl.width = W * dpr;
-    canvasEl.height = H * dpr;
-    c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const pts = Array.from({ length: 24 }, (_, i) => {
-      const n = Math.sin(i * 0.45) * 0.35 + Math.cos(i * 0.2) * 0.2 + Math.random() * 0.15;
-      return 0.35 + n * 0.35;
-    });
-    c.beginPath();
-    pts.forEach((v, i) => {
-      const x = (i / (pts.length - 1)) * (W - 8) + 4;
-      const y = H - 6 - v * (H - 12);
-      if (i === 0) c.moveTo(x, y);
-      else c.lineTo(x, y);
-    });
-    c.strokeStyle = color;
-    c.lineWidth = 1.5;
-    c.stroke();
-    // fill
-    const lastX = W - 4;
-    c.lineTo(lastX, H);
-    c.lineTo(4, H);
-    c.closePath();
-    c.fillStyle = color.replace(')', ',0.12)').replace('rgb', 'rgba').replace('#3b82f6', 'rgba(59,130,246,0.12)').replace('#34d399', 'rgba(52,211,153,0.12)');
-    // simpler fill
-    c.globalAlpha = 0.12;
-    c.fillStyle = color;
-    c.fill();
-    c.globalAlpha = 1;
+  // ——— Animated liquidity metrics ———
+  function animateValue(el, to, prefix = '', decimals = 0) {
+    if (!el) return;
+    const start = performance.now();
+    const from = 0;
+    const dur = reduce ? 0 : 1200;
+    function step(now) {
+      const p = dur ? Math.min(1, (now - start) / dur) : 1;
+      const eased = 1 - Math.pow(1 - p, 3);
+      const v = from + (to - from) * eased;
+      el.textContent = prefix + v.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
-  const sparkColors = { f1: '#3b82f6', wc: '#34d399', ten: '#3b82f6', esp: '#34d399' };
-  document.querySelectorAll('canvas[data-spark]').forEach((el) => {
-    spark(el, sparkColors[el.dataset.spark] || '#3b82f6');
-  });
-  window.addEventListener('resize', () => {
-    document.querySelectorAll('canvas[data-spark]').forEach((el) => {
-      spark(el, sparkColors[el.dataset.spark] || '#3b82f6');
-    });
-  });
+  animateValue(document.getElementById('liquidityVal'), 128400, '$', 0);
+  animateValue(document.getElementById('yieldVal'), 8420, '$', 0);
 
-  // ——— Zone chart ———
-  function drawZoneChart() {
-    const el = document.getElementById('zoneChart');
+  // ——— Charts ———
+  function lineChart(el, color, seed) {
     if (!el) return;
     const c = el.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const W = el.parentElement.clientWidth - 0;
-    const H = 120;
+    const parent = el.parentElement;
+    const W = Math.max(200, parent.clientWidth - 48);
+    const H = el.height || 64;
     el.width = W * dpr;
     el.height = H * dpr;
     el.style.width = W + 'px';
@@ -164,63 +164,54 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, W, H);
 
-    const now = new Date();
-    const hours = Array.from({ length: 12 }, (_, i) => {
-      const d = new Date(now.getTime() + i * 3600000);
-      return {
-        utc: d.getUTCHours() + d.getUTCMinutes() / 60,
-        local: d.getHours() + d.getMinutes() / 60,
-        lon: (() => {
-          try {
-            const parts = new Intl.DateTimeFormat('en-GB', {
-              timeZone: 'Europe/London',
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: false,
-            }).formatToParts(d);
-            const hh = Number(parts.find((p) => p.type === 'hour')?.value || 0) % 24;
-            const mm = Number(parts.find((p) => p.type === 'minute')?.value || 0);
-            return hh + mm / 60;
-          } catch {
-            return d.getUTCHours();
-          }
-        })(),
-      };
+    const n = 32;
+    const pts = [];
+    let v = 0.45;
+    for (let i = 0; i < n; i++) {
+      v += Math.sin(i * 0.35 + seed) * 0.04 + (Math.random() - 0.5) * 0.06;
+      v = Math.max(0.15, Math.min(0.9, v));
+      pts.push(v);
+    }
+
+    c.beginPath();
+    pts.forEach((p, i) => {
+      const x = (i / (n - 1)) * W;
+      const y = H - p * (H - 8) - 4;
+      if (i === 0) c.moveTo(x, y);
+      else c.lineTo(x, y);
     });
+    c.strokeStyle = color;
+    c.lineWidth = 1.75;
+    c.stroke();
 
-    function series(key, color) {
-      c.beginPath();
-      hours.forEach((pt, i) => {
-        const x = 20 + (i / 11) * (W - 36);
-        const y = H - 16 - (pt[key] / 24) * (H - 28);
-        if (i === 0) c.moveTo(x, y);
-        else c.lineTo(x, y);
-      });
-      c.strokeStyle = color;
-      c.lineWidth = 2;
-      c.stroke();
-    }
-
-    // grid
-    c.strokeStyle = '#e5e7eb';
-    c.lineWidth = 1;
-    for (let i = 0; i < 4; i++) {
-      const y = 12 + i * ((H - 28) / 3);
-      c.beginPath();
-      c.moveTo(16, y);
-      c.lineTo(W - 12, y);
-      c.stroke();
-    }
-
-    series('utc', '#93c5fd');
-    series('lon', '#3b82f6');
-    series('local', '#34d399');
+    c.lineTo(W, H);
+    c.lineTo(0, H);
+    c.closePath();
+    c.fillStyle = color;
+    c.globalAlpha = 0.12;
+    c.fill();
+    c.globalAlpha = 1;
   }
 
-  drawZoneChart();
-  window.addEventListener('resize', drawZoneChart);
+  function drawCharts() {
+    lineChart(document.getElementById('liqChart'), '#3b82f6', 1);
+    lineChart(document.getElementById('yieldChart'), '#60a5fa', 2.2);
+    lineChart(document.getElementById('bandChart'), '#818cf8', 0.7);
+  }
 
-  // ——— Countdown HUD ———
+  drawCharts();
+  window.addEventListener('resize', drawCharts);
+
+  // Range buttons visual only
+  document.querySelectorAll('.seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      btn.parentElement.querySelectorAll('.seg-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      lineChart(document.getElementById('yieldChart'), '#60a5fa', Math.random() * 3);
+    });
+  });
+
+  // ——— Countdown ———
   function fmt(date, tz) {
     try {
       return new Intl.DateTimeFormat(undefined, {
@@ -322,14 +313,12 @@
     set('hudVenue', `${fmt(when, best.tz)} · ${best.city}`);
     set('hudLocal', fmt(when, localTz));
     set('termNext', `${best.title} · Race · ${countdown(when.getTime() - now.getTime())}`);
-    set('termLocal', `tune-in ${fmt(when, localTz)} (${localTz})`);
     set(
-      'chartNow',
+      'clockNow',
       now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     );
   }
 
   tick();
   setInterval(tick, 1000);
-  setInterval(drawZoneChart, 60000);
 })();
