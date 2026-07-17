@@ -13,7 +13,7 @@
       <div class="titlebar-brand">
         <span class="brand-glyph" aria-hidden="true"></span>
         <span class="brand-name">APEX<span class="brand-accent">TIME</span>ZONES</span>
-        <span class="brand-tag">ORBITAL CLOCK</span>
+        <span class="brand-tag">WORLD CLOCK</span>
       </div>
       <div class="titlebar-center">
         <div class="local-chip" id="localChip" title="Your local time">
@@ -39,19 +39,19 @@
 
         <div class="stage-hud top-left hide-in-widget">
           <div class="hud-panel">
-            <div class="hud-title">NAVIGATION</div>
-            <div class="hud-hint">Drag rotate · Scroll zoom · Click pin to focus · Pin from panel</div>
+            <div class="hud-title">Globe</div>
+            <div class="hud-hint">Drag to rotate · scroll to zoom · click a pin</div>
           </div>
         </div>
 
         <div class="stage-hud top-right hide-in-widget">
           <div class="hud-panel sun-panel">
-            <div class="hud-title">SOLAR STATUS</div>
+            <div class="hud-title">Sun</div>
             <div class="sun-row">
               <span class="sun-dot"></span>
               <span id="utcNow">UTC —</span>
             </div>
-            <div class="sun-row subtle" id="dayNightLabel">Terminator + solar pin day/night</div>
+            <div class="sun-row subtle" id="dayNightLabel">Day/night follows the live sun position</div>
           </div>
         </div>
 
@@ -65,7 +65,7 @@
 
         <div class="loading-overlay" id="loadingOverlay">
           <div class="loader-ring"></div>
-          <div class="loader-text">ACQUIRING ORBITAL LINK…</div>
+          <div class="loader-text">Loading Earth…</div>
         </div>
       </section>
 
@@ -235,6 +235,13 @@
         </select>
         <label class="field-label" for="homeSelect">Home city</label>
         <select id="homeSelect" class="field-input select"></select>
+        <label class="field-label" for="hotkeyInput">Global hotkey</label>
+        <div class="converter-grid">
+          <input type="text" id="hotkeyInput" class="field-input" readonly placeholder="Click, then press keys" title="Click, then press the key combination you want" />
+          <button type="button" class="ghost-btn" id="btnResetHotkey">Reset</button>
+        </div>
+        <label class="field-label" for="traySelect">Tray cities (Ctrl-click for several, max 5 shown)</label>
+        <select id="traySelect" class="field-input select" multiple size="5"></select>
         <div class="row-actions" style="margin-top:12px">
           <button type="button" class="ghost-btn" id="btnToggleWidget">Toggle mini widget mode</button>
           <button type="button" class="ghost-btn" id="btnCheckUpdates">Check for updates</button>

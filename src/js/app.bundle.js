@@ -21867,6 +21867,17 @@ void main() {
       this._quality = q;
       const pr = q === "low" ? 1 : q === "medium" ? Math.min(window.devicePixelRatio || 1, 1.5) : Math.min(window.devicePixelRatio || 1, 2);
       this.renderer.setPixelRatio(pr);
+      const segs = q === "low" ? 48 : 96;
+      if (this.earth && this._earthSegs !== segs) {
+        this._earthSegs = segs;
+        this.earth.geometry.dispose();
+        this.earth.geometry = new SphereGeometry(EARTH_RADIUS, segs, segs);
+        if (this.clouds) {
+          const cs = Math.min(segs, 64);
+          this.clouds.geometry.dispose();
+          this.clouds.geometry = new SphereGeometry(EARTH_RADIUS * 1.012, cs, cs);
+        }
+      }
     }
     setPinned(ids) {
       this.pinnedIds = new Set(ids);
@@ -21899,7 +21910,7 @@ void main() {
       for (const ev of events) {
         if (typeof ev.lat !== "number" || typeof ev.lng !== "number") continue;
         const pos = latLngToVector3(ev.lat, ev.lng, PIN_RADIUS * 1.02);
-        const color = ev.highlight ? 16739275 : 16765286;
+        const color = ev.highlight ? 16739275 : typeof ev.color === "number" ? ev.color : 16765286;
         const glow = new Mesh(
           new SphereGeometry(0.038, 12, 12),
           new MeshBasicMaterial({ color, transparent: true, opacity: 0.45, depthWrite: false })
@@ -22082,6 +22093,7 @@ void main() {
         t.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
       }
       const segs = this._quality === "low" ? 48 : 96;
+      this._earthSegs = segs;
       const earthGeo = new SphereGeometry(EARTH_RADIUS, segs, segs);
       const earthMat = new ShaderMaterial({
         uniforms: {
@@ -25638,6 +25650,7 @@ void main() {
           lng: ev.lng,
           name: ev.name,
           sport: series.sport,
+          color: SPORT_META[series.sport]?.color,
           highlight: false
         }))
       );
@@ -25655,6 +25668,7 @@ void main() {
           lng: e.lng,
           name: e.name,
           sport: series.sport,
+          color: SPORT_META[series.sport]?.color,
           highlight: e.id === eventId
         }))
       );
@@ -26465,6 +26479,7 @@ void main() {
     if (!panel) return;
     document.getElementById("btnSettings")?.addEventListener("click", () => {
       panel.hidden = !panel.hidden;
+      if (!panel.hidden) populateTraySelect();
     });
     document.getElementById("btnCloseSettings")?.addEventListener("click", () => {
       panel.hidden = true;
@@ -26507,6 +26522,66 @@ void main() {
       settings = updateSettings({ homeCityId: id });
       globe?.setHomeCity(id);
       tickHeader(/* @__PURE__ */ new Date());
+    });
+    wireHotkeyCapture();
+    document.getElementById("traySelect")?.addEventListener("change", (e) => {
+      const picked = [...e.target.selectedOptions].map((o) => o.value).slice(0, 5);
+      settings = updateSettings({ trayCityIds: picked });
+      apex?.setMainSettings?.({ trayCityIds: picked });
+      syncTrayTimes();
+    });
+  }
+  function populateTraySelect() {
+    const sel = document.getElementById("traySelect");
+    if (!sel) return;
+    const current = new Set(settings.trayCityIds || []);
+    const pool = [.../* @__PURE__ */ new Set([...settings.trayCityIds || [], ...pinnedIds])];
+    sel.innerHTML = pool.map((id) => getCityById(id)).filter(Boolean).map(
+      (c) => `<option value="${c.id}" ${current.has(c.id) ? "selected" : ""}>${escapeHtml(c.name)} \xB7 ${escapeHtml(c.tz)}</option>`
+    ).join("");
+  }
+  function wireHotkeyCapture() {
+    const input = document.getElementById("hotkeyInput");
+    if (!input) return;
+    input.value = settings.hotkey || "CommandOrControl+Alt+T";
+    const applyHotkey = async (accel) => {
+      try {
+        const r = await apex?.setHotkey?.(accel);
+        if (r?.ok) {
+          settings = updateSettings({ hotkey: r.hotkey });
+          input.value = r.hotkey;
+        } else {
+          input.value = (settings.hotkey || "") + "  (in use \u2014 try another)";
+          setTimeout(() => {
+            input.value = settings.hotkey || "";
+          }, 1600);
+        }
+      } catch {
+        input.value = settings.hotkey || "";
+      }
+    };
+    input.addEventListener("focus", () => {
+      input.value = "Press keys\u2026";
+    });
+    input.addEventListener("blur", () => {
+      input.value = settings.hotkey || "";
+    });
+    input.addEventListener("keydown", (e) => {
+      e.preventDefault();
+      const key = e.key;
+      if (["Control", "Alt", "Shift", "Meta"].includes(key)) return;
+      const mods = [];
+      if (e.ctrlKey || e.metaKey) mods.push("CommandOrControl");
+      if (e.altKey) mods.push("Alt");
+      if (e.shiftKey) mods.push("Shift");
+      if (!mods.length) return;
+      let main = key.length === 1 ? key.toUpperCase() : key;
+      if (main === " ") main = "Space";
+      applyHotkey([...mods, main].join("+"));
+      input.blur();
+    });
+    document.getElementById("btnResetHotkey")?.addEventListener("click", () => {
+      applyHotkey("CommandOrControl+Alt+T");
     });
   }
   function setWidgetMode(on) {
@@ -26715,7 +26790,7 @@ void main() {
   }
   boot().catch((err) => {
     console.error(err);
-    showLoadError("ORBITAL LINK FAILED \u2014 " + (err?.message || "SEE LOGS"));
+    showLoadError("Couldn't load the globe \u2014 " + (err?.message || "see logs"));
   });
 })();
 /*! Bundled license information:

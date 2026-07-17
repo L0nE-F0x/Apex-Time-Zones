@@ -196,6 +196,7 @@ export function createSportsUI(ctx) {
         lng: ev.lng,
         name: ev.name,
         sport: series.sport,
+        color: SPORT_META[series.sport]?.color,
         highlight: false,
       }))
     );
@@ -214,6 +215,7 @@ export function createSportsUI(ctx) {
         lng: e.lng,
         name: e.name,
         sport: series.sport,
+        color: SPORT_META[series.sport]?.color,
         highlight: e.id === eventId,
       }))
     );

@@ -705,6 +705,7 @@ function wireSettings() {
 
   document.getElementById('btnSettings')?.addEventListener('click', () => {
     panel.hidden = !panel.hidden;
+    if (!panel.hidden) populateTraySelect();
   });
   document.getElementById('btnCloseSettings')?.addEventListener('click', () => {
     panel.hidden = true;
@@ -752,6 +753,77 @@ function wireSettings() {
     settings = updateSettings({ homeCityId: id });
     globe?.setHomeCity(id);
     tickHeader(new Date());
+  });
+
+  wireHotkeyCapture();
+  document.getElementById('traySelect')?.addEventListener('change', (e) => {
+    const picked = [...e.target.selectedOptions].map((o) => o.value).slice(0, 5);
+    settings = updateSettings({ trayCityIds: picked });
+    apex?.setMainSettings?.({ trayCityIds: picked });
+    syncTrayTimes();
+  });
+}
+
+function populateTraySelect() {
+  const sel = document.getElementById('traySelect');
+  if (!sel) return;
+  const current = new Set(settings.trayCityIds || []);
+  const pool = [...new Set([...(settings.trayCityIds || []), ...pinnedIds])];
+  sel.innerHTML = pool
+    .map((id) => getCityById(id))
+    .filter(Boolean)
+    .map(
+      (c) =>
+        `<option value="${c.id}" ${current.has(c.id) ? 'selected' : ''}>${escapeHtml(c.name)} · ${escapeHtml(c.tz)}</option>`
+    )
+    .join('');
+}
+
+function wireHotkeyCapture() {
+  const input = document.getElementById('hotkeyInput');
+  if (!input) return;
+  input.value = settings.hotkey || 'CommandOrControl+Alt+T';
+
+  const applyHotkey = async (accel) => {
+    try {
+      const r = await apex?.setHotkey?.(accel);
+      if (r?.ok) {
+        settings = updateSettings({ hotkey: r.hotkey });
+        input.value = r.hotkey;
+      } else {
+        input.value = (settings.hotkey || '') + '  (in use — try another)';
+        setTimeout(() => {
+          input.value = settings.hotkey || '';
+        }, 1600);
+      }
+    } catch {
+      input.value = settings.hotkey || '';
+    }
+  };
+
+  input.addEventListener('focus', () => {
+    input.value = 'Press keys…';
+  });
+  input.addEventListener('blur', () => {
+    input.value = settings.hotkey || '';
+  });
+  input.addEventListener('keydown', (e) => {
+    e.preventDefault();
+    const key = e.key;
+    if (['Control', 'Alt', 'Shift', 'Meta'].includes(key)) return;
+    const mods = [];
+    if (e.ctrlKey || e.metaKey) mods.push('CommandOrControl');
+    if (e.altKey) mods.push('Alt');
+    if (e.shiftKey) mods.push('Shift');
+    if (!mods.length) return; // require a modifier so typing stays safe
+    let main = key.length === 1 ? key.toUpperCase() : key;
+    if (main === ' ') main = 'Space';
+    applyHotkey([...mods, main].join('+'));
+    input.blur();
+  });
+
+  document.getElementById('btnResetHotkey')?.addEventListener('click', () => {
+    applyHotkey('CommandOrControl+Alt+T');
   });
 }
 
@@ -997,5 +1069,5 @@ function escapeHtml(str) {
 
 boot().catch((err) => {
   console.error(err);
-  showLoadError('ORBITAL LINK FAILED — ' + (err?.message || 'SEE LOGS'));
+  showLoadError('Couldn\'t load the globe — ' + (err?.message || 'see logs'));
 });

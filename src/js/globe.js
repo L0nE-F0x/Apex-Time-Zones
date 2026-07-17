@@ -83,6 +83,18 @@ export class ApexGlobe {
     this._quality = q;
     const pr = q === 'low' ? 1 : q === 'medium' ? Math.min(window.devicePixelRatio || 1, 1.5) : Math.min(window.devicePixelRatio || 1, 2);
     this.renderer.setPixelRatio(pr);
+    // Rebuild sphere geometry so "low" actually reduces vertex load
+    const segs = q === 'low' ? 48 : 96;
+    if (this.earth && this._earthSegs !== segs) {
+      this._earthSegs = segs;
+      this.earth.geometry.dispose();
+      this.earth.geometry = new THREE.SphereGeometry(EARTH_RADIUS, segs, segs);
+      if (this.clouds) {
+        const cs = Math.min(segs, 64);
+        this.clouds.geometry.dispose();
+        this.clouds.geometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.012, cs, cs);
+      }
+    }
   }
 
   setPinned(ids) {
@@ -119,7 +131,7 @@ export class ApexGlobe {
     for (const ev of events) {
       if (typeof ev.lat !== 'number' || typeof ev.lng !== 'number') continue;
       const pos = latLngToVector3(ev.lat, ev.lng, PIN_RADIUS * 1.02);
-      const color = ev.highlight ? 0xff6bcb : 0xffd166;
+      const color = ev.highlight ? 0xff6bcb : (typeof ev.color === 'number' ? ev.color : 0xffd166);
       const glow = new THREE.Mesh(
         new THREE.SphereGeometry(0.038, 12, 12),
         new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45, depthWrite: false })
@@ -321,6 +333,7 @@ export class ApexGlobe {
     }
 
     const segs = this._quality === 'low' ? 48 : 96;
+    this._earthSegs = segs;
     const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, segs, segs);
     const earthMat = new THREE.ShaderMaterial({
       uniforms: {
