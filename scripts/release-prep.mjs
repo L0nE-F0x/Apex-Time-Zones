@@ -1,7 +1,10 @@
 /**
- * Prepare a release for Netlify + in-app updates.
- * Usage: node scripts/release-prep.mjs
- * Assumes `npm run build:win` already produced dist portable EXE (optional).
+ * Prepare a release: hashed update feed + site version label.
+ * Usage: node scripts/release-prep.mjs [release notes...]
+ *
+ * Binaries live on GitHub Releases (since 2.0.0), not in the repo.
+ * Flow: npm run build:win → this script → gh release create (see output)
+ *       → git push. Netlify redirects /downloads/* to the latest release.
  */
 import fs from 'fs';
 import path from 'path';
@@ -14,48 +17,34 @@ const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'))
 const version = pkg.version;
 const today = new Date().toISOString().slice(0, 10);
 
-const portableCandidates = [
-  path.join(root, 'dist', `ApexTimeZones-Portable-${version}.exe`),
-  path.join(root, 'dist', 'ApexTimeZones-Portable-1.1.0.exe'),
-  path.join(root, 'dist', 'ApexTimeZones-Portable.exe'),
-];
+const REPO = 'L0nE-F0x/Apex-Time-Zones';
+const portable = path.join(root, 'dist', `ApexTimeZones-Portable-${version}.exe`);
 
-const downloadsDir = path.join(root, 'website', 'downloads');
 const updatesDir = path.join(root, 'website', 'updates');
-fs.mkdirSync(downloadsDir, { recursive: true });
 fs.mkdirSync(updatesDir, { recursive: true });
 
-const destExe = path.join(downloadsDir, 'ApexTimeZones-Portable.exe');
-const found = portableCandidates.find((p) => fs.existsSync(p));
-if (found) {
-  fs.copyFileSync(found, destExe);
-  console.log('Copied portable →', destExe);
-} else {
-  console.warn('No portable EXE found in dist/. Build with npm run build:win first.');
-  console.warn('latest.json will still be updated.');
-}
-
 const notesArg = process.argv.slice(2).join(' ').trim();
-const releaseNotes =
-  notesArg ||
-  `ApexTimeZones ${version} — see GitHub release notes / changelog.`;
+const releaseNotes = notesArg || `ApexTimeZones ${version} — see GitHub release notes.`;
 
-const siteBase = process.env.APEX_SITE_URL || 'https://apextimezones.netlify.app';
 const latest = {
   version,
   publishedAt: today,
   downloadPath: '/downloads/ApexTimeZones-Portable.exe',
-  downloadUrl: `${siteBase.replace(/\/$/, '')}/downloads/ApexTimeZones-Portable.exe`,
+  downloadUrl: `https://github.com/${REPO}/releases/download/v${version}/ApexTimeZones-Portable-${version}.exe`,
   mandatory: false,
   releaseNotes,
 };
 
-// Integrity metadata — the in-app updater verifies sha256 before installing.
-if (fs.existsSync(destExe)) {
-  const buf = fs.readFileSync(destExe);
+if (fs.existsSync(portable)) {
+  const buf = fs.readFileSync(portable);
   latest.sha256 = crypto.createHash('sha256').update(buf).digest('hex');
   latest.sizeBytes = buf.length;
+  console.log('portable:', portable);
   console.log('sha256:', latest.sha256);
+} else {
+  console.error(`Missing dist portable for ${version}: ${portable}`);
+  console.error('Run npm run build:win (or npm run pack) first.');
+  process.exit(1);
 }
 
 fs.writeFileSync(path.join(updatesDir, 'latest.json'), JSON.stringify(latest, null, 2) + '\n');
@@ -70,9 +59,13 @@ if (fs.existsSync(indexPath)) {
   console.log('Updated version label in website/index.html');
 }
 
+const stableCopy = path.join(root, 'dist', 'ApexTimeZones-Portable.exe');
+fs.copyFileSync(portable, stableCopy);
+
 console.log(`
-Next:
-  1. Confirm Apex Forge footers
-  2. git add -A && git commit && git push origin main
-  3. Wait for Netlify; test /updates/latest.json and /download
+Next (feed must not go live before the release assets exist):
+  1. gh release create v${version} "${path.relative(root, portable)}" "${path.relative(root, stableCopy)}" --title "v${version}" --notes "${releaseNotes.replace(/"/g, "'")}"
+  2. Confirm the asset URL responds, then git add -A && git commit && git push origin main
+  3. Wait for Netlify; smoke-test /updates/latest.json and /download
+  4. Launch previous portable once; confirm update banner + hash-verified install
 `);

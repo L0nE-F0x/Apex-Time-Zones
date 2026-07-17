@@ -1,0 +1,24 @@
+PackageIdentifier: ApexForge.ApexTimeZones
+PackageVersion: 2.0.0
+PackageLocale: en-US
+Publisher: Apex Forge
+PublisherUrl: https://ame-apexforge.org/
+PackageName: ApexTimeZones
+PackageUrl: https://apextimezones.netlify.app/
+License: MIT
+LicenseUrl: https://github.com/L0nE-F0x/Apex-Time-Zones/blob/main/LICENSE
+ShortDescription: System-tray world clock with a 3D globe and verified sports schedules in your timezone.
+Description: >-
+  ApexTimeZones is a Windows system-tray world clock built around a real 3D
+  Earth. Pin cities, convert event times across zones, and follow 12 sports
+  (F1, World Cup, UFC, WSL surfing, MotoGP, NFL, tennis, golf, cycling,
+  cricket, rugby, marathons) with venue and local times, countdowns,
+  reminders, and calendar export. Sports schedules update over the air.
+Tags:
+  - clock
+  - timezone
+  - world-clock
+  - sports
+  - globe
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

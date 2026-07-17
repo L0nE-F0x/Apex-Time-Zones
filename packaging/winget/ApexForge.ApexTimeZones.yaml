@@ -1,0 +1,8 @@
+# winget manifest (version manifest) — submit to microsoft/winget-pkgs under
+# manifests/a/ApexForge/ApexTimeZones/2.0.0/ alongside the installer and
+# defaultLocale files in this directory.
+PackageIdentifier: ApexForge.ApexTimeZones
+PackageVersion: 2.0.0
+DefaultLocale: en-US
+ManifestType: version
+ManifestVersion: 1.6.0

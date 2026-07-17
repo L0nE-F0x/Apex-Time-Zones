@@ -17,18 +17,17 @@ Options, cheapest-effort first:
 Once a cert exists: set `CSC_LINK`/`CSC_KEY_PASSWORD` (or `azureSignOptions`) and
 remove `signAndEditExecutable: false` from `package.json` build config.
 
-## 2. GitHub Releases as binary host (shrinks the repo)
+## 2. GitHub Releases as binary host — ✅ DONE (2026-07-17, v2.0.0)
 
-The portable EXE (~80 MB) currently lives in git under `website/downloads/`.
-To migrate (needs `gh auth login` on this machine, or the GitHub web UI):
+Binaries live on GitHub Releases as of v2.0.0. Each release uploads two assets:
+the versioned EXE (immutable URL — used by `latest.json` and winget) and a
+stable-named `ApexTimeZones-Portable.exe` (used by the `releases/latest`
+redirect). Netlify redirects `/download` and `/downloads/*` to the latest
+release, so every old link keeps working. `release-prep.mjs` prints the exact
+`gh release create` command per release; EXEs are no longer committed to git.
 
-1. `gh release create v2.0.0 "dist/ApexTimeZones-Portable-2.0.0.exe" --title "v2.0.0" --notes "..."`
-2. Point `downloadUrl` in `website/updates/latest.json` at the release asset URL
-   (the in-app updater follows redirects and verifies sha256 — already supported).
-3. Keep `/downloads/ApexTimeZones-Portable.exe` on Netlify as a redirect
-   (netlify.toml `[[redirects]]`) so old links keep working.
-4. Stop committing new EXEs; optionally rewrite history later to shrink clones
-   (destructive — needs a deliberate decision, not part of routine releases).
+Still optional: rewriting git history to purge the old ~80 MB blobs and shrink
+clones (destructive — needs a deliberate decision, not part of routine releases).
 
 ## 3. winget (free distribution channel)
 

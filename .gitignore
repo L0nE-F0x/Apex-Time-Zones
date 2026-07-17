@@ -12,3 +12,5 @@ src/js/app.bundle.js.map
 
 # Keep marketing portable binary tracked under website/downloads/
 # (do not ignore website/downloads/*.exe)
+
+website/downloads/*.exe

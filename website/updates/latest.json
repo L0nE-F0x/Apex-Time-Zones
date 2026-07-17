@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "publishedAt": "2026-07-17",
   "downloadPath": "/downloads/ApexTimeZones-Portable.exe",
-  "downloadUrl": "https://apextimezones.netlify.app/downloads/ApexTimeZones-Portable.exe",
+  "downloadUrl": "https://github.com/L0nE-F0x/Apex-Time-Zones/releases/download/v2.0.0/ApexTimeZones-Portable-2.0.0.exe",
   "mandatory": false,
   "releaseNotes": "2.0: 12 sports with verified fixtures (F1, World Cup, UFC, WSL surfing, MotoGP, NFL, tennis, golf, cycling, cricket, rugby, marathons); esports removed. Follow series for an Up Next rail, tray countdowns, session reminders, and calendar export. Schedules now update over the air. Downloads are SHA-256 verified.",
   "sha256": "0e7779a3c0e6ced2b54b6ae72ce30d0786c7b5241d2c1eb6ddaa920991f1d475",

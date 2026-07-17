@@ -36,5 +36,11 @@
 
 [[redirects]]
   from = "/download"
-  to = "/downloads/ApexTimeZones-Portable.exe"
+  to = "https://github.com/L0nE-F0x/Apex-Time-Zones/releases/latest/download/ApexTimeZones-Portable.exe"
+  status = 302
+
+# Binary now lives on GitHub Releases; keep every old link working.
+[[redirects]]
+  from = "/downloads/ApexTimeZones-Portable.exe"
+  to = "https://github.com/L0nE-F0x/Apex-Time-Zones/releases/latest/download/ApexTimeZones-Portable.exe"
   status = 302

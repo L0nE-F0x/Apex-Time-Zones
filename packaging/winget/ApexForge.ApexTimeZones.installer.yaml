@@ -1,0 +1,11 @@
+PackageIdentifier: ApexForge.ApexTimeZones
+PackageVersion: 2.0.0
+InstallerType: portable
+Commands:
+  - apextimezones
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/L0nE-F0x/Apex-Time-Zones/releases/download/v2.0.0/ApexTimeZones-Portable-2.0.0.exe
+    InstallerSha256: 0E7779A3C0E6CED2B54B6AE72CE30D0786C7B5241D2C1EB6DDAA920991F1D475
+ManifestType: installer
+ManifestVersion: 1.6.0

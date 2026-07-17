@@ -53,13 +53,15 @@ If the public site URL changes (custom domain), update `DEFAULT_FEED_URLS` in `e
 [ ] 3. Bump package.json "version" (semver)
 [ ] 4. npm test   (includes catalog schema validation)
 [ ] 5. npm run build:win   (or npm run pack for portable only)
-[ ] 6. node scripts/release-prep.mjs   (copies portable, writes latest.json
-       with sha256 + sizeBytes, bumps site version label)
-[ ] 7. Confirm Apex Forge footer on app + website
-[ ] 8. git add / commit / push main
-[ ] 9. Wait for Netlify deploy; smoke-test /download, /updates/latest.json,
-       and /data/sports/v2/catalog.json
-[ ] 10. Launch previous portable once; confirm update banner + hash-verified install
+[ ] 6. node scripts/release-prep.mjs "notes"   (writes latest.json with
+       sha256 + sizeBytes + GitHub Releases downloadUrl, bumps site label)
+[ ] 7. gh release create vX.Y.Z <both dist EXEs>   (exact command is printed
+       by release-prep; binaries live on GitHub Releases, NOT in git)
+[ ] 8. Confirm Apex Forge footer on app + website
+[ ] 9. git add / commit / push main
+[ ] 10. Wait for Netlify deploy; smoke-test /download, /updates/latest.json,
+        and /data/sports/v2/catalog.json
+[ ] 11. Launch previous portable once; confirm update banner + hash-verified install
 ```
 
 **Sports data only** (no app changes): edit `scripts/build-sports-data.mjs`,
