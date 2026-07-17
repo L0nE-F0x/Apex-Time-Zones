@@ -48,17 +48,23 @@ If the public site URL changes (custom domain), update `DEFAULT_FEED_URLS` in `e
 
 ```text
 [ ] 1. Implement features in app (electron/, src/)
-[ ] 2. Bump package.json "version" (semver)
-[ ] 3. npm test
-[ ] 4. npm run build:win
-[ ] 5. Copy dist portable → website/downloads/ApexTimeZones-Portable.exe
-[ ] 6. Update website/updates/latest.json (version, notes, date)
-[ ] 7. Bump version strings on marketing site (hero/download meta if shown)
-[ ] 8. Confirm Apex Forge footer on app + website
-[ ] 9. git add / commit / push main
-[ ] 10. Wait for Netlify deploy; smoke-test /download and /updates/latest.json
-[ ] 11. Launch previous portable once; confirm update banner appears
+[ ] 2. Sports fixtures changed? Edit scripts/build-sports-data.mjs, then
+       node scripts/build-sports-data.mjs   (regenerates bundled + feed JSON)
+[ ] 3. Bump package.json "version" (semver)
+[ ] 4. npm test   (includes catalog schema validation)
+[ ] 5. npm run build:win   (or npm run pack for portable only)
+[ ] 6. node scripts/release-prep.mjs   (copies portable, writes latest.json
+       with sha256 + sizeBytes, bumps site version label)
+[ ] 7. Confirm Apex Forge footer on app + website
+[ ] 8. git add / commit / push main
+[ ] 9. Wait for Netlify deploy; smoke-test /download, /updates/latest.json,
+       and /data/sports/v2/catalog.json
+[ ] 10. Launch previous portable once; confirm update banner + hash-verified install
 ```
+
+**Sports data only** (no app changes): edit `scripts/build-sports-data.mjs`,
+run it, `npm test`, push. Installed apps pick the new catalog up within ~6 hours
+— no binary, no version bump.
 
 Helper script:
 

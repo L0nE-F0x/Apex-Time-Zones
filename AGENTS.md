@@ -11,7 +11,9 @@
 
 ## Stack
 
-- Electron main: `electron/`
+- Electron main: `electron/` (incl. `sportsFeed.js` — over-the-air sports catalog)
 - Renderer: `src/` → bundled to `src/js/app.bundle.js`
+- Sports data source of truth: `scripts/build-sports-data.mjs` → run it after edits
+  (emits `src/data/sports-catalog.json` + `website/data/sports/v2/catalog.json`)
 - Marketing: `website/` (Netlify publish root via `netlify.toml`)
 - Tests: `npm test` → `tests/timeMath.test.mjs`, `tests/sports.test.mjs`

@@ -111,32 +111,49 @@
     return past ? core + ' ago' : core;
   }
 
-  const demos = [
+  // Upcoming sessions come from the same data feed the app uses, so the
+  // site can never drift from the product. Static fallback covers file://
+  // previews and fetch failures.
+  const fallback = [
     {
       title: 'Belgian Grand Prix',
       venueTz: 'Europe/Brussels',
-      city: 'Spa',
-      when: wallApprox('2026-07-26', '15:00', 'Europe/Brussels'),
-    },
-    {
-      title: 'Hungarian Grand Prix',
-      venueTz: 'Europe/Budapest',
-      city: 'Budapest',
-      when: wallApprox('2026-08-02', '15:00', 'Europe/Budapest'),
-    },
-    {
-      title: 'Dutch Grand Prix',
-      venueTz: 'Europe/Amsterdam',
-      city: 'Zandvoort',
-      when: wallApprox('2026-08-30', '15:00', 'Europe/Amsterdam'),
+      city: 'Spa-Francorchamps',
+      when: wallApprox('2026-07-19', '15:00', 'Europe/Brussels'),
     },
   ];
+  let upcoming = [];
+
+  async function loadCatalog() {
+    try {
+      const res = await fetch('data/sports/v2/catalog.json', { cache: 'no-store' });
+      const cat = await res.json();
+      const rows = [];
+      for (const s of cat.series || []) {
+        for (const e of s.events || []) {
+          for (const sess of e.sessions || []) {
+            const dateStr = sess.type === 'window' ? sess.startDate : sess.date;
+            const timeStr = sess.type === 'window' ? sess.firstCallTime || '08:00' : sess.time;
+            if (!dateStr || !timeStr) continue;
+            const when = wallApprox(dateStr, timeStr, e.tz);
+            if (!when) continue;
+            rows.push({ title: e.name, venueTz: e.tz, city: e.city, when });
+          }
+        }
+      }
+      rows.sort((a, b) => a.when - b.when);
+      if (rows.length) upcoming = rows;
+    } catch {
+      /* fallback stays */
+    }
+  }
 
   function tickHud() {
     const now = new Date();
-    let best = demos[0];
+    const pool = upcoming.length ? upcoming : fallback;
+    let best = pool[0];
     let bestDiff = Infinity;
-    for (const d of demos) {
+    for (const d of pool) {
       if (!d.when) continue;
       const diff = d.when.getTime() - now.getTime();
       if (diff > -3600000 && diff < bestDiff) {
@@ -144,6 +161,7 @@
         best = d;
       }
     }
+    if (!best) best = fallback[0];
     const when = best.when || new Date(now.getTime() + 3 * 86400000);
     const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const set = (id, v) => {
@@ -160,4 +178,5 @@
 
   tickHud();
   setInterval(tickHud, 1000);
+  loadCatalog().then(tickHud);
 })();

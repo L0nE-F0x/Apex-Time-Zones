@@ -21,6 +21,13 @@
     Cache-Control = "public, max-age=60"
 
 [[headers]]
+  for = "/data/*"
+  [headers.values]
+    Content-Type = "application/json"
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=300"
+
+[[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"

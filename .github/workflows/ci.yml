@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Validate sports catalog
+        run: node scripts/build-sports-data.mjs
+      - name: Unit tests
+        run: npm test
+      - name: Production bundle
+        run: npm run bundle:prod
+      - name: Portable build (packaging sanity)
+        if: github.ref == 'refs/heads/main'
+        run: npx electron-builder --win portable

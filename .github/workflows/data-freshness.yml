@@ -1,0 +1,17 @@
+name: Sports data freshness
+
+on:
+  schedule:
+    # Mondays 09:00 UTC — a red run means the catalog needs new fixtures.
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check-data-freshness.mjs
