@@ -12,8 +12,8 @@ const store = require('./store');
 
 /** Feed URLs tried in order until one succeeds */
 const DEFAULT_FEED_URLS = [
-  // Prefer live marketing site once Netlify is linked (override via store.updateFeedUrl)
-  'https://apex-time-zones.netlify.app/updates/latest.json',
+  // Production marketing site (Netlify)
+  'https://apextimezones.netlify.app/updates/latest.json',
   // GitHub raw (works if repo is public)
   'https://raw.githubusercontent.com/L0nE-F0x/Apex-Time-Zones/main/website/updates/latest.json',
 ];

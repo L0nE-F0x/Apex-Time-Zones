@@ -27,7 +27,9 @@ Static site lives in [`website/`](website/):
 3. Settings are in `netlify.toml` (no build command; publish `website`)
 4. Deploy — the **Download** button serves `/downloads/ApexTimeZones-Portable.exe`
 
-Shortcut: `https://YOUR-SITE.netlify.app/download`
+Live site: [apextimezones.netlify.app](https://apextimezones.netlify.app/)  
+Download: [apextimezones.netlify.app/download](https://apextimezones.netlify.app/download)  
+Update feed: [apextimezones.netlify.app/updates/latest.json](https://apextimezones.netlify.app/updates/latest.json)
 
 ## Install (normal Windows app)
 

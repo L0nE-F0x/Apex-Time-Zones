@@ -38,10 +38,10 @@ This is the **project method** for every feature batch from now on.
 ### Feed URLs the app tries (in order)
 
 1. User override `updateFeedUrl` (if set)
-2. `https://apex-time-zones.netlify.app/updates/latest.json` (default Netlify hostname — change in `electron/updater.js` if you use a custom domain)
+2. `https://apextimezones.netlify.app/updates/latest.json` (production Netlify site)
 3. `https://raw.githubusercontent.com/L0nE-F0x/Apex-Time-Zones/main/website/updates/latest.json` (works when the repo is public)
 
-After Netlify gives you a final URL or custom domain, update `DEFAULT_FEED_URLS` in `electron/updater.js` once so all installs hit the right host.
+If the public site URL changes (custom domain), update `DEFAULT_FEED_URLS` in `electron/updater.js`.
 
 ## Feature-batch checklist (every release)
 
@@ -86,7 +86,7 @@ Unsigned builds may still show SmartScreen on first run of a newly downloaded EX
 
 - Config: root `netlify.toml` → `publish = "website"`
 - Import GitHub repo; no build command
-- After first deploy, note the `*.netlify.app` URL and keep `electron/updater.js` feed list in sync
+- Live site: https://apextimezones.netlify.app/ (keep `electron/updater.js` feed list in sync if this changes)
 
 ## What not to do
 

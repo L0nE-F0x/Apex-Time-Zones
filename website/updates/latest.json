@@ -2,7 +2,7 @@
   "version": "1.2.0",
   "publishedAt": "2026-07-17",
   "downloadPath": "/downloads/ApexTimeZones-Portable.exe",
-  "downloadUrl": "/downloads/ApexTimeZones-Portable.exe",
+  "downloadUrl": "https://apextimezones.netlify.app/downloads/ApexTimeZones-Portable.exe",
   "mandatory": false,
-  "releaseNotes": "In-app updates, Apex Forge branding, documented release workflow."
+  "releaseNotes": "In-app updates, Built by Apex Forge branding, and release workflow for Netlify-powered rollouts."
 }

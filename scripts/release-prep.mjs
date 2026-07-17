@@ -39,11 +39,12 @@ const releaseNotes =
   notesArg ||
   `ApexTimeZones ${version} — see GitHub release notes / changelog.`;
 
+const siteBase = process.env.APEX_SITE_URL || 'https://apextimezones.netlify.app';
 const latest = {
   version,
   publishedAt: today,
   downloadPath: '/downloads/ApexTimeZones-Portable.exe',
-  downloadUrl: '/downloads/ApexTimeZones-Portable.exe',
+  downloadUrl: `${siteBase.replace(/\/$/, '')}/downloads/ApexTimeZones-Portable.exe`,
   mandatory: false,
   releaseNotes,
 };
