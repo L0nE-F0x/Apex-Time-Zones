@@ -13,8 +13,10 @@ const {
 const path = require('path');
 const fs = require('fs');
 const store = require('./store');
+const updater = require('./updater');
 
 const isDev = process.argv.includes('--dev');
+const APEX_FORGE_URL = 'https://ame-apexforge.org/';
 let mainWindow = null;
 let widgetWindow = null;
 let tray = null;
@@ -237,7 +239,21 @@ function buildTrayMenu() {
         applyStartWithWindows(item.checked);
       },
     },
+    {
+      label: 'Check for updates…',
+      click: () => {
+        updater.checkForUpdates({ silent: false }).catch(() => {});
+        if (mainWindow) {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+      },
+    },
     { type: 'separator' },
+    {
+      label: 'Built by Apex Forge',
+      click: () => shell.openExternal(APEX_FORGE_URL),
+    },
     {
       label: 'Quit',
       click: () => {
@@ -420,6 +436,11 @@ function setupIpc() {
       shell.openExternal(url);
     }
   });
+
+  ipcMain.handle('check-for-updates', async () => updater.checkForUpdates({ silent: false }));
+  ipcMain.handle('download-update', async () => updater.downloadAndInstall());
+  ipcMain.on('open-update-page', () => updater.openDownloadPage());
+  ipcMain.on('open-apex-forge', () => shell.openExternal(APEX_FORGE_URL));
 }
 
 function startReminderWatcher() {
@@ -471,6 +492,9 @@ if (!gotLock) {
     const s = store.read();
     if (s.startWithWindows) applyStartWithWindows(true);
     startReminderWatcher();
+    if (!isDev) {
+      updater.startPeriodicChecks();
+    }
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -486,6 +510,7 @@ app.on('before-quit', () => {
   isQuitting = true;
   globalShortcut.unregisterAll();
   clearInterval(reminderTimer);
+  updater.stopPeriodicChecks();
 });
 
 app.on('will-quit', () => {

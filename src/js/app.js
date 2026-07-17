@@ -602,6 +602,92 @@ els.btnSaveReminder?.addEventListener('click', () => {
 });
 
 // ——— Settings panel ———
+function wireUpdates() {
+  const banner = document.getElementById('updateBanner');
+  const title = document.getElementById('updateTitle');
+  const notes = document.getElementById('updateNotes');
+  const progWrap = document.getElementById('updateProgressWrap');
+  const progBar = document.getElementById('updateProgressBar');
+  const progLabel = document.getElementById('updateProgressLabel');
+  const btnNow = document.getElementById('btnUpdateNow');
+  const btnLater = document.getElementById('btnUpdateLater');
+
+  const showBanner = (info) => {
+    if (!banner) return;
+    if (title) {
+      title.textContent = `Update available · v${info.latestVersion || ''}`;
+    }
+    if (notes) {
+      notes.textContent =
+        info.releaseNotes ||
+        `You have v${info.currentVersion}. A newer build is ready to install.`;
+    }
+    banner.hidden = false;
+  };
+
+  apex?.onUpdateAvailable?.((info) => showBanner(info));
+  apex?.onUpdateNotAvailable?.((info) => {
+    if (banner) banner.hidden = true;
+    alert(`You're up to date (v${info?.currentVersion || ''}).`);
+  });
+  apex?.onUpdateProgress?.((p) => {
+    if (progWrap) progWrap.hidden = false;
+    if (progBar) progBar.style.width = `${p.percent || 0}%`;
+    if (progLabel) progLabel.textContent = `${p.percent || 0}% · ${p.status || ''}`;
+    if (btnNow) {
+      btnNow.disabled = true;
+      btnNow.textContent = p.status === 'installing' ? 'Restarting…' : 'Downloading…';
+    }
+  });
+  apex?.onUpdateError?.((err) => {
+    if (btnNow) {
+      btnNow.disabled = false;
+      btnNow.textContent = 'Update now';
+    }
+    alert('Update failed: ' + (err?.message || 'unknown error'));
+  });
+
+  btnLater?.addEventListener('click', () => {
+    if (banner) banner.hidden = true;
+  });
+  btnNow?.addEventListener('click', async () => {
+    if (btnNow) {
+      btnNow.disabled = true;
+      btnNow.textContent = 'Downloading…';
+    }
+    if (progWrap) progWrap.hidden = false;
+    try {
+      await apex?.downloadUpdate?.();
+    } catch (e) {
+      alert('Update failed: ' + (e?.message || e));
+      if (btnNow) {
+        btnNow.disabled = false;
+        btnNow.textContent = 'Update now';
+      }
+    }
+  });
+
+  document.getElementById('btnCheckUpdates')?.addEventListener('click', async () => {
+    try {
+      const r = await apex?.checkForUpdates?.();
+      if (r?.available) showBanner(r);
+      else if (r?.ok) alert(`You're up to date (v${r.currentVersion}).`);
+      else alert('Could not check for updates' + (r?.reason ? `: ${r.reason}` : '.'));
+    } catch (e) {
+      alert('Update check failed: ' + (e?.message || e));
+    }
+  });
+}
+
+function wireApexForge() {
+  const open = () => {
+    if (apex?.openApexForge) apex.openApexForge();
+    else apex?.openExternal?.('https://ame-apexforge.org/');
+  };
+  document.getElementById('btnApexForge')?.addEventListener('click', open);
+  document.getElementById('btnApexForgeSettings')?.addEventListener('click', open);
+}
+
 function wireSettings() {
   const panel = els.settingsPanel;
   if (!panel) return;
@@ -752,6 +838,8 @@ async function boot() {
   renderGroups();
   wireImportExport();
   wireSettings();
+  wireUpdates();
+  wireApexForge();
   maybeOnboard();
   scheduleRemindersToMain();
   updateClockTimes(new Date());

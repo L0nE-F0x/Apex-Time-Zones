@@ -2,9 +2,13 @@
 
 Sleek Windows **system-tray** world clock with a futuristic **3D Earth globe**, multi-city **Time Bridge**, and tools for sports, markets, and global events.
 
-**Current version: 1.1.0** (full refinement roadmap Phases 1–6)
+**Current version: 1.2.0** — in-app updates + Apex Forge branding
 
 **Repo:** [github.com/L0nE-F0x/Apex-Time-Zones](https://github.com/L0nE-F0x/Apex-Time-Zones)
+
+**Built by [Apex Forge](https://ame-apexforge.org/)**
+
+**Release method:** every feature batch follows [`docs/WORKFLOW.md`](docs/WORKFLOW.md) (build → portable → site download + `updates/latest.json` → push → Netlify → in-app update).
 
 ## Marketing site (Netlify)
 

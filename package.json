@@ -1,7 +1,7 @@
 {
   "name": "apex-timezones",
   "productName": "ApexTimeZones",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Sleek system-tray world clock with an interactive 3D Earth globe",
   "main": "electron/main.js",
   "author": "ApexTimeZones",
@@ -17,7 +17,8 @@
     "prebuild:win": "npm run bundle:prod",
     "pack": "npm run bundle:prod && electron-builder --win portable",
     "dist": "npm run bundle:prod && electron-builder --win",
-    "build:win": "electron-builder --win nsis portable"
+    "build:win": "electron-builder --win nsis portable",
+    "release:prep": "node scripts/release-prep.mjs"
   },
   "dependencies": {},
   "devDependencies": {

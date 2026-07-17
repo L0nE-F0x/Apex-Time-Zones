@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('apex', {
   close: () => ipcRenderer.send('window-close'),
   getVersion: () => ipcRenderer.invoke('get-app-version'),
   openExternal: (url) => ipcRenderer.send('open-external', url),
+  openApexForge: () => ipcRenderer.send('open-apex-forge'),
 
   // settings / desktop
   getMainSettings: () => ipcRenderer.invoke('get-main-settings'),
@@ -35,4 +36,29 @@ contextBridge.exposeInMainWorld('apex', {
     return () => ipcRenderer.removeListener('toggle-widget-mode', handler);
   },
   isMaximized: () => ipcRenderer.invoke('is-maximized'),
+
+  // updates
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  downloadUpdate: () => ipcRenderer.invoke('download-update'),
+  openUpdatePage: () => ipcRenderer.send('open-update-page'),
+  onUpdateAvailable: (cb) => {
+    const handler = (_e, info) => cb(info);
+    ipcRenderer.on('update-available', handler);
+    return () => ipcRenderer.removeListener('update-available', handler);
+  },
+  onUpdateNotAvailable: (cb) => {
+    const handler = (_e, info) => cb(info);
+    ipcRenderer.on('update-not-available', handler);
+    return () => ipcRenderer.removeListener('update-not-available', handler);
+  },
+  onUpdateProgress: (cb) => {
+    const handler = (_e, info) => cb(info);
+    ipcRenderer.on('update-progress', handler);
+    return () => ipcRenderer.removeListener('update-progress', handler);
+  },
+  onUpdateError: (cb) => {
+    const handler = (_e, info) => cb(info);
+    ipcRenderer.on('update-error', handler);
+    return () => ipcRenderer.removeListener('update-error', handler);
+  },
 });

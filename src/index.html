@@ -149,9 +149,29 @@
           <span id="appVersion">v—</span>
           <span class="footer-dot">·</span>
           <span>Tray · Hotkey Ctrl+Alt+T</span>
+          <span class="footer-dot">·</span>
+          <button type="button" class="footer-link" id="btnApexForge" title="Apex Forge">Built by Apex Forge</button>
         </footer>
       </aside>
     </main>
+
+    <!-- Update banner -->
+    <div id="updateBanner" class="update-banner" hidden>
+      <div class="update-banner-inner">
+        <div class="update-copy">
+          <strong id="updateTitle">Update available</strong>
+          <p id="updateNotes" class="update-notes"></p>
+          <div class="update-progress-wrap" id="updateProgressWrap" hidden>
+            <div class="update-progress-bar"><span id="updateProgressBar"></span></div>
+            <span id="updateProgressLabel">0%</span>
+          </div>
+        </div>
+        <div class="update-actions">
+          <button type="button" class="ghost-btn" id="btnUpdateLater">Later</button>
+          <button type="button" class="primary-btn" id="btnUpdateNow">Update now</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Settings overlay -->
     <div id="settingsPanel" class="settings-panel" hidden>
@@ -177,9 +197,13 @@
         <select id="homeSelect" class="field-input select"></select>
         <div class="row-actions" style="margin-top:12px">
           <button type="button" class="ghost-btn" id="btnToggleWidget">Toggle mini widget mode</button>
+          <button type="button" class="ghost-btn" id="btnCheckUpdates">Check for updates</button>
         </div>
         <p class="muted" style="margin-top:12px">
-          Global hotkey: Ctrl+Alt+T (Cmd+Alt+T). Code signing / auto-update not configured in this build — see README.
+          Global hotkey: Ctrl+Alt+T. Updates download from the ApexTimeZones site (Netlify feed) and relaunch automatically.
+        </p>
+        <p class="muted" style="margin-top:8px">
+          <button type="button" class="footer-link" id="btnApexForgeSettings">Built by Apex Forge</button>
         </p>
       </div>
     </div>

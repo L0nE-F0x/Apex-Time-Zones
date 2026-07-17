@@ -522,10 +522,27 @@ main,
 .footer-links {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .footer-links a:hover {
   color: var(--cyan);
+}
+
+.built-by {
+  margin-top: 8px;
+}
+
+.built-by a {
+  color: var(--cyan);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.built-by a:hover {
+  color: var(--mint);
+  text-decoration: underline;
 }
 
 @media (max-width: 900px) {

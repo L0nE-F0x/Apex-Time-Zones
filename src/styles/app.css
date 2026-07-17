@@ -878,3 +878,71 @@ body.reduced-motion * {
 .panel-section.converter { max-height: none; }
 .sidepanel { overflow-y: auto; }
 .clock-list { max-height: min(220px, 28vh); }
+
+/* Update banner + Apex Forge */
+.update-banner {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 80;
+  pointer-events: none;
+}
+.update-banner[hidden] { display: none !important; }
+.update-banner-inner {
+  pointer-events: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(94, 242, 194, 0.35);
+  background: linear-gradient(135deg, rgba(8, 28, 40, 0.96), rgba(6, 14, 28, 0.96));
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 30px rgba(94, 242, 194, 0.12);
+}
+.update-copy { flex: 1; min-width: 200px; }
+.update-copy strong { color: var(--mint); letter-spacing: 0.04em; }
+.update-notes {
+  margin-top: 4px;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 3.6em;
+  overflow: hidden;
+}
+.update-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.update-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.update-progress-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.update-progress-bar span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--cyan), var(--mint));
+  transition: width 0.2s;
+}
+#updateProgressLabel { font-family: var(--mono); font-size: 11px; color: var(--text-mute); }
+.footer-link {
+  border: none;
+  background: none;
+  color: var(--cyan);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 0;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+.footer-link:hover { color: var(--mint); text-decoration: underline; }
+.panel-footer { flex-wrap: wrap; gap: 4px 6px; }
