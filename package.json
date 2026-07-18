@@ -1,7 +1,7 @@
 {
   "name": "apex-timezones",
   "productName": "ApexTimeZones",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "System-tray world clock with 3D globe, verified sports schedules, and dual-zone tune-in times",
   "main": "electron/main.js",
   "author": "ApexTimeZones",

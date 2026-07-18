@@ -13,7 +13,7 @@
   --line-strong: rgba(77, 201, 255, 0.28);
   --font: "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, sans-serif;
   --mono: "Cascadia Code", "Consolas", ui-monospace, monospace;
-  --max: 1080px;
+  --max: 1120px;
   --radius: 10px;
 }
 
@@ -587,4 +587,98 @@ main,
     display: flex;
     flex-direction: column;
   }
+}
+
+
+/* ——— How it works ——— */
+.how {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 8px 22px 56px;
+}
+
+.section-head.center {
+  text-align: center;
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 28px;
+}
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.how-card {
+  padding: 22px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(9, 14, 22, 0.92);
+  transition: border-color 0.15s;
+}
+
+.how-card:hover {
+  border-color: var(--line-strong);
+}
+
+.how-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 10px;
+}
+
+.how-card h3 {
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.how-card p {
+  font-size: 0.92rem;
+  color: var(--dim);
+  line-height: 1.55;
+}
+
+.how-card kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--line-strong);
+  background: rgba(0, 0, 0, 0.35);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+}
+
+.checklist a {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.checklist a:hover {
+  text-decoration: underline;
+}
+
+.sport-cards {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 900px) {
+  .how-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Slightly stronger hero meta */
+.meta-row li {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
 }

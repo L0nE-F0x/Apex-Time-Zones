@@ -550,15 +550,32 @@ select {
   padding-right: 2px;
 }
 
-.clock-list::-webkit-scrollbar,
-.search-results::-webkit-scrollbar {
-  width: 6px;
+/* Themed scrollbars — every panel, not just clocks */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(77, 201, 255, 0.35) transparent;
 }
 
-.clock-list::-webkit-scrollbar-thumb,
-.search-results::-webkit-scrollbar-thumb {
-  background: rgba(77, 201, 255, 0.25);
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(77, 201, 255, 0.28);
   border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(77, 201, 255, 0.45);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .clock-card {

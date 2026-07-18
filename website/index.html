@@ -4,11 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ApexTimeZones — sports times on a real 3D Earth</title>
-  <meta name="description" content="Windows tray app for world clocks and sports schedules. F1, World Cup, UFC, WSL surfing, MotoGP and more — venue time and your local time on a 3D globe." />
-  <meta property="og:title" content="ApexTimeZones" />
-  <meta property="og:description" content="Know when to tune in — from your timezone." />
-  <meta property="og:image" content="assets/icon.png" />
+  <meta name="description" content="Windows tray app for world clocks and sports schedules. F1, UFC, club football, surfing and more — venue time and your local time on a live 3D Earth. Follow series, get reminders, never miss a session." />
+  <meta name="theme-color" content="#06090f" />
+  <meta name="author" content="Apex Forge" />
+  <link rel="canonical" href="https://apextimezones.netlify.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ApexTimeZones" />
+  <meta property="og:url" content="https://apextimezones.netlify.app/" />
+  <meta property="og:title" content="ApexTimeZones — know when to tune in" />
+  <meta property="og:description" content="Sports schedules and world clocks on a real 3D Earth. Lives in your Windows system tray. Follow a series, see Up Next, convert any kickoff to your time." />
+  <meta property="og:image" content="https://apextimezones.netlify.app/assets/og-share.png" />
+  <meta property="og:image:secure_url" content="https://apextimezones.netlify.app/assets/og-share.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ApexTimeZones — 3D Earth with sports schedules and world clocks" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ApexTimeZones — know when to tune in" />
+  <meta name="twitter:description" content="Sports schedules + world clocks on a real 3D Earth. Windows tray app from Apex Forge." />
+  <meta name="twitter:image" content="https://apextimezones.netlify.app/assets/og-share.png" />
+  <meta name="twitter:image:alt" content="ApexTimeZones app preview with Earth globe" />
+
   <link rel="icon" href="assets/icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/icon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -19,34 +42,37 @@
       <img src="assets/icon.png" width="32" height="32" alt="" class="brand-mark" />
       <span class="brand-word">ApexTimeZones</span>
     </a>
-    <nav class="nav-links">
+    <nav class="nav-links" aria-label="Page">
+      <a href="#how">How it works</a>
       <a href="#sports">Sports</a>
       <a href="#features">Features</a>
       <a href="#download">Download</a>
     </nav>
-    <a class="btn btn-primary btn-sm" href="downloads/ApexTimeZones-Portable.exe" download>Download</a>
+    <a class="btn btn-primary btn-sm" href="downloads/ApexTimeZones-Portable.exe">Download free</a>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <p class="kicker">Windows · system tray</p>
+        <p class="kicker">Windows · system tray · free portable</p>
         <h1>Know when to tune in — from your timezone.</h1>
         <p class="lede">
-          A small desktop app for people who follow sports and events across the planet.
-          Pin cities, drop Formula&nbsp;1, club football, or UFC cards on a real 3D Earth,
-          and read venue kickoff next to your local time.
+          ApexTimeZones is a calm desktop app for sports fans and anyone living across cities.
+          Pin the places you care about, drop a whole season onto a real 3D Earth, and read
+          venue kickoff next to <em>your</em> local time — with Up Next, reminders, and a
+          one-tap “When?” converter.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary btn-lg" href="downloads/ApexTimeZones-Portable.exe" download>
+          <a class="btn btn-primary btn-lg" href="downloads/ApexTimeZones-Portable.exe">
             Download for Windows
           </a>
-          <a class="btn btn-ghost btn-lg" href="#features">See what’s included</a>
+          <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
         </div>
         <ul class="meta-row">
-          <li><strong>13</strong> sports covered</li>
-          <li><strong>95</strong> events on the globe</li>
-          <li><strong>120+</strong> cities &amp; venues</li>
+          <li><strong>13</strong> sports series</li>
+          <li><strong>95+</strong> events mapped</li>
+          <li><strong>120+</strong> cities</li>
+          <li><strong>OTA</strong> schedule updates</li>
         </ul>
       </div>
 
@@ -58,7 +84,7 @@
           </div>
           <aside class="hud-card" id="hudCard">
             <span class="hud-kicker">Next up</span>
-            <strong id="hudTitle">Belgian Grand Prix</strong>
+            <strong id="hudTitle">Loading schedule…</strong>
             <div class="hud-count" id="hudCount">—</div>
             <div class="hud-times">
               <div><span>Venue</span><b id="hudVenue">—</b></div>
@@ -70,64 +96,72 @@
       </div>
     </section>
 
+    <section class="how" id="how">
+      <div class="section-head center">
+        <h2>Three simple panels. One job: never miss the moment.</h2>
+        <p>Left side stays out of the way of the globe. Everything is plain language — no finance dashboards, no crypto noise.</p>
+      </div>
+      <div class="how-grid">
+        <article class="how-card">
+          <span class="how-tag">Clocks</span>
+          <h3>Your cities, live</h3>
+          <p>Pin home and the places you follow. Day/night pins on the Earth, tray times at a glance, hotkey <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> to show or hide.</p>
+        </article>
+        <article class="how-card">
+          <span class="how-tag">Sports</span>
+          <h3>Seasons on the map</h3>
+          <p>Search F1, UFC, club football, surfing, tennis… Star a series for Up Next (All / Tonight / Live), dual-zone session tables, remind-all, and calendar export.</p>
+        </article>
+        <article class="how-card">
+          <span class="how-tag">When?</span>
+          <h3>Any kickoff → your time</h3>
+          <p>Three steps: when it starts, where it is, what time that is for you — plus every city you pin. Copy to share or set a reminder.</p>
+        </article>
+      </div>
+    </section>
+
     <section class="sports-band" id="sports">
       <div class="section-head">
         <h2>Search a series. Map the season.</h2>
         <p>
-          Open Sports, type a series name, and venues land on the globe with countdowns
-          and full session tables. Thirteen series and counting — schedules update over the
-          air, verified against official calendars. Also on the map: MotoGP, NFL, tennis
-          slams, golf majors, Tour de France, cricket, rugby, and the marathon majors.
+          Open Sports, type a name, and venues land on the globe with countdowns and full
+          session tables. Schedules update over the air — no reinstall. Thirteen series and
+          counting, from motorsport to marathon majors.
         </p>
       </div>
       <div class="sport-cards">
-        <article class="sport-card">
-          <h3>Formula 1</h3>
-          <p>All 22 rounds of 2026 — practice, qualifying, sprint, and race in venue and local time.</p>
-        </article>
-        <article class="sport-card">
-          <h3>FIFA World Cup</h3>
-          <p>Archive of the finale, then club football (UCL nights, Super Cup) so the map never goes quiet.</p>
-        </article>
-        <article class="sport-card">
-          <h3>UFC</h3>
-          <p>Numbered events and Fight Nights — prelims and main card, even when that means 3 a.m. your time.</p>
-        </article>
-        <article class="sport-card">
-          <h3>WSL Surfing</h3>
-          <p>Championship Tour waiting periods from Teahupoʻo to Pipeline, with first-call times.</p>
-        </article>
-        <article class="sport-card">
-          <h3>Club football</h3>
-          <p>After the World Cup final — Super Cup, Champions League nights, and league marquees in your zone.</p>
-        </article>
-        <article class="sport-card">
-          <h3>Tennis Finals</h3>
-          <p>US Open through WTA and ATP year-end finals with full session tables.</p>
-        </article>
+        <article class="sport-card"><h3>Formula 1</h3><p>Full 2026 calendar — practice, qualifying, sprint, and race in venue and local time.</p></article>
+        <article class="sport-card"><h3>Club football</h3><p>After the World Cup — Super Cup, Champions League nights, and league marquees in your zone.</p></article>
+        <article class="sport-card"><h3>UFC</h3><p>Fight Nights and numbered cards — prelims and main event, even at 3 a.m. your time.</p></article>
+        <article class="sport-card"><h3>WSL Surfing</h3><p>Waiting periods from Teahupoʻo to Pipeline, with first-call times.</p></article>
+        <article class="sport-card"><h3>MotoGP</h3><p>Sprint Saturdays and Sunday Grands Prix across the remaining calendar.</p></article>
+        <article class="sport-card"><h3>Tennis</h3><p>US Open through WTA and ATP year-end finals with full session tables.</p></article>
+        <article class="sport-card"><h3>NFL marquees</h3><p>Kickoff, London series, Thanksgiving, Christmas, Super Bowl week.</p></article>
+        <article class="sport-card"><h3>More on the map</h3><p>Golf, cycling, cricket, rugby, marathon majors — dual-zone every time.</p></article>
       </div>
     </section>
 
     <section class="features" id="features">
       <div class="feature-split">
         <div>
-          <h2>Built for people who live on world clocks.</h2>
+          <h2>Built for matchday — not a dashboard template.</h2>
           <ul class="checklist">
-            <li>3D Earth with day/night terminator and per-sport markers</li>
-            <li>Follow a series: Up Next (All / Tonight / Live), tray countdown, remind-all</li>
-            <li>Sports schedules update over the air — no reinstall</li>
-            <li>Session status (live / delayed / final) and dual-zone tune-in times</li>
-            <li>Export any event to your calendar (.ics)</li>
-            <li>When?: turn any kickoff into your local time</li>
-            <li>Verified downloads (SHA-256) · portable, no installer</li>
+            <li>Real 3D Earth with day/night terminator and per-sport markers</li>
+            <li>Follow a series: Up Next rail, tray countdown, remind-all</li>
+            <li>Session status — live, delayed, or final — so times stay honest</li>
+            <li>Schedules refresh over the air from the same feed as this site</li>
+            <li>When? converter for any kickoff or meeting across cities</li>
+            <li>Add sessions to Outlook, Google, or Apple Calendar</li>
+            <li>Portable Windows app · verified downloads (SHA-256)</li>
+            <li>Lives in the tray · Built by <a href="https://ame-apexforge.org/" target="_blank" rel="noopener">Apex Forge</a></li>
           </ul>
         </div>
-        <div class="feature-panel" id="demo">
-          <div class="panel-row"><span>Search</span><code>ufc</code> · <code>teahupoo</code> · <code>f1</code></div>
-          <div class="panel-row"><span>Result</span><span>venues land on the globe</span></div>
+        <div class="feature-panel" id="demo" aria-label="Live schedule snapshot">
+          <div class="panel-row"><span>Try searching</span><code>ufc</code> · <code>f1</code> · <code>teahupoo</code></div>
+          <div class="panel-row"><span>What happens</span><span>venues land on the globe</span></div>
           <div class="panel-row"><span>Next session</span><span id="termNext">—</span></div>
-          <div class="panel-row highlight"><span>Tune in (local)</span><span id="termLocal">—</span></div>
-          <div class="panel-row"><span>Also</span><span>Pin Denpasar · Asia/Makassar</span></div>
+          <div class="panel-row highlight"><span>Tune in (your time)</span><span id="termLocal">—</span></div>
+          <div class="panel-row"><span>Also</span><span>Star series · Up Next · Reminders</span></div>
         </div>
       </div>
     </section>
@@ -136,16 +170,20 @@
       <div class="download-card">
         <img src="assets/icon.png" width="72" height="72" alt="" class="dl-icon" />
         <h2>Download ApexTimeZones</h2>
-        <p>Portable for Windows. Double-click to run. Updates check this site when a new build ships.</p>
-        <a class="btn btn-primary btn-xl" href="downloads/ApexTimeZones-Portable.exe" download>
-          Get ApexTimeZones-Portable.exe
+        <p>
+          Free portable for Windows. Double-click to run — no installer required.
+          The app checks this site for updates and can install them for you.
+        </p>
+        <a class="btn btn-primary btn-xl" href="downloads/ApexTimeZones-Portable.exe">
+          Get ApexTimeZones for Windows
         </a>
         <p class="dl-meta">
-          Version 2.3.0 · Windows 10/11 x64 · about 80&nbsp;MB<br />
-          First launch may show SmartScreen (unsigned) — More info → Run anyway.
+          Version 2.3.1 · Windows 10/11 x64 · about 80&nbsp;MB<br />
+          First launch may show SmartScreen (unsigned build) — More info → Run anyway.
         </p>
         <div class="dl-links">
-          <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">Source on GitHub</a>
+          <a href="https://github.com/L0nE-F0x/Apex-Time-Zones/releases/latest" target="_blank" rel="noopener">GitHub Releases</a>
+          <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">Source code</a>
           <a href="updates/latest.json" target="_blank" rel="noopener">Update feed</a>
         </div>
       </div>
@@ -161,7 +199,7 @@
     <div class="footer-links">
       <a href="https://ame-apexforge.org/" target="_blank" rel="noopener">Apex Forge</a>
       <a href="https://github.com/L0nE-F0x/Apex-Time-Zones" target="_blank" rel="noopener">GitHub</a>
-      <a href="downloads/ApexTimeZones-Portable.exe" download>Download</a>
+      <a href="downloads/ApexTimeZones-Portable.exe">Download</a>
     </div>
   </footer>
 

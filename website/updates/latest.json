@@ -1,10 +1,10 @@
 {
-  "version": "2.3.0",
+  "version": "2.3.1",
   "publishedAt": "2026-07-18",
   "downloadPath": "/downloads/ApexTimeZones-Portable.exe",
-  "downloadUrl": "https://github.com/L0nE-F0x/Apex-Time-Zones/releases/download/v2.3.0/ApexTimeZones-Portable-2.3.0.exe",
+  "downloadUrl": "https://github.com/L0nE-F0x/Apex-Time-Zones/releases/download/v2.3.1/ApexTimeZones-Portable-2.3.1.exe",
   "mandatory": false,
-  "releaseNotes": "2.3: consumer-friendly UX — menu panel on the left, finance/crypto residue removed, When? time converter redesigned for real people, no JSON jargon, sports-only city lists.",
-  "sha256": "ef0fd229d93f89da1831bf71104a3b69d8b19c446b8bcd9171067cad67cb147b",
-  "sizeBytes": 83992388
+  "releaseNotes": "2.3.1: themed scrollbars on every panel; full marketing site upgrade with OG/Twitter share image, How it works, sports coverage, and updated social metadata.",
+  "sha256": "16eb795a35435f206fcfc766ebf08d353086632b37cec87e779566932078c62f",
+  "sizeBytes": 83992420
 }
