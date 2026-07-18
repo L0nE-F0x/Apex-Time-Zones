@@ -336,8 +336,8 @@ export function formatConversionCopy(eventLabel, sourceCity, rows, localRow) {
 }
 
 /**
- * Quick event chips: return { dateStr, timeStr, fromTz?, label }
- * fromTz optional — often leave as current event zone
+ * Quick time chips for the Convert tab (sports & everyday — not markets).
+ * Returns { dateStr, timeStr, fromTz?, label }. fromTz optional — often leave as current event zone
  */
 export function quickEventPresets(now = new Date(), localTz = getLocalTimeZone()) {
   const pad = (n) => String(n).padStart(2, '0');
@@ -350,11 +350,24 @@ export function quickEventPresets(now = new Date(), localTz = getLocalTimeZone()
   const in2Date = `${p2.year}-${pad(p2.month)}-${pad(p2.day)}`;
   const in2Time = `${pad(p2.hour)}:${pad(p2.minute)}`;
 
-  // Tonight 20:00 local
+  // Tonight 20:00 local (common primetime)
   const tonightTime = '20:00';
   const tonightDate = dateStr;
 
-  // US market open 09:30 America/New_York
+  // Weekend-ish: next Saturday noon local
+  const localDow = new Date(
+    Date.UTC(localParts.year, localParts.month - 1, localParts.day, 12)
+  );
+  // Use wall day-of-week via Intl
+  const dowName = new Intl.DateTimeFormat('en-US', { timeZone: localTz, weekday: 'short' }).format(now);
+  const dowMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const dow = dowMap[dowName] ?? 0;
+  const daysUntilSat = (6 - dow + 7) % 7 || 7; // next Saturday (not today if Saturday → +7 for a true "next")
+  const sat = new Date(now.getTime() + daysUntilSat * 86400000);
+  const satParts = readWallParts(sat, localTz);
+  const satDate = `${satParts.year}-${pad(satParts.month)}-${pad(satParts.day)}`;
+
+  // Sports-friendly venue shortcuts (kickoff / race windows people actually convert)
   const nyDate = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/New_York',
     year: 'numeric',
@@ -362,7 +375,6 @@ export function quickEventPresets(now = new Date(), localTz = getLocalTimeZone()
     day: '2-digit',
   }).format(now);
 
-  // London 15:00 (classic finance)
   const lonDate = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/London',
     year: 'numeric',
@@ -370,20 +382,12 @@ export function quickEventPresets(now = new Date(), localTz = getLocalTimeZone()
     day: '2-digit',
   }).format(now);
 
-  // Asia open 09:00 Tokyo
-  const tyoDate = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(now);
-
   return [
     { id: 'in2h', label: 'In 2 hours', dateStr: in2Date, timeStr: in2Time, fromTz: localTz },
-    { id: 'tonight', label: 'Tonight 8pm local', dateStr: tonightDate, timeStr: tonightTime, fromTz: localTz },
-    { id: 'usopen', label: 'US market open', dateStr: nyDate, timeStr: '09:30', fromTz: 'America/New_York' },
-    { id: 'lon15', label: 'London 3pm', dateStr: lonDate, timeStr: '15:00', fromTz: 'Europe/London' },
-    { id: 'asiaopen', label: 'Tokyo open', dateStr: tyoDate, timeStr: '09:00', fromTz: 'Asia/Tokyo' },
+    { id: 'tonight', label: 'Tonight 8pm', dateStr: tonightDate, timeStr: tonightTime, fromTz: localTz },
+    { id: 'satnoon', label: 'Sat noon (you)', dateStr: satDate, timeStr: '12:00', fromTz: localTz },
+    { id: 'lonko', label: 'London 3pm kickoff', dateStr: lonDate, timeStr: '15:00', fromTz: 'Europe/London' },
+    { id: 'nyprime', label: 'NY 8pm primetime', dateStr: nyDate, timeStr: '20:00', fromTz: 'America/New_York' },
   ];
 }
 

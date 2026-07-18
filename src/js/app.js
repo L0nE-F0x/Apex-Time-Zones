@@ -366,13 +366,22 @@ function populateZoneSelect() {
   for (const city of CITIES) {
     if (seen.has(city.tz)) continue;
     seen.add(city.tz);
-    options.push({ tz: city.tz, label: `${city.name} — ${city.tz}` });
+    options.push({ tz: city.tz, label: `${city.name} (${city.region})` });
   }
   options.sort((a, b) => a.label.localeCompare(b.label));
+  const current = els.eventZone.value;
   els.eventZone.innerHTML = options
     .map((o) => `<option value="${o.tz}">${escapeHtml(o.label)}</option>`)
     .join('');
-  els.eventZone.value = 'Europe/London';
+  // Prefer a sensible default: London (common sports kickoff), else local city, else first
+  if (current && options.some((o) => o.tz === current)) {
+    els.eventZone.value = current;
+  } else if (options.some((o) => o.tz === 'Europe/London')) {
+    els.eventZone.value = 'Europe/London';
+  } else {
+    const home = settings.homeCityId ? getCityById(settings.homeCityId) : null;
+    if (home) els.eventZone.value = home.tz;
+  }
 }
 
 function populateHomeSelect() {
@@ -402,7 +411,7 @@ function updateBridge() {
     withDate: true,
     hour12: hour12(),
   });
-  els.bridgeValue.textContent = `${localFmt.time} · ${localFmt.day}`;
+  els.bridgeValue.textContent = `${localFmt.time}  ·  ${localFmt.day}`;
   const eventCity = CITIES.find((c) => c.tz === fromTz);
   const label = eventCity ? eventCity.name : fromTz;
   const srcFmt = formatTime(result.instant, fromTz, {
@@ -410,7 +419,7 @@ function updateBridge() {
     withDate: true,
     hour12: hour12(),
   });
-  els.bridgeDelta.textContent = `when it is ${srcFmt.time} in ${label}`;
+  els.bridgeDelta.textContent = `When it's ${srcFmt.time} in ${label}.`;
 
   // Multi-city table for pinned zones
   const zones = pinnedIds
@@ -419,10 +428,14 @@ function updateBridge() {
     .map((c) => ({ id: c.id, name: c.name, tz: c.tz }));
   // ensure local represented
   const multi = convertEventToZones(dateStr, timeStr, fromTz, zones, localTz, hour12());
-  if (multi && els.bridgeTable) {
-    els.bridgeTable.innerHTML = `
+  if (els.bridgeTable) {
+    if (!zones.length) {
+      els.bridgeTable.innerHTML =
+        `<div class="bridge-table-empty">Pin a few cities on the Clocks tab to compare times side by side.</div>`;
+    } else if (multi) {
+      els.bridgeTable.innerHTML = `
       <table class="bridge-table">
-        <thead><tr><th>City</th><th>Time</th><th>vs you</th></tr></thead>
+        <thead><tr><th>City</th><th>Their time</th><th>Vs you</th></tr></thead>
         <tbody>
           ${multi.rows
             .map(
@@ -435,9 +448,10 @@ function updateBridge() {
             .join('')}
         </tbody>
       </table>`;
-    els.bridgeTable.querySelectorAll('tr[data-id]').forEach((tr) => {
-      tr.addEventListener('click', () => selectCity(tr.dataset.id));
-    });
+      els.bridgeTable.querySelectorAll('tr[data-id]').forEach((tr) => {
+        tr.addEventListener('click', () => selectCity(tr.dataset.id));
+      });
+    }
   }
 }
 
@@ -478,19 +492,19 @@ els.btnCopyBridge?.addEventListener('click', async () => {
   if (!multi) return;
   const eventCity = CITIES.find((c) => c.tz === fromTz);
   const text = formatConversionCopy(
-    `Event ${timeStr} ${dateStr}`,
-    eventCity ? `${eventCity.name} (${fromTz})` : fromTz,
+    `Event at ${timeStr} on ${dateStr}`,
+    eventCity ? eventCity.name : fromTz,
     multi.rows,
     { time: multi.local.time, day: multi.local.day }
   );
   try {
     await navigator.clipboard.writeText(text);
-    els.btnCopyBridge.textContent = 'Copied!';
+    els.btnCopyBridge.textContent = 'Copied — ready to paste';
     setTimeout(() => {
-      els.btnCopyBridge.textContent = 'Copy conversion';
+      els.btnCopyBridge.textContent = 'Copy to share';
     }, 1500);
   } catch {
-    els.btnCopyBridge.textContent = 'Copy failed';
+    els.btnCopyBridge.textContent = 'Could not copy';
   }
 });
 
@@ -500,31 +514,25 @@ function renderGroups() {
   const groups = settings.favoriteGroups || {};
   const names = Object.keys(groups);
   els.groupsBar.innerHTML =
-    `<button type="button" class="chip-btn ${!settings.activeGroup ? 'active' : ''}" data-group="">All pins</button>` +
+    `<button type="button" class="chip-btn ${!settings.activeGroup ? 'active' : ''}" data-group="" title="Show every city you pin">All my cities</button>` +
     names
       .map(
         (g) =>
-          `<button type="button" class="chip-btn ${settings.activeGroup === g ? 'active' : ''}" data-group="${escapeHtml(g)}">${escapeHtml(g)}</button>`
+          `<button type="button" class="chip-btn ${settings.activeGroup === g ? 'active' : ''}" data-group="${escapeHtml(g)}" title="Switch your clocks to the ${escapeHtml(g)} list">${escapeHtml(g)}</button>`
       )
-      .join('') +
-    `<button type="button" class="chip-btn" data-group="__apply">Apply group</button>`;
+      .join('');
   els.groupsBar.querySelectorAll('.chip-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const g = btn.dataset.group;
-      if (g === '__apply') {
-        if (settings.activeGroup && groups[settings.activeGroup]) {
-          pinnedIds = groups[settings.activeGroup].filter((id) => getCityById(id));
-          persistPins();
-          updateClockTimes(new Date());
-          updateBridge();
-        }
-        return;
-      }
+      const g = btn.dataset.group || '';
       settings = updateSettings({ activeGroup: g || null });
-      renderGroups();
       if (g && groups[g]) {
-        // highlight only — don't replace until Apply
+        pinnedIds = groups[g].filter((id) => getCityById(id));
+        persistPins();
+        updateClockTimes(new Date());
+        updateBridge();
+        globe?.setPinned?.(pinnedIds);
       }
+      renderGroups();
     });
   });
 }
@@ -536,7 +544,7 @@ function wireImportExport() {
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'apextimezones-pins.json';
+    a.download = 'My ApexTimeZones cities.backup.json';
     a.click();
     URL.revokeObjectURL(a.href);
   });
@@ -555,9 +563,9 @@ function wireImportExport() {
       updateClockTimes(new Date());
       populateHomeSelect();
       renderGroups();
-      alert('Import successful');
+      alert('Cities restored.');
     } catch (err) {
-      alert('Import failed: ' + err.message);
+      alert('Could not restore that file. ' + (err.message || 'Try a backup you saved from this app.'));
     }
     e.target.value = '';
   });

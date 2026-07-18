@@ -1,4 +1,4 @@
-/* ApexTimeZones — futuristic orbital clock UI */
+/* ApexTimeZones — sports & world-clock UI */
 
 :root {
   --bg-deep: #05080f;
@@ -386,9 +386,15 @@ select {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid var(--border);
+  order: 0;
+  border-right: 1px solid var(--border);
+  border-left: none;
   background: linear-gradient(180deg, rgba(8, 14, 28, 0.96), rgba(5, 10, 20, 0.98));
   overflow: hidden;
+}
+
+.stage {
+  order: 1;
 }
 
 .panel-section {
@@ -742,9 +748,12 @@ input[type="date"] {
   .workspace {
     flex-direction: column;
   }
+  .stage { order: 0; }
   .sidepanel {
+    order: 1;
     width: 100%;
     max-height: 42%;
+    border-right: none;
     border-left: none;
     border-top: 1px solid var(--border);
   }
@@ -1396,4 +1405,118 @@ body.reduced-motion .un-chip.live::after {
 .un-time,
 .cd-cell {
   font-variant-numeric: tabular-nums;
+}
+
+
+/* ——— Convert / When? panel ——— */
+.bridge-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+.bridge-step {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.step-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #041018;
+  background: var(--cyan);
+  margin-top: 18px;
+}
+.bridge-step.result-step .step-num {
+  background: var(--mint);
+}
+.step-body {
+  flex: 1;
+  min-width: 0;
+}
+.step-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+.bridge-result {
+  margin-top: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(94, 242, 194, 0.25);
+  background: linear-gradient(135deg, rgba(94, 242, 194, 0.1), rgba(77, 201, 255, 0.06));
+}
+.bridge-result .bridge-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--mint);
+  letter-spacing: 0.01em;
+}
+.bridge-result .bridge-delta {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.converter-help {
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+h2.subhead {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.bridge-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.bridge-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-mute);
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bridge-table td {
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(77, 201, 255, 0.06);
+  vertical-align: top;
+}
+.bridge-table tr {
+  cursor: pointer;
+}
+.bridge-table tr:hover td {
+  background: rgba(77, 201, 255, 0.06);
+}
+.bridge-table-wrap {
+  max-height: 220px;
+  overflow: auto;
+  margin-top: 6px;
+}
+.bridge-table-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-mute);
+  font-size: 12px;
+  border: 1px dashed rgba(77, 201, 255, 0.15);
+  border-radius: 8px;
 }

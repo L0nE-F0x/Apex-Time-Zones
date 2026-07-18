@@ -162,10 +162,15 @@ describe('solar day/night', () => {
 });
 
 describe('quickEventPresets', () => {
-  it('returns market and relative chips', () => {
+  it('returns everyday and sports-friendly chips (no market jargon)', () => {
     const p = quickEventPresets(new Date('2024-06-01T12:00:00Z'), 'America/New_York');
-    assert.ok(p.some((x) => x.id === 'usopen' && x.timeStr === '09:30'));
     assert.ok(p.some((x) => x.id === 'in2h'));
+    assert.ok(p.some((x) => x.id === 'tonight'));
+    assert.ok(p.some((x) => x.id === 'lonko' && x.timeStr === '15:00'));
+    assert.ok(p.some((x) => x.id === 'nyprime' && x.fromTz === 'America/New_York'));
+    const labels = p.map((x) => x.label.toLowerCase()).join(' ');
+    assert.ok(!labels.includes('market'));
+    assert.ok(!labels.includes('crypto'));
   });
 });
 

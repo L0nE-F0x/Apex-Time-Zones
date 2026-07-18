@@ -34,45 +34,18 @@
     </header>
 
     <main class="workspace">
-      <section class="stage" id="stage">
-        <canvas id="globeCanvas"></canvas>
-
-        <div class="up-next-rail hide-in-widget" id="upNextRail" role="region" aria-label="Up next sessions"></div>
-
-        <div class="stage-hud top-right hide-in-widget">
-          <div class="hud-panel sun-panel" title="Day/night on the globe follows the live sun position">
-            <span class="sun-dot"></span>
-            <span id="utcNow">UTC —</span>
-          </div>
-        </div>
-
-        <div class="stage-hud bottom-center" id="hoverCard" hidden>
-          <div class="hover-card">
-            <div class="hover-city" id="hoverCity">—</div>
-            <div class="hover-time" id="hoverTime">—</div>
-            <div class="hover-meta" id="hoverMeta">—</div>
-          </div>
-        </div>
-
-        <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite">
-          <div class="loader-ring" aria-hidden="true"></div>
-          <div class="loader-text">Loading Earth…</div>
-          <div class="loader-sub">Day/night textures · sports feed</div>
-        </div>
-      </section>
-
       <aside class="sidepanel">
         <div class="panel-tabs" role="tablist" aria-label="Main panels">
           <button type="button" class="panel-tab active" data-tab="clocks" id="tabClocks" role="tab" aria-selected="true" aria-controls="panelClocks">Clocks</button>
           <button type="button" class="panel-tab" data-tab="sports" id="tabSports" role="tab" aria-selected="false" aria-controls="panelSports" tabindex="-1">Sports</button>
-          <button type="button" class="panel-tab" data-tab="convert" id="tabConvert" role="tab" aria-selected="false" aria-controls="panelConvert" tabindex="-1">Convert</button>
+          <button type="button" class="panel-tab" data-tab="convert" id="tabConvert" title="Convert an event time to yours" role="tab" aria-selected="false" aria-controls="panelConvert" tabindex="-1">When?</button>
         </div>
 
         <div class="tab-panel" id="panelClocks" role="tabpanel" aria-labelledby="tabClocks">
         <div class="panel-section">
           <label class="field-label" for="searchInput">Add a city</label>
           <div class="search-wrap">
-            <input type="search" id="searchInput" class="search-input" aria-autocomplete="list" aria-controls="searchResults" placeholder="Tokyo, EST, Europe/London…" autocomplete="off" spellcheck="false" />
+            <input type="search" id="searchInput" class="search-input" aria-autocomplete="list" aria-controls="searchResults" placeholder="Tokyo, London, New York…" autocomplete="off" spellcheck="false" />
             <button class="search-clear" id="searchClear" title="Clear" hidden>✕</button>
           </div>
           <div class="search-results" id="searchResults" hidden></div>
@@ -85,6 +58,7 @@
           <div class="section-head">
             <h2>Your clocks</h2>
           </div>
+          <p class="muted" style="margin-bottom:6px">Quick lists — tap to switch which cities you follow</p>
           <div class="groups-bar" id="groupsBar"></div>
           <div class="clock-list" id="clockList" aria-live="polite"></div>
           <div class="legend-inline hide-in-widget" title="Pin colors on the globe">
@@ -100,34 +74,62 @@
         <div class="tab-panel" id="panelConvert" role="tabpanel" aria-labelledby="tabConvert" hidden>
         <div class="panel-section converter">
           <div class="section-head">
-            <h2>Time Bridge</h2>
-            <button type="button" class="ghost-btn" id="btnCopyBridge">Copy conversion</button>
+            <h2>When is it for me?</h2>
           </div>
-          <p class="converter-help">Any event time → your time and every pinned city's.</p>
+          <p class="converter-help">
+            Got a kickoff, race, or meeting in another city? Pick when and where it happens —
+            we show the time for you and everyone you pin.
+          </p>
+
+          <p class="field-label" style="margin-bottom:6px">Quick picks</p>
           <div class="bridge-chips" id="bridgeChips"></div>
-          <div class="converter-grid">
-            <div>
-              <label class="field-label" for="eventTime">Event time</label>
-              <input type="time" id="eventTime" class="field-input" value="15:00" />
+
+          <div class="bridge-steps">
+            <div class="bridge-step">
+              <span class="step-num" aria-hidden="true">1</span>
+              <div class="step-body">
+                <label class="field-label" for="eventDate">When does it start?</label>
+                <div class="converter-grid">
+                  <div>
+                    <input type="date" id="eventDate" class="field-input" aria-label="Event date" />
+                  </div>
+                  <div>
+                    <input type="time" id="eventTime" class="field-input" value="15:00" aria-label="Event time" />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="field-label" for="eventDate">Date</label>
-              <input type="date" id="eventDate" class="field-input" />
+            <div class="bridge-step">
+              <span class="step-num" aria-hidden="true">2</span>
+              <div class="step-body">
+                <label class="field-label" for="eventZone">Where is the event?</label>
+                <select id="eventZone" class="field-input select" aria-label="Event city"></select>
+                <p class="muted step-hint">Choose the city hosting the event (not your home).</p>
+              </div>
+            </div>
+            <div class="bridge-step result-step">
+              <span class="step-num" aria-hidden="true">3</span>
+              <div class="step-body">
+                <span class="field-label">Your time</span>
+                <div class="bridge-result" id="bridgeResult">
+                  <span class="bridge-value" id="bridgeValue">—</span>
+                  <span class="bridge-delta" id="bridgeDelta"></span>
+                </div>
+              </div>
             </div>
           </div>
-          <label class="field-label" for="eventZone">Event timezone</label>
-          <select id="eventZone" class="field-input select"></select>
-          <div class="bridge-result" id="bridgeResult">
-            <span class="bridge-label">Your local time</span>
-            <span class="bridge-value" id="bridgeValue">—</span>
-            <span class="bridge-delta" id="bridgeDelta"></span>
+
+          <div class="section-head" style="margin-top:12px">
+            <h2 class="subhead">Your pinned cities</h2>
+            <button type="button" class="ghost-btn" id="btnCopyBridge">Copy to share</button>
           </div>
           <div class="bridge-table-wrap" id="bridgeTable"></div>
         </div>
 
         <div class="panel-section">
           <div class="section-head"><h2>Remind me</h2></div>
-          <input type="text" id="reminderTitle" class="field-input" placeholder="Name this event (optional)" />
+          <p class="converter-help" style="margin-bottom:8px">Get a Windows notification before it starts.</p>
+          <input type="text" id="reminderTitle" class="field-input" placeholder="Name (optional) — e.g. Race start" />
           <div class="converter-grid" style="margin-top:8px">
             <div>
               <label class="field-label" for="reminderNotify">Minutes before</label>
@@ -166,8 +168,8 @@
             <div class="sports-tunein" id="sportsTuneIn"></div>
             <div class="sports-schedule" id="sportsSchedule"></div>
             <div class="row-actions">
-              <button type="button" class="ghost-btn" id="btnSportsToBridge">Send to Time Bridge</button>
-              <button type="button" class="ghost-btn" id="btnSportsIcs" title="Export sessions as an .ics calendar file">Add to calendar</button>
+              <button type="button" class="ghost-btn" id="btnSportsToBridge">See when it is for me</button>
+              <button type="button" class="ghost-btn" id="btnSportsIcs" title="Add these sessions to Outlook, Google Calendar, or Apple Calendar">Add to my calendar</button>
             </div>
           </div>
         </div>
@@ -177,11 +179,38 @@
           <span class="footer-dot" aria-hidden="true">·</span>
           <span id="appVersion">v—</span>
           <span class="footer-dot">·</span>
-          <span>Tray · Hotkey Ctrl+Alt+T</span>
+          <span>Lives in your tray · Ctrl+Alt+T</span>
           <span class="footer-dot">·</span>
           <button type="button" class="footer-link" id="btnApexForge" title="Apex Forge">Built by Apex Forge</button>
         </footer>
       </aside>
+
+      <section class="stage" id="stage">
+        <canvas id="globeCanvas"></canvas>
+
+        <div class="up-next-rail hide-in-widget" id="upNextRail" role="region" aria-label="Up next sessions"></div>
+
+        <div class="stage-hud top-right hide-in-widget">
+          <div class="hud-panel sun-panel" title="Day/night on the globe follows the live sun position">
+            <span class="sun-dot"></span>
+            <span id="utcNow">UTC —</span>
+          </div>
+        </div>
+
+        <div class="stage-hud bottom-center" id="hoverCard" hidden>
+          <div class="hover-card">
+            <div class="hover-city" id="hoverCity">—</div>
+            <div class="hover-time" id="hoverTime">—</div>
+            <div class="hover-meta" id="hoverMeta">—</div>
+          </div>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite">
+          <div class="loader-ring" aria-hidden="true"></div>
+          <div class="loader-text">Loading Earth…</div>
+          <div class="loader-sub">Day/night textures · sports feed</div>
+        </div>
+      </section>
     </main>
 
     <!-- Update banner -->
@@ -216,40 +245,40 @@
         <label class="check-row"><input type="checkbox" id="setReducedMotion" /> Reduced motion</label>
         <label class="check-row"><input type="checkbox" id="setShowGrid" /> Lat/lon grid</label>
         <label class="check-row"><input type="checkbox" id="setShowBands" /> Timezone band overlay</label>
-        <label class="field-label" for="setQuality">Render quality</label>
+        <label class="field-label" for="setQuality">Graphics quality</label>
         <select id="setQuality" class="field-input select">
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
         </select>
-        <label class="field-label" for="setPinDensity">City pins on globe</label>
+        <label class="field-label" for="setPinDensity">Which cities on the globe</label>
         <select id="setPinDensity" class="field-input select">
-          <option value="auto">Auto (declutter)</option>
-          <option value="pinned">Pinned &amp; home only</option>
-          <option value="all">Show all cities</option>
+          <option value="auto">Auto — less clutter</option>
+          <option value="pinned">Only my cities</option>
+          <option value="all">Show every city</option>
         </select>
         <label class="field-label" for="homeSelect">Home city</label>
         <select id="homeSelect" class="field-input select"></select>
-        <label class="field-label" for="hotkeyInput">Global hotkey</label>
+        <label class="field-label" for="hotkeyInput">Keyboard shortcut to show/hide</label>
         <div class="converter-grid">
           <input type="text" id="hotkeyInput" class="field-input" readonly placeholder="Click, then press keys" title="Click, then press the key combination you want" />
           <button type="button" class="ghost-btn" id="btnResetHotkey">Reset</button>
         </div>
-        <label class="field-label" for="traySelect">Tray cities (Ctrl-click for several, max 5 shown)</label>
+        <label class="field-label" for="traySelect">Cities in the system tray (hold Ctrl to pick several)</label>
         <select id="traySelect" class="field-input select" multiple size="5"></select>
         <div class="row-actions" style="margin-top:12px">
-          <button type="button" class="ghost-btn" id="btnToggleWidget">Toggle mini widget mode</button>
+          <button type="button" class="ghost-btn" id="btnToggleWidget">Compact window mode</button>
           <button type="button" class="ghost-btn" id="btnCheckUpdates">Check for updates</button>
         </div>
-        <label class="field-label" style="margin-top:12px">Pinned clocks</label>
+        <label class="field-label" style="margin-top:12px">Your cities</label>
         <div class="row-actions">
-          <button type="button" class="ghost-btn" id="btnExportPins">Export JSON</button>
-          <button type="button" class="ghost-btn" id="btnImportPins">Import JSON</button>
+          <button type="button" class="ghost-btn" id="btnExportPins" title="Save your pinned cities to a file">Backup cities</button>
+          <button type="button" class="ghost-btn" id="btnImportPins" title="Restore cities from a backup file">Restore cities</button>
           <button type="button" class="ghost-btn" id="btnResetPins">Reset to defaults</button>
-          <input type="file" id="importFile" accept="application/json,.json" hidden />
+          <input type="file" id="importFile" accept=".json,application/json" hidden />
         </div>
         <p class="muted" style="margin-top:12px">
-          Global hotkey: Ctrl+Alt+T. Updates download from the ApexTimeZones site (Netlify feed) and relaunch automatically.
+          Press <strong>Ctrl+Alt+T</strong> anywhere to show or hide the app. Updates install from the ApexTimeZones website automatically.
         </p>
         <p class="muted" style="margin-top:8px">
           <button type="button" class="footer-link" id="btnApexForgeSettings">Built by Apex Forge</button>
@@ -282,7 +311,7 @@
         </div>
         <div class="tour-step" data-step="2" hidden>
           <h2>Convert anything, from anywhere</h2>
-          <p>The <strong>Convert</strong> tab turns any event time into your time and every pinned city's — copy it, or save a reminder.</p>
+          <p>The <strong>When?</strong> tab turns any event time into your time and every pinned city's — copy it to share, or save a reminder.</p>
           <p>The app stays in your tray. Press <strong>Ctrl+Alt+T</strong> anywhere to show or hide it. Replay this tour anytime with the <strong>?</strong> button.</p>
         </div>
         <div class="tour-nav">
