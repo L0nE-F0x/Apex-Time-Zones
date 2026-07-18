@@ -44,3 +44,4 @@ if (stale.length) {
   process.exit(1);
 }
 console.log('Freshness OK.');
+console.log('(Tip: node scripts/sports-audit.mjs for a coverage report.)');

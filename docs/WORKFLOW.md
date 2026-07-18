@@ -51,7 +51,8 @@ If the public site URL changes (custom domain), update `DEFAULT_FEED_URLS` in `e
 [ ] 2. Sports fixtures changed? Edit scripts/build-sports-data.mjs, then
        node scripts/build-sports-data.mjs   (regenerates bundled + feed JSON)
 [ ] 3. Bump package.json "version" (semver)
-[ ] 4. npm test   (includes catalog schema validation)
+[ ] 4. npm test && npm run smoke   (schema + smoke checklist)
+[ ] 4b. npm run sports:audit   (optional coverage report)
 [ ] 5. npm run build:win   (or npm run pack for portable only)
 [ ] 6. node scripts/release-prep.mjs "notes"   (writes latest.json with
        sha256 + sizeBytes + GitHub Releases downloadUrl, bumps site label)

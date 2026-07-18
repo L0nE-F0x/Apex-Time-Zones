@@ -1,0 +1,46 @@
+name: Release
+
+# Draft a GitHub Release with portable + setup EXEs when a version tag is pushed.
+# Human still runs release-prep locally (or after download) to hash latest.json,
+# then pushes main so Netlify serves the feed. Prefer:
+#   npm run build:win && npm run release:prep "notes" && gh release create ...
+# This workflow automates the binary upload half when you push vX.Y.Z tags.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Validate sports catalog
+        run: node scripts/build-sports-data.mjs
+      - name: Unit tests
+        run: npm test
+      - name: Smoke checklist
+        run: node scripts/smoke-checklist.mjs
+      - name: Production bundle
+        run: npm run bundle:prod
+      - name: Build Windows NSIS + portable
+        run: npx electron-builder --win nsis portable
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            dist/ApexTimeZones-Portable-*.exe
+            dist/ApexTimeZones-Setup-*.exe
+            dist/ApexTimeZones-Portable.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

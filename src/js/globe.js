@@ -112,8 +112,49 @@ export class ApexGlobe {
   /**
    * Map sports events as diamond markers. events: [{ id, lat, lng, name, highlight? }]
    */
+  /** Build a sport-specific core mesh (glyph language). */
+  _sportCoreGeometry(glyph) {
+    switch (glyph) {
+      case 'octagon':
+        return new THREE.CylinderGeometry(0.02, 0.02, 0.01, 8);
+      case 'wave':
+        return new THREE.TorusGeometry(0.016, 0.006, 6, 12, Math.PI);
+      case 'flag':
+      case 'helmet':
+        return new THREE.ConeGeometry(0.018, 0.036, 5);
+      case 'ball':
+      case 'oval':
+        return new THREE.SphereGeometry(0.018, 10, 10);
+      case 'wheel':
+        return new THREE.TorusGeometry(0.016, 0.005, 6, 14);
+      case 'tee':
+        return new THREE.ConeGeometry(0.014, 0.032, 6);
+      case 'bat':
+        return new THREE.BoxGeometry(0.01, 0.034, 0.01);
+      case 'track':
+        return new THREE.TorusGeometry(0.017, 0.004, 6, 16);
+      case 'racket':
+        return new THREE.TorusGeometry(0.015, 0.005, 6, 12);
+      default:
+        return new THREE.OctahedronGeometry(0.022, 0);
+    }
+  }
+
+  /**
+   * Map sports events as markers. events: [{ id, lat, lng, name, color?, glyph?, highlight?, live? }]
+   */
   setEventMarkers(events = []) {
     if (!this.earthGroup) return;
+    // Clear old event labels
+    if (this.eventMarkers) {
+      for (const eid of this.eventMarkers.keys()) {
+        const el = this.labels.get('ev:' + eid);
+        if (el) {
+          el.remove();
+          this.labels.delete('ev:' + eid);
+        }
+      }
+    }
     if (this.eventGroup) {
       this.earthGroup.remove(this.eventGroup);
       this.eventGroup.traverse((o) => {
@@ -128,25 +169,28 @@ export class ApexGlobe {
     this.eventGroup = new THREE.Group();
     this.earthGroup.add(this.eventGroup);
 
+    // Simple label collision: prefer highlighted/live, then stagger
+    const labelBudget = [];
     for (const ev of events) {
       if (typeof ev.lat !== 'number' || typeof ev.lng !== 'number') continue;
       const pos = latLngToVector3(ev.lat, ev.lng, PIN_RADIUS * 1.02);
       const color = ev.highlight ? 0xff6bcb : (typeof ev.color === 'number' ? ev.color : 0xffd166);
+      const glowSize = ev.live || ev.highlight ? 0.048 : 0.036;
       const glow = new THREE.Mesh(
-        new THREE.SphereGeometry(0.038, 12, 12),
-        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45, depthWrite: false })
+        new THREE.SphereGeometry(glowSize, 12, 12),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: ev.live ? 0.55 : 0.4, depthWrite: false })
       );
       const core = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.022, 0),
+        this._sportCoreGeometry(ev.glyph),
         new THREE.MeshBasicMaterial({ color })
       );
       const g = new THREE.Group();
       g.add(glow, core);
       g.position.set(pos.x, pos.y, pos.z);
       g.lookAt(0, 0, 0);
-      g.userData = { event: ev, core, glow };
+      g.userData = { event: ev, core, glow, live: !!ev.live, pulse: !!ev.live || !!ev.highlight };
       const hit = new THREE.Mesh(
-        new THREE.SphereGeometry(0.06, 8, 8),
+        new THREE.SphereGeometry(0.065, 8, 8),
         new THREE.MeshBasicMaterial({ visible: false })
       );
       g.add(hit);
@@ -154,15 +198,17 @@ export class ApexGlobe {
       this.eventGroup.add(g);
       this.eventMarkers.set(ev.id, g);
 
-      if (!this.labels.has('ev:' + ev.id) && this._labelLayer) {
+      if (this._labelLayer) {
         const el = document.createElement('div');
-        el.className = 'globe-label event-label';
-        el.textContent = ev.name || 'Event';
+        el.className = 'globe-label event-label' + (ev.highlight ? ' active' : '') + (ev.live ? ' live' : '');
+        el.textContent = ev.shortName || ev.name || 'Event';
         el.style.display = 'none';
         this._labelLayer.appendChild(el);
         this.labels.set('ev:' + ev.id, el);
+        labelBudget.push({ id: ev.id, priority: (ev.highlight ? 3 : 0) + (ev.live ? 2 : 0) });
       }
     }
+    this._eventLabelPriority = new Map(labelBudget.map((x) => [x.id, x.priority]));
     this._updateLabelsVisibility();
   }
 
@@ -182,23 +228,36 @@ export class ApexGlobe {
   }
 
   flyTo(lat, lng, duration = 1.1) {
+    if (this._reducedMotion) duration = Math.min(duration, 0.35);
     const target = latLngToVector3(lat, lng, EARTH_RADIUS * 2.85);
     const start = this.camera.position.clone();
     const end = new THREE.Vector3(target.x, target.y, target.z);
     const dist = this.camera.position.length();
     end.setLength(Math.max(2.4, Math.min(dist, 5.5)));
 
+    // Cancel any in-flight camera tween
+    this._flyToken = (this._flyToken || 0) + 1;
+    const token = this._flyToken;
     const startTime = performance.now();
     const animateFly = (now) => {
-      if (this._paused) return;
+      if (this._paused || token !== this._flyToken) return;
       const t = Math.min(1, (now - startTime) / (duration * 1000));
-      const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      // Smoother ease-in-out cubic
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       this.camera.position.lerpVectors(start, end, ease);
       this.controls.target.set(0, 0, 0);
       this.controls.update();
       if (t < 1) requestAnimationFrame(animateFly);
     };
     requestAnimationFrame(animateFly);
+  }
+
+  setReducedMotion(on) {
+    this._reducedMotion = !!on;
+    if (on) {
+      this.controls.autoRotate = false;
+      this._autoRotate = false;
+    }
   }
 
   updateClocks(now = new Date()) {
@@ -330,7 +389,11 @@ export class ApexGlobe {
     for (const t of [dayMap, nightMap, cloudMap]) {
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+      t.generateMipmaps = true;
+      t.minFilter = THREE.LinearMipmapLinearFilter;
+      t.magFilter = THREE.LinearFilter;
     }
+    this._textures = { dayMap, nightMap, cloudMap };
 
     const segs = this._quality === 'low' ? 48 : 96;
     this._earthSegs = segs;
@@ -355,12 +418,22 @@ export class ApexGlobe {
         void main() {
           vec3 day = texture2D(dayTexture, vUv).rgb;
           vec3 night = texture2D(nightTexture, vUv).rgb;
-          float ndotl = dot(normalize(vNormalW), normalize(sunDirection));
-          float dayAmount = smoothstep(-0.12, 0.22, ndotl);
-          vec3 nightLit = night * 1.35 + vec3(0.02, 0.04, 0.08);
-          vec3 color = mix(nightLit, day, dayAmount);
-          float spec = pow(max(ndotl, 0.0), 28.0) * 0.18;
-          color += vec3(0.6, 0.75, 1.0) * spec * dayAmount;
+          vec3 n = normalize(vNormalW);
+          vec3 l = normalize(sunDirection);
+          float ndotl = dot(n, l);
+          // Soft terminator — denser sampling feel without higher-res textures
+          float dayAmount = smoothstep(-0.08, 0.28, ndotl);
+          float term = 1.0 - smoothstep(0.0, 0.35, abs(ndotl - 0.05));
+          vec3 nightLit = night * 1.45 + vec3(0.015, 0.035, 0.07);
+          // City lights pop a touch more on the night side
+          nightLit += night * night * vec3(0.15, 0.12, 0.05);
+          vec3 color = mix(nightLit, day * 1.04, dayAmount);
+          // Ocean-ish specular on the lit side
+          float spec = pow(max(ndotl, 0.0), 32.0) * 0.22;
+          color += vec3(0.55, 0.72, 1.0) * spec * dayAmount;
+          // Warm→cool terminator glow
+          color += vec3(1.0, 0.55, 0.25) * term * 0.12;
+          color += vec3(0.25, 0.55, 1.0) * term * 0.06;
           gl_FragColor = vec4(color, 1.0);
         }`,
     });
@@ -374,7 +447,7 @@ export class ApexGlobe {
       new THREE.MeshPhongMaterial({
         map: cloudMap,
         transparent: true,
-        opacity: 0.28,
+        opacity: 0.32,
         depthWrite: false,
         side: THREE.DoubleSide,
       })
@@ -436,16 +509,35 @@ export class ApexGlobe {
   }
 
   _createAtmosphere() {
-    const geo = new THREE.SphereGeometry(EARTH_RADIUS * 1.08, 64, 64);
-    const mat = new THREE.ShaderMaterial({
+    // Outer limb glow
+    const outerGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.1, 64, 64);
+    const outerMat = new THREE.ShaderMaterial({
       vertexShader: `varying vec3 vNormal; void main(){ vNormal=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-      fragmentShader: `varying vec3 vNormal; void main(){ float intensity=pow(0.65-dot(vNormal,vec3(0.0,0.0,1.0)),2.2); gl_FragColor=vec4(0.25,0.7,1.0,1.0)*intensity*0.95;}`,
+      fragmentShader: `varying vec3 vNormal; void main(){
+        float intensity = pow(0.62 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.4);
+        gl_FragColor = vec4(0.28, 0.72, 1.0, 1.0) * intensity * 1.05;
+      }`,
       blending: THREE.AdditiveBlending,
       side: THREE.BackSide,
       transparent: true,
       depthWrite: false,
     });
-    this.scene.add(new THREE.Mesh(geo, mat));
+    this.atmosphere = new THREE.Mesh(outerGeo, outerMat);
+    this.scene.add(this.atmosphere);
+    // Thin inner haze for depth
+    const innerGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.02, 48, 48);
+    const innerMat = new THREE.ShaderMaterial({
+      vertexShader: `varying vec3 vNormal; void main(){ vNormal=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+      fragmentShader: `varying vec3 vNormal; void main(){
+        float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
+        gl_FragColor = vec4(0.4, 0.75, 1.0, fresnel * 0.18);
+      }`,
+      blending: THREE.AdditiveBlending,
+      side: THREE.FrontSide,
+      transparent: true,
+      depthWrite: false,
+    });
+    this.earthGroup.add(new THREE.Mesh(innerGeo, innerMat));
   }
 
   _createStars() {
@@ -543,12 +635,35 @@ export class ApexGlobe {
     if (best) this.localCityId = best.id;
   }
 
+  setPinDensity(mode = 'auto') {
+    // auto | pinned | all
+    this._pinDensity = mode || 'auto';
+    this._refreshPinStyles();
+    this._updateLabelsVisibility();
+  }
+
   _refreshPinStyles() {
+    const density = this._pinDensity || 'auto';
     for (const [id, pin] of this.pins) {
       const { core, glow, stem, isDay } = pin.userData;
       const isSelected = id === this.selectedId;
       const isPinned = this.pinnedIds.has(id);
       const isLocal = id === this.localCityId || id === this.homeCityId;
+      const isHover = id === this._hoverId;
+
+      // Density: hide uninteresting pins when zoomed out or in pinned mode
+      let visible = true;
+      if (density === 'pinned') {
+        visible = isSelected || isPinned || isLocal || isHover;
+      } else if (density === 'auto') {
+        // Always show important; ambient city pins only when closer
+        const dist = this.camera?.position.length() ?? 4;
+        if (!isSelected && !isPinned && !isLocal && !isHover && dist > 3.8) {
+          visible = false;
+        }
+      }
+      pin.visible = visible;
+      if (!visible) continue;
 
       // Priority: selected > local/home > pinned > day/night
       let color;
@@ -556,17 +671,18 @@ export class ApexGlobe {
       else if (isLocal) color = 0xffd166;
       else if (isPinned) color = 0x5ef2c2;
       else if (isDay) color = 0x7ad7ff;
-      else color = 0x6b7cff;
+      else color = 0x5a6ad4;
 
       core.material.color.setHex(color);
       glow.material.color.setHex(color);
       stem.material.color.setHex(color);
 
-      const scale = isSelected ? 1.65 : isPinned || isLocal ? 1.28 : 1;
+      const scale = isSelected ? 1.7 : isLocal ? 1.4 : isPinned ? 1.28 : isHover ? 1.15 : 0.92;
       pin.userData.baseScale = scale;
       if (!isSelected || this._paused) pin.scale.setScalar(scale);
-      glow.material.opacity = isSelected ? 0.55 : isPinned ? 0.42 : 0.28;
-      pin.userData.pulse = isPinned && !isDay;
+      glow.material.opacity = isSelected ? 0.6 : isLocal ? 0.5 : isPinned ? 0.42 : 0.22;
+      // Soft glow: home always warm; pinned night cities pulse
+      pin.userData.pulse = (isPinned && !isDay) || isLocal;
     }
   }
 
@@ -599,30 +715,51 @@ export class ApexGlobe {
       el.style.transform = `translate(-50%, -120%) translate(${x}px, ${y}px)`;
       el.classList.toggle('active', id === this.selectedId);
     }
-    // Sports event labels
+    // Sports event labels — collision budget (~6 on screen)
     if (this.eventMarkers) {
+      const candidates = [];
       for (const [eid, marker] of this.eventMarkers) {
         const el = this.labels.get('ev:' + eid);
         if (!el) continue;
-        const show =
-          this._hoverEventId === eid ||
-          marker.userData.event?.highlight ||
-          zoomed;
-        if (!show) {
+        tmp.copy(marker.position).normalize();
+        const camDir = this.camera.position.clone().normalize();
+        const facing = tmp.dot(camDir);
+        if (facing < 0.12) {
           el.style.display = 'none';
           continue;
         }
-        tmp.copy(marker.position).normalize();
-        const camDir = this.camera.position.clone().normalize();
-        if (tmp.dot(camDir) < 0.12) {
+        const force =
+          this._hoverEventId === eid ||
+          marker.userData.event?.highlight ||
+          marker.userData.live;
+        const pri = (this._eventLabelPriority?.get(eid) || 0) + facing + (force ? 5 : 0);
+        if (!force && !zoomed) {
           el.style.display = 'none';
           continue;
         }
         tmp.copy(marker.position).project(this.camera);
         const x = (tmp.x * 0.5 + 0.5) * this._labelLayer.clientWidth;
         const y = (-tmp.y * 0.5 + 0.5) * this._labelLayer.clientHeight;
-        el.style.display = 'block';
-        el.style.transform = `translate(-50%, -130%) translate(${x}px, ${y}px)`;
+        candidates.push({ el, x, y, pri, force });
+      }
+      candidates.sort((a, b) => b.pri - a.pri);
+      const placed = [];
+      const minDist = 36;
+      let shown = 0;
+      for (const c of candidates) {
+        const collides = placed.some((p) => Math.hypot(p.x - c.x, p.y - c.y) < minDist);
+        if (collides && !c.force) {
+          c.el.style.display = 'none';
+          continue;
+        }
+        if (shown >= 6 && !c.force) {
+          c.el.style.display = 'none';
+          continue;
+        }
+        c.el.style.display = 'block';
+        c.el.style.transform = `translate(-50%, -130%) translate(${c.x}px, ${c.y}px)`;
+        placed.push(c);
+        shown++;
       }
     }
   }
@@ -773,13 +910,26 @@ export class ApexGlobe {
     if (this.stars) this.stars.rotation.y += 0.00002;
 
     const t = performance.now() * 0.004;
-    for (const pin of this.pins.values()) {
-      if (pin.userData.city.id === this.selectedId) {
-        pin.scale.setScalar(1.55 + Math.sin(t) * 0.12);
-      } else if (pin.userData.pulse) {
-        const s = pin.userData.baseScale * (1 + Math.sin(t * 1.3) * 0.08);
-        pin.scale.setScalar(s);
-        pin.userData.glow.material.opacity = 0.28 + (Math.sin(t * 1.3) * 0.5 + 0.5) * 0.25;
+    if (!this._reducedMotion) {
+      for (const pin of this.pins.values()) {
+        if (!pin.visible) continue;
+        if (pin.userData.city.id === this.selectedId) {
+          pin.scale.setScalar(1.55 + Math.sin(t) * 0.12);
+        } else if (pin.userData.pulse) {
+          const s = pin.userData.baseScale * (1 + Math.sin(t * 1.3) * 0.08);
+          pin.scale.setScalar(s);
+          pin.userData.glow.material.opacity = 0.28 + (Math.sin(t * 1.3) * 0.5 + 0.5) * 0.25;
+        }
+      }
+      if (this.eventMarkers) {
+        for (const marker of this.eventMarkers.values()) {
+          if (!marker.userData.pulse) continue;
+          const s = 1 + Math.sin(t * 1.6) * 0.12;
+          marker.scale.setScalar(s);
+          if (marker.userData.glow) {
+            marker.userData.glow.material.opacity = 0.35 + (Math.sin(t * 1.6) * 0.5 + 0.5) * 0.3;
+          }
+        }
       }
     }
     this._updateLabelsVisibility();

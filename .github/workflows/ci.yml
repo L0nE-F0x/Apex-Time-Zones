@@ -18,6 +18,8 @@ jobs:
         run: node scripts/build-sports-data.mjs
       - name: Unit tests
         run: npm test
+      - name: Smoke checklist
+        run: node scripts/smoke-checklist.mjs
       - name: Production bundle
         run: npm run bundle:prod
       - name: Portable build (packaging sanity)

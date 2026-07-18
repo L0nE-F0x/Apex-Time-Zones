@@ -1,7 +1,7 @@
 {
   "name": "apex-timezones",
   "productName": "ApexTimeZones",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "System-tray world clock with 3D globe, verified sports schedules, and dual-zone tune-in times",
   "main": "electron/main.js",
   "author": "ApexTimeZones",
@@ -18,7 +18,11 @@
     "pack": "npm run bundle:prod && electron-builder --win portable",
     "dist": "npm run bundle:prod && electron-builder --win",
     "build:win": "electron-builder --win nsis portable",
-    "release:prep": "node scripts/release-prep.mjs"
+    "release:prep": "node scripts/release-prep.mjs",
+    "sports:build": "node scripts/build-sports-data.mjs",
+    "sports:audit": "node scripts/sports-audit.mjs",
+    "sports:freshness": "node scripts/check-data-freshness.mjs",
+    "smoke": "node scripts/smoke-checklist.mjs"
   },
   "devDependencies": {
     "electron": "^33.2.1",

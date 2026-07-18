@@ -17,18 +17,66 @@ export const CATALOG_SCHEMA_VERSION = 2;
 
 /** Per-sport identity used for markers and chips. */
 export const SPORT_META = {
-  motorsport: { label: 'Motorsport', color: 0xffd166 },
-  football: { label: 'Football', color: 0x5ef2c2 },
-  tennis: { label: 'Tennis', color: 0xb2ff59 },
-  mma: { label: 'MMA', color: 0xff6b6b },
-  surfing: { label: 'Surfing', color: 0x4dc9ff },
-  nfl: { label: 'American Football', color: 0xc77dff },
-  golf: { label: 'Golf', color: 0x80ed99 },
-  cycling: { label: 'Cycling', color: 0xffe066 },
-  cricket: { label: 'Cricket', color: 0x90e0ef },
-  rugby: { label: 'Rugby', color: 0xf4a261 },
-  athletics: { label: 'Athletics', color: 0xff9e6d },
+  motorsport: { label: 'Motorsport', color: 0xffd166, glyph: 'flag', short: 'F1' },
+  football: { label: 'Football', color: 0x5ef2c2, glyph: 'ball', short: 'FB' },
+  tennis: { label: 'Tennis', color: 0xb2ff59, glyph: 'racket', short: 'TN' },
+  mma: { label: 'MMA', color: 0xff6b6b, glyph: 'octagon', short: 'UFC' },
+  surfing: { label: 'Surfing', color: 0x4dc9ff, glyph: 'wave', short: 'WSL' },
+  nfl: { label: 'American Football', color: 0xc77dff, glyph: 'helmet', short: 'NFL' },
+  golf: { label: 'Golf', color: 0x80ed99, glyph: 'tee', short: 'GLF' },
+  cycling: { label: 'Cycling', color: 0xffe066, glyph: 'wheel', short: 'CYC' },
+  cricket: { label: 'Cricket', color: 0x90e0ef, glyph: 'bat', short: 'CKT' },
+  rugby: { label: 'Rugby', color: 0xf4a261, glyph: 'oval', short: 'RUG' },
+  athletics: { label: 'Athletics', color: 0xff9e6d, glyph: 'track', short: 'ATH' },
 };
+
+/** Hex string for CSS (e.g. status chips). */
+export function sportColorCss(sport) {
+  const c = SPORT_META[sport]?.color ?? 0x4dc9ff;
+  return '#' + c.toString(16).padStart(6, '0');
+}
+
+/** Catalog age in hours, or null if unknown. */
+export function catalogAgeHours(now = new Date()) {
+  if (!CATALOG_INFO?.generatedAt) return null;
+  const t = Date.parse(CATALOG_INFO.generatedAt);
+  if (Number.isNaN(t)) return null;
+  return (now.getTime() - t) / 3600000;
+}
+
+/** Human feed status for the UI badge. */
+export function catalogFeedStatus(now = new Date(), staleHours = 48) {
+  const age = catalogAgeHours(now);
+  const origin = CATALOG_INFO?.origin || 'bundled';
+  if (age == null) {
+    return { state: 'unknown', label: 'Schedules · bundled', detail: 'No generation timestamp', origin, ageHours: null };
+  }
+  if (age > staleHours) {
+    return {
+      state: 'stale',
+      label: 'Schedules may be stale',
+      detail: `Last refresh ~${Math.round(age)}h ago (${origin})`,
+      origin,
+      ageHours: age,
+    };
+  }
+  if (origin === 'bundled') {
+    return {
+      state: 'bundled',
+      label: 'Schedules · offline snapshot',
+      detail: `Bundled data · ${Math.round(age)}h old`,
+      origin,
+      ageHours: age,
+    };
+  }
+  return {
+    state: 'fresh',
+    label: 'Schedules up to date',
+    detail: `Feed · updated ${Math.round(age)}h ago`,
+    origin,
+    ageHours: age,
+  };
+}
 
 /** Live binding — updated in place when a fresher feed catalog arrives. */
 export let SPORT_SERIES = bundledCatalog.series;

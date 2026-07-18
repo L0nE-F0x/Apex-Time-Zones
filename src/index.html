@@ -9,6 +9,7 @@
 </head>
 <body>
   <div id="app">
+    <a class="skip-link" href="#panelClocks">Skip to clocks</a>
     <header class="titlebar" id="titlebar">
       <div class="titlebar-brand">
         <span class="brand-glyph" aria-hidden="true"></span>
@@ -36,7 +37,7 @@
       <section class="stage" id="stage">
         <canvas id="globeCanvas"></canvas>
 
-        <div class="up-next-rail hide-in-widget" id="upNextRail"></div>
+        <div class="up-next-rail hide-in-widget" id="upNextRail" role="region" aria-label="Up next sessions"></div>
 
         <div class="stage-hud top-right hide-in-widget">
           <div class="hud-panel sun-panel" title="Day/night on the globe follows the live sun position">
@@ -53,24 +54,25 @@
           </div>
         </div>
 
-        <div class="loading-overlay" id="loadingOverlay">
-          <div class="loader-ring"></div>
+        <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite">
+          <div class="loader-ring" aria-hidden="true"></div>
           <div class="loader-text">Loading Earth…</div>
+          <div class="loader-sub">Day/night textures · sports feed</div>
         </div>
       </section>
 
       <aside class="sidepanel">
-        <div class="panel-tabs" role="tablist">
-          <button type="button" class="panel-tab active" data-tab="clocks" id="tabClocks">Clocks</button>
-          <button type="button" class="panel-tab" data-tab="sports" id="tabSports">Sports</button>
-          <button type="button" class="panel-tab" data-tab="convert" id="tabConvert">Convert</button>
+        <div class="panel-tabs" role="tablist" aria-label="Main panels">
+          <button type="button" class="panel-tab active" data-tab="clocks" id="tabClocks" role="tab" aria-selected="true" aria-controls="panelClocks">Clocks</button>
+          <button type="button" class="panel-tab" data-tab="sports" id="tabSports" role="tab" aria-selected="false" aria-controls="panelSports" tabindex="-1">Sports</button>
+          <button type="button" class="panel-tab" data-tab="convert" id="tabConvert" role="tab" aria-selected="false" aria-controls="panelConvert" tabindex="-1">Convert</button>
         </div>
 
-        <div class="tab-panel" id="panelClocks">
+        <div class="tab-panel" id="panelClocks" role="tabpanel" aria-labelledby="tabClocks">
         <div class="panel-section">
           <label class="field-label" for="searchInput">Add a city</label>
           <div class="search-wrap">
-            <input type="search" id="searchInput" class="search-input" placeholder="Tokyo, EST, Europe/London…" autocomplete="off" spellcheck="false" />
+            <input type="search" id="searchInput" class="search-input" aria-autocomplete="list" aria-controls="searchResults" placeholder="Tokyo, EST, Europe/London…" autocomplete="off" spellcheck="false" />
             <button class="search-clear" id="searchClear" title="Clear" hidden>✕</button>
           </div>
           <div class="search-results" id="searchResults" hidden></div>
@@ -84,7 +86,7 @@
             <h2>Your clocks</h2>
           </div>
           <div class="groups-bar" id="groupsBar"></div>
-          <div class="clock-list" id="clockList"></div>
+          <div class="clock-list" id="clockList" aria-live="polite"></div>
           <div class="legend-inline hide-in-widget" title="Pin colors on the globe">
             <span><i class="pin pin-day"></i>day</span>
             <span><i class="pin pin-night"></i>night</span>
@@ -95,7 +97,7 @@
         </div>
         </div><!-- /panelClocks -->
 
-        <div class="tab-panel" id="panelConvert" hidden>
+        <div class="tab-panel" id="panelConvert" role="tabpanel" aria-labelledby="tabConvert" hidden>
         <div class="panel-section converter">
           <div class="section-head">
             <h2>Time Bridge</h2>
@@ -139,7 +141,7 @@
         </div>
         </div><!-- /panelConvert -->
 
-        <div class="tab-panel" id="panelSports" hidden>
+        <div class="tab-panel" id="panelSports" role="tabpanel" aria-labelledby="tabSports" hidden>
           <div class="panel-section" id="sportsBrowse">
             <label class="field-label" for="sportsSearch">Find a sport or event</label>
             <div class="search-wrap">
@@ -171,6 +173,8 @@
         </div>
 
         <footer class="panel-footer">
+          <button type="button" class="feed-badge" id="feedStatusBadge" title="Sports schedule feed status" hidden>Schedules</button>
+          <span class="footer-dot" aria-hidden="true">·</span>
           <span id="appVersion">v—</span>
           <span class="footer-dot">·</span>
           <span>Tray · Hotkey Ctrl+Alt+T</span>
@@ -217,6 +221,12 @@
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
+        </select>
+        <label class="field-label" for="setPinDensity">City pins on globe</label>
+        <select id="setPinDensity" class="field-input select">
+          <option value="auto">Auto (declutter)</option>
+          <option value="pinned">Pinned &amp; home only</option>
+          <option value="all">Show all cities</option>
         </select>
         <label class="field-label" for="homeSelect">Home city</label>
         <select id="homeSelect" class="field-input select"></select>

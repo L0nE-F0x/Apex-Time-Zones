@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-17T14:03:14.409Z",
+  "generatedAt": "2026-07-18T06:44:44.738Z",
   "source": "scripts/build-sports-data.mjs",
   "series": [
     {
@@ -1132,7 +1132,7 @@
       "sport": "football",
       "category": "Football",
       "season": "2026",
-      "description": "World Cup finale across USA, Canada & Mexico. Semi-finals: Spain 2–0 France, Argentina 2–1 England. Final: Spain vs Argentina.",
+      "description": "World Cup archive — USA/Canada/Mexico. Semis and third place marked final; Final Spain vs Argentina at MetLife. After the final, follow Club Football for the next window.",
       "tags": [
         "world cup",
         "fifa",
@@ -1157,7 +1157,8 @@
               "name": "Kickoff",
               "type": "match",
               "date": "2026-07-14",
-              "time": "15:00"
+              "time": "15:00",
+              "status": "final"
             }
           ],
           "tags": [
@@ -1179,7 +1180,8 @@
               "name": "Kickoff",
               "type": "match",
               "date": "2026-07-15",
-              "time": "15:00"
+              "time": "15:00",
+              "status": "final"
             }
           ],
           "tags": [
@@ -1201,7 +1203,8 @@
               "name": "Kickoff",
               "type": "match",
               "date": "2026-07-18",
-              "time": "17:00"
+              "time": "17:00",
+              "status": "final"
             }
           ],
           "tags": [
@@ -1234,18 +1237,236 @@
       ]
     },
     {
+      "id": "club-football-2026",
+      "name": "Club Football — post–World Cup",
+      "sport": "football",
+      "category": "Football",
+      "season": "2026–27",
+      "description": "What comes after the World Cup final: UEFA Super Cup, Champions League league phase openers, and early Premier League marquees — so the football map never goes quiet.",
+      "tags": [
+        "champions league",
+        "ucl",
+        "premier league",
+        "uefa",
+        "football",
+        "soccer",
+        "club"
+      ],
+      "events": [
+        {
+          "id": "uefa-sc-26",
+          "name": "UEFA Super Cup",
+          "lat": 41.3809,
+          "lng": 2.1228,
+          "tz": "Europe/Madrid",
+          "city": "Barcelona",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-08-12",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "super cup",
+            "camp nou"
+          ]
+        },
+        {
+          "id": "ucl-md1-a",
+          "name": "UCL Matchday 1 — London night",
+          "lat": 51.6042,
+          "lng": -0.0662,
+          "tz": "Europe/London",
+          "city": "London",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-16",
+              "time": "20:00"
+            }
+          ],
+          "tags": [
+            "tottenham hotspur stadium",
+            "champions league"
+          ]
+        },
+        {
+          "id": "ucl-md1-b",
+          "name": "UCL Matchday 1 — Milan",
+          "lat": 45.4781,
+          "lng": 9.124,
+          "tz": "Europe/Rome",
+          "city": "Milan",
+          "country": "Italy",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-16",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "san siro",
+            "champions league"
+          ]
+        },
+        {
+          "id": "ucl-md1-c",
+          "name": "UCL Matchday 1 — Madrid",
+          "lat": 40.4531,
+          "lng": -3.6883,
+          "tz": "Europe/Madrid",
+          "city": "Madrid",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-17",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "bernabeu",
+            "champions league"
+          ]
+        },
+        {
+          "id": "ucl-md2-a",
+          "name": "UCL Matchday 2 — Munich",
+          "lat": 48.2188,
+          "lng": 11.6247,
+          "tz": "Europe/Berlin",
+          "city": "Munich",
+          "country": "Germany",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-30",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "allianz arena"
+          ]
+        },
+        {
+          "id": "ucl-md2-b",
+          "name": "UCL Matchday 2 — Paris",
+          "lat": 48.8414,
+          "lng": 2.253,
+          "tz": "Europe/Paris",
+          "city": "Paris",
+          "country": "France",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-30",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "parc des princes"
+          ]
+        },
+        {
+          "id": "epl-derby",
+          "name": "Premier League — North London derby window",
+          "lat": 51.5549,
+          "lng": -0.1084,
+          "tz": "Europe/London",
+          "city": "London",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-27",
+              "time": "16:30"
+            }
+          ],
+          "tags": [
+            "arsenal",
+            "tottenham",
+            "emirates"
+          ]
+        },
+        {
+          "id": "epl-el-clasico-week",
+          "name": "La Liga — El Clásico window",
+          "lat": 41.3809,
+          "lng": 2.1228,
+          "tz": "Europe/Madrid",
+          "city": "Barcelona",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-10-25",
+              "time": "21:00"
+            }
+          ],
+          "tags": [
+            "el clasico",
+            "camp nou"
+          ]
+        },
+        {
+          "id": "ucl-md6",
+          "name": "UCL Matchday 6 — decisive night",
+          "lat": 53.4308,
+          "lng": -2.9608,
+          "tz": "Europe/London",
+          "city": "Liverpool",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-12-09",
+              "time": "20:00"
+            }
+          ],
+          "tags": [
+            "anfield",
+            "league phase"
+          ]
+        }
+      ]
+    },
+    {
       "id": "tennis-2026",
-      "name": "Tennis Grand Slams 2026",
+      "name": "Tennis — late season 2026",
       "sport": "tennis",
       "category": "Tennis",
       "season": "2026",
-      "description": "US Open — the last slam of 2026. Main draw Aug 30 – Sep 13 at Flushing Meadows.",
+      "description": "US Open at Flushing Meadows, then the indoor swing: Shanghai Masters flavour events, WTA Finals, and ATP Finals in Turin.",
       "tags": [
         "tennis",
         "grand slam",
         "us open",
         "atp",
         "wta",
+        "finals",
+        "turin",
         "flushing meadows"
       ],
       "events": [
@@ -1273,6 +1494,27 @@
               "time": "19:00"
             },
             {
+              "id": "qf-day",
+              "name": "Women's quarter-finals (day)",
+              "type": "session",
+              "date": "2026-09-08",
+              "time": "12:00"
+            },
+            {
+              "id": "sf-w",
+              "name": "Women's semi-finals",
+              "type": "session",
+              "date": "2026-09-10",
+              "time": "19:00"
+            },
+            {
+              "id": "sf-m",
+              "name": "Men's semi-finals",
+              "type": "session",
+              "date": "2026-09-11",
+              "time": "13:00"
+            },
+            {
               "id": "final-w",
               "name": "Women's Final",
               "type": "final",
@@ -1290,6 +1532,79 @@
           "tags": [
             "flushing",
             "hard court"
+          ]
+        },
+        {
+          "id": "wta-finals-26",
+          "name": "WTA Finals",
+          "lat": 24.7136,
+          "lng": 46.6753,
+          "tz": "Asia/Riyadh",
+          "city": "Riyadh",
+          "country": "Saudi Arabia",
+          "sessions": [
+            {
+              "id": "open",
+              "name": "Opening session",
+              "type": "session",
+              "date": "2026-11-01",
+              "time": "16:00"
+            },
+            {
+              "id": "sf",
+              "name": "Semi-finals",
+              "type": "session",
+              "date": "2026-11-07",
+              "time": "17:00"
+            },
+            {
+              "id": "final",
+              "name": "Final",
+              "type": "final",
+              "date": "2026-11-08",
+              "time": "18:00"
+            }
+          ],
+          "tags": [
+            "wta finals",
+            "year end"
+          ]
+        },
+        {
+          "id": "atp-finals-26",
+          "name": "ATP Finals — Turin",
+          "lat": 45.0417,
+          "lng": 7.6522,
+          "tz": "Europe/Rome",
+          "city": "Turin",
+          "country": "Italy",
+          "sessions": [
+            {
+              "id": "open",
+              "name": "Opening session",
+              "type": "session",
+              "date": "2026-11-15",
+              "time": "14:00"
+            },
+            {
+              "id": "sf",
+              "name": "Semi-finals",
+              "type": "session",
+              "date": "2026-11-21",
+              "time": "14:00"
+            },
+            {
+              "id": "final",
+              "name": "Final",
+              "type": "final",
+              "date": "2026-11-22",
+              "time": "15:00"
+            }
+          ],
+          "tags": [
+            "atp finals",
+            "inalpi arena",
+            "year end"
           ]
         }
       ]
@@ -2182,13 +2497,15 @@
       "sport": "nfl",
       "category": "American Football",
       "season": "2026–27",
-      "description": "NFL season landmarks — Kickoff Game and the Thanksgiving classics. Full weekly slates arrive via the live data feed.",
+      "description": "Season landmarks: Kickoff, international series, Thanksgiving, Christmas, and Super Bowl week. Full weekly slates stay feed-friendly.",
       "tags": [
         "nfl",
         "american football",
         "kickoff",
         "thanksgiving",
-        "super bowl"
+        "super bowl",
+        "christmas",
+        "london"
       ],
       "events": [
         {
@@ -2211,6 +2528,72 @@
           "tags": [
             "lumen field",
             "season opener"
+          ]
+        },
+        {
+          "id": "nfl-snf-w1",
+          "name": "Sunday Night Football — Week 1",
+          "lat": 40.8135,
+          "lng": -74.0745,
+          "tz": "America/New_York",
+          "city": "East Rutherford",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-09-13",
+              "time": "20:20"
+            }
+          ],
+          "tags": [
+            "metlife",
+            "snf"
+          ]
+        },
+        {
+          "id": "nfl-london-1",
+          "name": "NFL London Series",
+          "lat": 51.556,
+          "lng": -0.2796,
+          "tz": "Europe/London",
+          "city": "London",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-10-18",
+              "time": "14:30"
+            }
+          ],
+          "tags": [
+            "wembley",
+            "international"
+          ]
+        },
+        {
+          "id": "nfl-mnf",
+          "name": "Monday Night Football — primetime",
+          "lat": 34.0141,
+          "lng": -118.2879,
+          "tz": "America/Los_Angeles",
+          "city": "Los Angeles",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-10-26",
+              "time": "17:15"
+            }
+          ],
+          "tags": [
+            "sofi stadium",
+            "mnf"
           ]
         },
         {
@@ -2256,22 +2639,97 @@
             "att stadium",
             "thanksgiving"
           ]
+        },
+        {
+          "id": "nfl-tg-night",
+          "name": "Thanksgiving night primetime",
+          "lat": 37.403,
+          "lng": -121.97,
+          "tz": "America/Los_Angeles",
+          "city": "Santa Clara",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-11-26",
+              "time": "17:20"
+            }
+          ],
+          "tags": [
+            "levi stadium",
+            "thanksgiving"
+          ]
+        },
+        {
+          "id": "nfl-xmas",
+          "name": "Christmas Day NFL",
+          "lat": 39.7439,
+          "lng": -105.0201,
+          "tz": "America/Denver",
+          "city": "Denver",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2026-12-25",
+              "time": "14:30"
+            }
+          ],
+          "tags": [
+            "empower field",
+            "christmas"
+          ]
+        },
+        {
+          "id": "nfl-sb-lxi",
+          "name": "Super Bowl LXI week",
+          "lat": 33.5277,
+          "lng": -112.2626,
+          "tz": "America/Phoenix",
+          "city": "Glendale",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "media",
+              "name": "Opening Night",
+              "type": "session",
+              "date": "2027-02-01",
+              "time": "18:00"
+            },
+            {
+              "id": "ko",
+              "name": "Kickoff",
+              "type": "match",
+              "date": "2027-02-07",
+              "time": "15:30"
+            }
+          ],
+          "tags": [
+            "super bowl",
+            "state farm stadium"
+          ]
         }
       ]
     },
     {
       "id": "golf-2026",
-      "name": "Golf Majors 2026",
+      "name": "Golf Majors & autumn 2026",
       "sport": "golf",
       "category": "Golf",
       "season": "2026",
-      "description": "The 154th Open Championship at Royal Birkdale — the final men's major of 2026.",
+      "description": "The Open at Royal Birkdale plus the late-season landmarks: FedExCup finale window, DP World Tour Championship, and Presidents Cup.",
       "tags": [
         "golf",
         "the open",
         "open championship",
         "royal birkdale",
-        "major"
+        "major",
+        "presidents cup",
+        "dp world"
       ],
       "events": [
         {
@@ -2283,6 +2741,22 @@
           "city": "Southport",
           "country": "UK",
           "sessions": [
+            {
+              "id": "r1",
+              "name": "Round 1 (first tee)",
+              "type": "round",
+              "date": "2026-07-16",
+              "time": "06:35",
+              "status": "final"
+            },
+            {
+              "id": "r2",
+              "name": "Round 2 (first tee)",
+              "type": "round",
+              "date": "2026-07-17",
+              "time": "06:35",
+              "status": "final"
+            },
             {
               "id": "r3",
               "name": "Round 3 (first tee)",
@@ -2302,6 +2776,100 @@
             "links",
             "154th open"
           ]
+        },
+        {
+          "id": "tour-champ-26",
+          "name": "Tour Championship — East Lake",
+          "lat": 33.745,
+          "lng": -84.326,
+          "tz": "America/New_York",
+          "city": "Atlanta",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "r3",
+              "name": "Round 3",
+              "type": "round",
+              "date": "2026-08-29",
+              "time": "12:00"
+            },
+            {
+              "id": "r4",
+              "name": "Final round",
+              "type": "final",
+              "date": "2026-08-30",
+              "time": "12:00"
+            }
+          ],
+          "tags": [
+            "fedexcup",
+            "east lake"
+          ]
+        },
+        {
+          "id": "dpwtc-26",
+          "name": "DP World Tour Championship",
+          "lat": 25.041,
+          "lng": 55.218,
+          "tz": "Asia/Dubai",
+          "city": "Dubai",
+          "country": "UAE",
+          "sessions": [
+            {
+              "id": "r3",
+              "name": "Round 3",
+              "type": "round",
+              "date": "2026-11-21",
+              "time": "08:00"
+            },
+            {
+              "id": "r4",
+              "name": "Final round",
+              "type": "final",
+              "date": "2026-11-22",
+              "time": "08:00"
+            }
+          ],
+          "tags": [
+            "jumeirah",
+            "earth course"
+          ]
+        },
+        {
+          "id": "presidents-26",
+          "name": "Presidents Cup",
+          "lat": 41.978,
+          "lng": -87.86,
+          "tz": "America/Chicago",
+          "city": "Medinah",
+          "country": "USA",
+          "sessions": [
+            {
+              "id": "day1",
+              "name": "Day 1 foursomes",
+              "type": "session",
+              "date": "2026-09-22",
+              "time": "07:05"
+            },
+            {
+              "id": "day2",
+              "name": "Day 2 fourballs",
+              "type": "session",
+              "date": "2026-09-24",
+              "time": "07:05"
+            },
+            {
+              "id": "singles",
+              "name": "Singles",
+              "type": "final",
+              "date": "2026-09-27",
+              "time": "12:00"
+            }
+          ],
+          "tags": [
+            "medinah",
+            "team golf"
+          ]
         }
       ]
     },
@@ -2311,11 +2879,13 @@
       "sport": "cycling",
       "category": "Cycling",
       "season": "2026",
-      "description": "Tour de France 2026 — Barcelona start July 4, Champs-Élysées finale July 26.",
+      "description": "Tour de France (Barcelona start → Champs-Élysées), Vuelta a España, and UCI Road World Championships.",
       "tags": [
         "cycling",
         "tour de france",
         "tdf",
+        "vuelta",
+        "worlds",
         "grand tour",
         "peloton"
       ],
@@ -2349,6 +2919,65 @@
             "champs-elysees",
             "yellow jersey"
           ]
+        },
+        {
+          "id": "vuelta-2026",
+          "name": "Vuelta a España",
+          "lat": 40.4153,
+          "lng": -3.7074,
+          "tz": "Europe/Madrid",
+          "city": "Madrid (finale)",
+          "country": "Spain",
+          "sessions": [
+            {
+              "id": "window",
+              "name": "Race window",
+              "type": "window",
+              "startDate": "2026-08-22",
+              "endDate": "2026-09-13",
+              "firstCallTime": "13:00"
+            },
+            {
+              "id": "final",
+              "name": "Final stage — Madrid",
+              "type": "final",
+              "date": "2026-09-13",
+              "time": "17:00"
+            }
+          ],
+          "tags": [
+            "la vuelta",
+            "red jersey"
+          ]
+        },
+        {
+          "id": "uci-worlds-26",
+          "name": "UCI Road World Championships",
+          "lat": 55.6761,
+          "lng": 12.5683,
+          "tz": "Europe/Copenhagen",
+          "city": "Copenhagen",
+          "country": "Denmark",
+          "sessions": [
+            {
+              "id": "elite-w",
+              "name": "Elite women road race",
+              "type": "race",
+              "date": "2026-09-26",
+              "time": "12:00"
+            },
+            {
+              "id": "elite-m",
+              "name": "Elite men road race",
+              "type": "race",
+              "date": "2026-09-27",
+              "time": "11:00"
+            }
+          ],
+          "tags": [
+            "rainbow jersey",
+            "worlds"
+          ]
         }
       ]
     },
@@ -2358,12 +2987,15 @@
       "sport": "cricket",
       "category": "Cricket",
       "season": "2026",
-      "description": "England vs India ODI series decider at Lord's. Further series land via the live data feed.",
+      "description": "England vs India white-ball window, Caribbean CPL flavour nights, and the autumn Australia home summer openers.",
       "tags": [
         "cricket",
         "odi",
+        "t20",
+        "test",
         "england",
         "india",
+        "australia",
         "lords"
       ],
       "events": [
@@ -2387,6 +3019,120 @@
           "tags": [
             "lords",
             "series decider"
+          ]
+        },
+        {
+          "id": "eng-ind-t20-1",
+          "name": "England vs India — 1st T20",
+          "lat": 52.4558,
+          "lng": -1.9025,
+          "tz": "Europe/London",
+          "city": "Birmingham",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "start",
+              "name": "First ball",
+              "type": "match",
+              "date": "2026-07-22",
+              "time": "18:30"
+            }
+          ],
+          "tags": [
+            "edgbaston"
+          ]
+        },
+        {
+          "id": "eng-ind-t20-2",
+          "name": "England vs India — 2nd T20",
+          "lat": 53.4823,
+          "lng": -2.2002,
+          "tz": "Europe/London",
+          "city": "Manchester",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "start",
+              "name": "First ball",
+              "type": "match",
+              "date": "2026-07-24",
+              "time": "18:30"
+            }
+          ],
+          "tags": [
+            "old trafford"
+          ]
+        },
+        {
+          "id": "eng-ind-t20-3",
+          "name": "England vs India — 3rd T20",
+          "lat": 51.4837,
+          "lng": -0.009,
+          "tz": "Europe/London",
+          "city": "London",
+          "country": "UK",
+          "sessions": [
+            {
+              "id": "start",
+              "name": "First ball",
+              "type": "match",
+              "date": "2026-07-26",
+              "time": "14:30"
+            }
+          ],
+          "tags": [
+            "the oval"
+          ]
+        },
+        {
+          "id": "aus-ind-test1",
+          "name": "Australia vs India — 1st Test",
+          "lat": -37.8199,
+          "lng": 144.9834,
+          "tz": "Australia/Melbourne",
+          "city": "Melbourne",
+          "country": "Australia",
+          "sessions": [
+            {
+              "id": "d1",
+              "name": "Day 1 start",
+              "type": "match",
+              "date": "2026-12-26",
+              "time": "10:30"
+            },
+            {
+              "id": "d2",
+              "name": "Day 2 start",
+              "type": "match",
+              "date": "2026-12-27",
+              "time": "10:30"
+            }
+          ],
+          "tags": [
+            "mcg",
+            "boxing day"
+          ]
+        },
+        {
+          "id": "aus-ind-test2",
+          "name": "Australia vs India — 2nd Test",
+          "lat": -33.8915,
+          "lng": 151.2247,
+          "tz": "Australia/Sydney",
+          "city": "Sydney",
+          "country": "Australia",
+          "sessions": [
+            {
+              "id": "d1",
+              "name": "Day 1 start",
+              "type": "match",
+              "date": "2027-01-03",
+              "time": "10:30"
+            }
+          ],
+          "tags": [
+            "scg",
+            "new years"
           ]
         }
       ]

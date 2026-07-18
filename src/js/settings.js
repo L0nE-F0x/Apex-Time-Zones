@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS = {
   showGrid: true,
   showTzBands: false,
   quality: 'high', // high | medium | low
+  pinDensity: 'auto', // auto | pinned | all
   homeCityId: null,
   pinnedIds: null, // null → use DEFAULT_PINS from cities
   favoriteGroups: {

@@ -1,13 +1,15 @@
-import { SPORT_SERIES, searchSports, searchEvents, getSeriesById, onCatalogChange, SPORT_META } from './catalog.js';
+import { SPORT_SERIES, searchSports, searchEvents, getSeriesById, onCatalogChange, SPORT_META, catalogFeedStatus } from './catalog.js';
 import {
   annotateSession,
   eventHeadlineTime,
   sortEventsByNext,
   primarySession,
   upcomingAcrossSeries,
+  upcomingTonight,
   formatCountdown,
   isWindowSession,
   windowEndInstant,
+  statusLabel,
 } from './schedule.js';
 import { buildIcs } from './ics.js';
 import { getLocalTimeZone } from '../timeMath.js';
@@ -24,6 +26,7 @@ export function createSportsUI(ctx) {
   let upNextRows = [];
   let upNextKey = '';
   let upNextRefreshedAt = 0;
+  let upNextMode = 'all'; // all | tonight | live
 
   const els = {
     search: document.getElementById('sportsSearch'),
@@ -49,6 +52,8 @@ export function createSportsUI(ctx) {
     panelClocks: document.getElementById('panelClocks'),
     panelSports: document.getElementById('panelSports'),
     panelConvert: document.getElementById('panelConvert'),
+    feedBadge: document.getElementById('feedStatusBadge'),
+    remindAll: document.getElementById('btnRemindAllSessions'),
   };
 
   function escapeHtml(str) {
@@ -79,8 +84,14 @@ export function createSportsUI(ctx) {
       ['convert', els.tabConvert, els.panelConvert],
     ];
     for (const [name, btn, panel] of map) {
-      btn?.classList.toggle('active', name === tab);
-      if (panel) panel.hidden = name !== tab;
+      const on = name === tab;
+      btn?.classList.toggle('active', on);
+      btn?.setAttribute('aria-selected', on ? 'true' : 'false');
+      btn?.setAttribute('tabindex', on ? '0' : '-1');
+      if (panel) {
+        panel.hidden = !on;
+        panel.setAttribute('role', 'tabpanel');
+      }
     }
   }
 
@@ -210,16 +221,23 @@ export function createSportsUI(ctx) {
     }
 
     const globe = ctx.getGlobe?.();
+    const nowMark = new Date();
     globe?.setEventMarkers(
-      series.events.map((ev) => ({
-        id: ev.id,
-        lat: ev.lat,
-        lng: ev.lng,
-        name: ev.name,
-        sport: series.sport,
-        color: SPORT_META[series.sport]?.color,
-        highlight: false,
-      }))
+      series.events.map((ev) => {
+        const head = eventHeadlineTime(ev, localTz, false, nowMark);
+        return {
+          id: ev.id,
+          lat: ev.lat,
+          lng: ev.lng,
+          name: ev.name,
+          shortName: ev.city || ev.name,
+          sport: series.sport,
+          color: SPORT_META[series.sport]?.color,
+          glyph: SPORT_META[series.sport]?.glyph,
+          highlight: false,
+          live: head?.status === 'live-or-recent' || head?.status === 'delayed',
+        };
+      })
     );
   }
 
@@ -229,16 +247,24 @@ export function createSportsUI(ctx) {
     if (!ev) return;
     activeEventId = eventId;
     const globe = ctx.getGlobe?.();
+    const now = new Date();
     globe?.setEventMarkers(
-      series.events.map((e) => ({
-        id: e.id,
-        lat: e.lat,
-        lng: e.lng,
-        name: e.name,
-        sport: series.sport,
-        color: SPORT_META[series.sport]?.color,
-        highlight: e.id === eventId,
-      }))
+      series.events.map((e) => {
+        const head = eventHeadlineTime(e, localTz, false, now);
+        const live = head?.status === 'live-or-recent' || head?.status === 'delayed';
+        return {
+          id: e.id,
+          lat: e.lat,
+          lng: e.lng,
+          name: e.name,
+          shortName: e.city || e.name,
+          sport: series.sport,
+          color: SPORT_META[series.sport]?.color,
+          glyph: SPORT_META[series.sport]?.glyph,
+          highlight: e.id === eventId,
+          live,
+        };
+      })
     );
     globe?.flyTo(ev.lat, ev.lng, 1.0);
     renderEventDetail(ev);
@@ -262,12 +288,25 @@ export function createSportsUI(ctx) {
     const now = new Date();
     const head = eventHeadlineTime(ev, localTz, ctx.hour12?.(), now);
     if (els.countdown) {
+      const st = head?.status;
+      const stText =
+        st === 'finished'
+          ? 'completed'
+          : st === 'live-or-recent'
+            ? 'in progress'
+            : st === 'delayed'
+              ? 'delayed'
+              : 'to start';
       els.countdown.innerHTML = head
         ? `<span class="cd-big">${escapeHtml(head.countdown)}</span>
-           <span class="cd-sub">${escapeHtml(head.name)} · ${head.status === 'finished' ? 'completed' : head.status === 'live-or-recent' ? 'in progress' : 'to start'}</span>`
+           <span class="cd-sub">${escapeHtml(head.name)} · ${stText}</span>
+           <span class="status-pill status-${escapeHtml(st || 'upcoming')}">${escapeHtml(
+             head.statusLabel || statusLabel(st)
+           )}</span>`
         : '—';
     }
-    if (els.tuneIn) {
+    if (els.tuneIn)
+ {
       els.tuneIn.innerHTML = head
         ? `
         <div class="tune-grid">
@@ -279,18 +318,22 @@ export function createSportsUI(ctx) {
     if (els.schedule) {
       const rows = (ev.sessions || []).map((s) => annotateSession(s, ev.tz, localTz, ctx.hour12?.(), now));
       els.schedule.innerHTML = `
-        <div class="sched-head">Full schedule</div>
+        <div class="sched-head">
+          <span>Full schedule</span>
+          <button type="button" class="ghost-btn tiny" id="btnRemindAllSessions" title="Remind me before every upcoming session">Remind all</button>
+        </div>
         <table class="sched-table">
-          <thead><tr><th>Session</th><th>Venue</th><th>Your time</th><th></th><th></th></tr></thead>
+          <thead><tr><th>Session</th><th>Status</th><th>Venue</th><th>Your time</th><th></th><th></th></tr></thead>
           <tbody>
             ${rows
               .map(
                 (r) => `<tr class="${r.status}" data-session="${r.id}">
                   <td>${escapeHtml(r.name)}</td>
+                  <td><span class="status-pill status-${escapeHtml(r.status)}">${escapeHtml(r.statusLabel || statusLabel(r.status))}</span></td>
                   <td>${escapeHtml(r.venueTime)}<div class="muted">${escapeHtml(r.venueDay || '')}</div></td>
                   <td class="mint">${escapeHtml(r.localTime)}<div class="muted">${escapeHtml(r.localDay || '')}</div></td>
                   <td class="cd-cell" data-cd="${r.id}">${escapeHtml(r.countdown || '')}</td>
-                  <td>${r.status === 'upcoming' ? `<button type="button" class="bell-btn" data-remind="${r.id}" title="Remind me before this session">🔔</button>` : ''}</td>
+                  <td>${r.status === 'upcoming' || r.status === 'delayed' ? `<button type="button" class="bell-btn" data-remind="${r.id}" title="Remind me before this session" aria-label="Remind me">🔔</button>` : ''}</td>
                 </tr>`
               )
               .join('')}
@@ -305,6 +348,24 @@ export function createSportsUI(ctx) {
           btn.disabled = true;
         });
       });
+      const remindAll = els.schedule.querySelector('#btnRemindAllSessions');
+      if (remindAll) {
+        remindAll.addEventListener('click', () => {
+          let n = 0;
+          for (const session of ev.sessions || []) {
+            const a = annotateSession(session, ev.tz, localTz, false, now);
+            if (a.status !== 'upcoming' && a.status !== 'delayed') continue;
+            ctx.addReminder?.(sessionReminderPayload(ev, session));
+            n++;
+          }
+          remindAll.textContent = n ? `Added ${n}` : 'None left';
+          remindAll.disabled = true;
+          els.schedule.querySelectorAll('[data-remind]').forEach((b) => {
+            b.textContent = '✓';
+            b.disabled = true;
+          });
+        });
+      }
     }
   }
 
@@ -321,25 +382,58 @@ export function createSportsUI(ctx) {
     URL.revokeObjectURL(a.href);
   }
 
-  // ——— Up Next rail ———
+  // --- Up Next rail ---
   function refreshUpNext(force = false) {
     if (!els.upNext) return;
-    const now = Date.now();
-    if (!force && now - upNextRefreshedAt < 30000) return;
-    upNextRefreshedAt = now;
-    upNextRows = upcomingAcrossSeries(followedSeries(), localTz, ctx.hour12?.(), new Date(), 5);
-    const key = upNextRows.map((r) => `${r.event.id}:${r.session.id}`).join('|');
+    const nowMs = Date.now();
+    if (!force && nowMs - upNextRefreshedAt < 30000 && els.upNext.dataset.mode === upNextMode) {
+      updateUpNextCountdowns();
+      return;
+    }
+    upNextRefreshedAt = nowMs;
+    const seriesList = followedSeries();
+    const now = new Date();
+    if (upNextMode === 'tonight') {
+      upNextRows = upcomingTonight(seriesList, localTz, ctx.hour12?.(), now, 5);
+    } else if (upNextMode === 'live') {
+      upNextRows = upcomingAcrossSeries(seriesList, localTz, ctx.hour12?.(), now, 20).filter(
+        (r) => r.session?.status === 'live-or-recent' || r.session?.status === 'delayed'
+      ).slice(0, 5);
+    } else {
+      upNextRows = upcomingAcrossSeries(seriesList, localTz, ctx.hour12?.(), now, 5);
+    }
+    const key = upNextMode + '|' + upNextRows.map((r) => `${r.event.id}:${r.session.id}:${r.session.status}`).join('|');
     if (key === upNextKey && !force) {
       updateUpNextCountdowns();
       return;
     }
     upNextKey = key;
-    els.upNext.innerHTML = upNextRows.length
-      ? `<span class="un-label">Up next</span>` +
-        upNextRows
+    els.upNext.dataset.mode = upNextMode;
+    const modes = [
+      ['all', 'All'],
+      ['tonight', 'Tonight'],
+      ['live', 'Live'],
+    ];
+    const modeBar =
+      `<div class="un-modes" role="toolbar" aria-label="Up Next filter">` +
+      modes
+        .map(
+          ([id, label]) =>
+            `<button type="button" class="un-mode ${upNextMode === id ? 'active' : ''}" data-mode="${id}" aria-pressed="${upNextMode === id}">${label}</button>`
+        )
+        .join('') +
+      `</div>`;
+    const emptyMsg =
+      upNextMode === 'tonight'
+        ? 'Nothing in your evening window — showing next up soon.'
+        : upNextMode === 'live'
+          ? 'Nothing live right now among followed series.'
+          : 'Star a series to fill Up Next.';
+    const chips = upNextRows.length
+      ? upNextRows
           .map(
             (r, i) => `
-        <button type="button" class="un-chip ${r.session.status === 'live-or-recent' ? 'live' : ''}" data-idx="${i}" title="${escapeHtml(r.series.name)} — ${escapeHtml(r.event.city)}">
+        <button type="button" class="un-chip ${r.session.status === 'live-or-recent' ? 'live' : ''} ${r.session.status === 'delayed' ? 'delayed' : ''}" data-idx="${i}" title="${escapeHtml(r.series.name)} — ${escapeHtml(r.event.city || '')}">
           <span class="un-sport">${escapeHtml(SPORT_META[r.series.sport]?.label || r.series.category)}</span>
           <span class="un-name">${escapeHtml(r.event.name)}</span>
           <span class="un-cd" data-uncd="${i}">${escapeHtml(r.session.countdown || '')}</span>
@@ -347,7 +441,14 @@ export function createSportsUI(ctx) {
         </button>`
           )
           .join('')
-      : '';
+      : `<span class="un-empty">${emptyMsg}</span>`;
+    els.upNext.innerHTML = `<span class="un-label">Up next</span>${modeBar}${chips}`;
+    els.upNext.querySelectorAll('.un-mode').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        upNextMode = btn.dataset.mode || 'all';
+        refreshUpNext(true);
+      });
+    });
     els.upNext.querySelectorAll('.un-chip').forEach((btn) => {
       btn.addEventListener('click', () => {
         const row = upNextRows[Number(btn.dataset.idx)];
@@ -447,7 +548,18 @@ export function createSportsUI(ctx) {
 
   // Re-render when a fresher catalog arrives over the air
   onCatalogChange(() => {
-    renderChips();
+  
+  function refreshFeedBadge() {
+    if (!els.feedBadge) return;
+    const st = catalogFeedStatus(new Date(), 48);
+    els.feedBadge.dataset.state = st.state;
+    els.feedBadge.title = st.detail;
+    els.feedBadge.textContent = st.state === 'stale' ? 'Stale data' : st.state === 'fresh' ? 'Live feed' : st.state === 'bundled' ? 'Offline data' : 'Schedules';
+    els.feedBadge.hidden = false;
+  }
+
+  refreshFeedBadge();
+  renderChips();
     const cat = els.chips?.querySelector('.chip-btn.active')?.dataset.cat || '';
     renderSeriesList(els.search?.value || '', cat);
     refreshUpNext(true);
@@ -464,6 +576,19 @@ export function createSportsUI(ctx) {
     }
   });
 
+
+  // Keyboard: arrow keys move between tabs when focus is on tablist
+  document.querySelector('.panel-tabs')?.addEventListener('keydown', (e) => {
+    const tabs = [els.tabClocks, els.tabSports, els.tabConvert].filter(Boolean);
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const next = e.key === 'ArrowRight' ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length;
+      tabs[next].focus();
+      tabs[next].click();
+    }
+  });
   renderChips();
   renderSeriesList();
   refreshUpNext(true);

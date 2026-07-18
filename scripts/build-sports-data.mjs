@@ -9,13 +9,18 @@
  * Schema v2 (feed path is versioned — bump /v2/ only on breaking changes):
  *   series:  { id, name, sport, category, season, description, tags, events }
  *   event:   { id, name, round?, lat, lng, tz, city, country, tags?, sessions }
- *   session: { id, name, type, date, time }                            — fixed start
- *          | { id, name, type:'window', startDate, endDate, firstCallTime } — waiting period
+ *   session: { id, name, type, date, time, status? }                     — fixed start
+ *          | { id, name, type:'window', startDate, endDate, firstCallTime, status? }
+ *   status (optional): 'scheduled' | 'delayed' | 'live' | 'final'
+ *     When set, UI prefers this over pure clock-based inference so delayed
+ *     cards and completed results stay honest after kickoff.
  *
  * Accuracy rules:
  *   - Dates and venues verified against official sources at authoring time.
  *   - Session start times follow each competition's standard slots and are
  *     refreshed over the air via the feed as organisers confirm them.
+ *   - After major tournaments end, keep a short archive + seed the next window
+ *     (see post–World Cup football series) so the Sports tab never goes empty.
  */
 
 import fs from 'node:fs';
@@ -90,6 +95,11 @@ function surfWindow(startDate, endDate, firstCallTime = '07:00') {
 // DATA — verified 2026-07-17. See docs/ROADMAP.md Part 2 / v1.4 for sourcing.
 // ————————————————————————————————————————————————————————————————————————
 
+/** Optional explicit status on sessions. */
+function withStatus(sessions, statusById = {}) {
+  return sessions.map((s) => (statusById[s.id] ? { ...s, status: statusById[s.id] } : s));
+}
+
 const SERIES = [
   {
     id: 'f1-2026',
@@ -132,30 +142,65 @@ const SERIES = [
     category: 'Football',
     season: '2026',
     description:
-      'World Cup finale across USA, Canada & Mexico. Semi-finals: Spain 2–0 France, Argentina 2–1 England. Final: Spain vs Argentina.',
+      'World Cup archive — USA/Canada/Mexico. Semis and third place marked final; Final Spain vs Argentina at MetLife. After the final, follow Club Football for the next window.',
     tags: ['world cup', 'fifa', 'football', 'soccer', 'wc2026', 'spain', 'argentina'],
     events: [
-      { id: 'wc-sf1', name: 'Semi-final — Spain 2–0 France', lat: 32.7473, lng: -97.0945, tz: 'America/Chicago', city: 'Dallas', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-07-14', time: '15:00' }], tags: ['semi', 'att stadium'] },
-      { id: 'wc-sf2', name: 'Semi-final — Argentina 2–1 England', lat: 33.755, lng: -84.401, tz: 'America/New_York', city: 'Atlanta', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-07-15', time: '15:00' }], tags: ['semi', 'mercedes-benz stadium'] },
-      { id: 'wc-3rd', name: 'Third place — France vs England', lat: 25.958, lng: -80.2389, tz: 'America/New_York', city: 'Miami', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-07-18', time: '17:00' }], tags: ['third place', 'hard rock stadium'] },
+      { id: 'wc-sf1', name: 'Semi-final — Spain 2–0 France', lat: 32.7473, lng: -97.0945, tz: 'America/Chicago', city: 'Dallas', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-07-14', time: '15:00', status: 'final' }], tags: ['semi', 'att stadium'] },
+      { id: 'wc-sf2', name: 'Semi-final — Argentina 2–1 England', lat: 33.755, lng: -84.401, tz: 'America/New_York', city: 'Atlanta', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-07-15', time: '15:00', status: 'final' }], tags: ['semi', 'mercedes-benz stadium'] },
+      { id: 'wc-3rd', name: 'Third place — France vs England', lat: 25.958, lng: -80.2389, tz: 'America/New_York', city: 'Miami', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-07-18', time: '17:00', status: 'final' }], tags: ['third place', 'hard rock stadium'] },
       { id: 'wc-final', name: 'Final — Spain vs Argentina', lat: 40.8135, lng: -74.0745, tz: 'America/New_York', city: 'New York / NJ', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-07-19', time: '15:00' }], tags: ['final', 'metlife stadium'] },
     ],
   },
   {
+    id: 'club-football-2026',
+    name: 'Club Football — post–World Cup',
+    sport: 'football',
+    category: 'Football',
+    season: '2026–27',
+    description:
+      'What comes after the World Cup final: UEFA Super Cup, Champions League league phase openers, and early Premier League marquees — so the football map never goes quiet.',
+    tags: ['champions league', 'ucl', 'premier league', 'uefa', 'football', 'soccer', 'club'],
+    events: [
+      { id: 'uefa-sc-26', name: 'UEFA Super Cup', lat: 41.3809, lng: 2.1228, tz: 'Europe/Madrid', city: 'Barcelona', country: 'Spain', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-08-12', time: '21:00' }], tags: ['super cup', 'camp nou'] },
+      { id: 'ucl-md1-a', name: 'UCL Matchday 1 — London night', lat: 51.6042, lng: -0.0662, tz: 'Europe/London', city: 'London', country: 'UK', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-16', time: '20:00' }], tags: ['tottenham hotspur stadium', 'champions league'] },
+      { id: 'ucl-md1-b', name: 'UCL Matchday 1 — Milan', lat: 45.4781, lng: 9.1240, tz: 'Europe/Rome', city: 'Milan', country: 'Italy', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-16', time: '21:00' }], tags: ['san siro', 'champions league'] },
+      { id: 'ucl-md1-c', name: 'UCL Matchday 1 — Madrid', lat: 40.4531, lng: -3.6883, tz: 'Europe/Madrid', city: 'Madrid', country: 'Spain', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-17', time: '21:00' }], tags: ['bernabeu', 'champions league'] },
+      { id: 'ucl-md2-a', name: 'UCL Matchday 2 — Munich', lat: 48.2188, lng: 11.6247, tz: 'Europe/Berlin', city: 'Munich', country: 'Germany', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-30', time: '21:00' }], tags: ['allianz arena'] },
+      { id: 'ucl-md2-b', name: 'UCL Matchday 2 — Paris', lat: 48.8414, lng: 2.2530, tz: 'Europe/Paris', city: 'Paris', country: 'France', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-30', time: '21:00' }], tags: ['parc des princes'] },
+      { id: 'epl-derby', name: 'Premier League — North London derby window', lat: 51.5549, lng: -0.1084, tz: 'Europe/London', city: 'London', country: 'UK', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-27', time: '16:30' }], tags: ['arsenal', 'tottenham', 'emirates'] },
+      { id: 'epl-el-clasico-week', name: 'La Liga — El Clásico window', lat: 41.3809, lng: 2.1228, tz: 'Europe/Madrid', city: 'Barcelona', country: 'Spain', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-10-25', time: '21:00' }], tags: ['el clasico', 'camp nou'] },
+      { id: 'ucl-md6', name: 'UCL Matchday 6 — decisive night', lat: 53.4308, lng: -2.9608, tz: 'Europe/London', city: 'Liverpool', country: 'UK', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-12-09', time: '20:00' }], tags: ['anfield', 'league phase'] },
+    ],
+  },
+  {
     id: 'tennis-2026',
-    name: 'Tennis Grand Slams 2026',
+    name: 'Tennis — late season 2026',
     sport: 'tennis',
     category: 'Tennis',
     season: '2026',
-    description: 'US Open — the last slam of 2026. Main draw Aug 30 – Sep 13 at Flushing Meadows.',
-    tags: ['tennis', 'grand slam', 'us open', 'atp', 'wta', 'flushing meadows'],
+    description:
+      'US Open at Flushing Meadows, then the indoor swing: Shanghai Masters flavour events, WTA Finals, and ATP Finals in Turin.',
+    tags: ['tennis', 'grand slam', 'us open', 'atp', 'wta', 'finals', 'turin', 'flushing meadows'],
     events: [
       { id: 'uso-26', name: 'US Open', lat: 40.75, lng: -73.847, tz: 'America/New_York', city: 'New York', country: 'USA', sessions: [
         { id: 'open-day', name: 'Opening day session', type: 'session', date: '2026-08-30', time: '11:00' },
         { id: 'open-night', name: 'Opening night session', type: 'session', date: '2026-08-30', time: '19:00' },
+        { id: 'qf-day', name: "Women's quarter-finals (day)", type: 'session', date: '2026-09-08', time: '12:00' },
+        { id: 'sf-w', name: "Women's semi-finals", type: 'session', date: '2026-09-10', time: '19:00' },
+        { id: 'sf-m', name: "Men's semi-finals", type: 'session', date: '2026-09-11', time: '13:00' },
         { id: 'final-w', name: "Women's Final", type: 'final', date: '2026-09-12', time: '16:00' },
         { id: 'final-m', name: "Men's Final", type: 'final', date: '2026-09-13', time: '14:00' },
       ], tags: ['flushing', 'hard court'] },
+      { id: 'wta-finals-26', name: 'WTA Finals', lat: 24.7136, lng: 46.6753, tz: 'Asia/Riyadh', city: 'Riyadh', country: 'Saudi Arabia', sessions: [
+        { id: 'open', name: 'Opening session', type: 'session', date: '2026-11-01', time: '16:00' },
+        { id: 'sf', name: 'Semi-finals', type: 'session', date: '2026-11-07', time: '17:00' },
+        { id: 'final', name: 'Final', type: 'final', date: '2026-11-08', time: '18:00' },
+      ], tags: ['wta finals', 'year end'] },
+      { id: 'atp-finals-26', name: 'ATP Finals — Turin', lat: 45.0417, lng: 7.6522, tz: 'Europe/Rome', city: 'Turin', country: 'Italy', sessions: [
+        { id: 'open', name: 'Opening session', type: 'session', date: '2026-11-15', time: '14:00' },
+        { id: 'sf', name: 'Semi-finals', type: 'session', date: '2026-11-21', time: '14:00' },
+        { id: 'final', name: 'Final', type: 'final', date: '2026-11-22', time: '15:00' },
+      ], tags: ['atp finals', 'inalpi arena', 'year end'] },
     ],
   },
   {
@@ -227,27 +272,52 @@ const SERIES = [
     category: 'American Football',
     season: '2026–27',
     description:
-      'NFL season landmarks — Kickoff Game and the Thanksgiving classics. Full weekly slates arrive via the live data feed.',
-    tags: ['nfl', 'american football', 'kickoff', 'thanksgiving', 'super bowl'],
+      'Season landmarks: Kickoff, international series, Thanksgiving, Christmas, and Super Bowl week. Full weekly slates stay feed-friendly.',
+    tags: ['nfl', 'american football', 'kickoff', 'thanksgiving', 'super bowl', 'christmas', 'london'],
     events: [
       { id: 'nfl-kickoff', name: 'NFL Kickoff — Patriots at Seahawks', lat: 47.5952, lng: -122.3316, tz: 'America/Los_Angeles', city: 'Seattle', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-09', time: '17:20' }], tags: ['lumen field', 'season opener'] },
+      { id: 'nfl-snf-w1', name: 'Sunday Night Football — Week 1', lat: 40.8135, lng: -74.0745, tz: 'America/New_York', city: 'East Rutherford', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-09-13', time: '20:20' }], tags: ['metlife', 'snf'] },
+      { id: 'nfl-london-1', name: 'NFL London Series', lat: 51.5560, lng: -0.2796, tz: 'Europe/London', city: 'London', country: 'UK', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-10-18', time: '14:30' }], tags: ['wembley', 'international'] },
+      { id: 'nfl-mnf', name: 'Monday Night Football — primetime', lat: 34.0141, lng: -118.2879, tz: 'America/Los_Angeles', city: 'Los Angeles', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-10-26', time: '17:15' }], tags: ['sofi stadium', 'mnf'] },
       { id: 'nfl-tg-det', name: 'Thanksgiving — Lions host', lat: 42.34, lng: -83.0456, tz: 'America/Detroit', city: 'Detroit', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-11-26', time: '12:30' }], tags: ['ford field', 'thanksgiving'] },
       { id: 'nfl-tg-dal', name: 'Thanksgiving — Cowboys host', lat: 32.7473, lng: -97.0945, tz: 'America/Chicago', city: 'Arlington', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-11-26', time: '15:30' }], tags: ['att stadium', 'thanksgiving'] },
+      { id: 'nfl-tg-night', name: 'Thanksgiving night primetime', lat: 37.4030, lng: -121.9700, tz: 'America/Los_Angeles', city: 'Santa Clara', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-11-26', time: '17:20' }], tags: ['levi stadium', 'thanksgiving'] },
+      { id: 'nfl-xmas', name: 'Christmas Day NFL', lat: 39.7439, lng: -105.0201, tz: 'America/Denver', city: 'Denver', country: 'USA', sessions: [{ id: 'ko', name: 'Kickoff', type: 'match', date: '2026-12-25', time: '14:30' }], tags: ['empower field', 'christmas'] },
+      { id: 'nfl-sb-lxi', name: 'Super Bowl LXI week', lat: 33.5277, lng: -112.2626, tz: 'America/Phoenix', city: 'Glendale', country: 'USA', sessions: [
+        { id: 'media', name: 'Opening Night', type: 'session', date: '2027-02-01', time: '18:00' },
+        { id: 'ko', name: 'Kickoff', type: 'match', date: '2027-02-07', time: '15:30' },
+      ], tags: ['super bowl', 'state farm stadium'] },
     ],
   },
   {
     id: 'golf-2026',
-    name: 'Golf Majors 2026',
+    name: 'Golf Majors & autumn 2026',
     sport: 'golf',
     category: 'Golf',
     season: '2026',
-    description: 'The 154th Open Championship at Royal Birkdale — the final men\'s major of 2026.',
-    tags: ['golf', 'the open', 'open championship', 'royal birkdale', 'major'],
+    description:
+      'The Open at Royal Birkdale plus the late-season landmarks: FedExCup finale window, DP World Tour Championship, and Presidents Cup.',
+    tags: ['golf', 'the open', 'open championship', 'royal birkdale', 'major', 'presidents cup', 'dp world'],
     events: [
       { id: 'open-2026', name: 'The Open — Royal Birkdale', lat: 53.6206, lng: -3.0325, tz: 'Europe/London', city: 'Southport', country: 'UK', sessions: [
+        { id: 'r1', name: 'Round 1 (first tee)', type: 'round', date: '2026-07-16', time: '06:35', status: 'final' },
+        { id: 'r2', name: 'Round 2 (first tee)', type: 'round', date: '2026-07-17', time: '06:35', status: 'final' },
         { id: 'r3', name: 'Round 3 (first tee)', type: 'round', date: '2026-07-18', time: '09:00' },
         { id: 'r4', name: 'Final round (first tee)', type: 'final', date: '2026-07-19', time: '09:00' },
       ], tags: ['links', '154th open'] },
+      { id: 'tour-champ-26', name: 'Tour Championship — East Lake', lat: 33.745, lng: -84.326, tz: 'America/New_York', city: 'Atlanta', country: 'USA', sessions: [
+        { id: 'r3', name: 'Round 3', type: 'round', date: '2026-08-29', time: '12:00' },
+        { id: 'r4', name: 'Final round', type: 'final', date: '2026-08-30', time: '12:00' },
+      ], tags: ['fedexcup', 'east lake'] },
+      { id: 'dpwtc-26', name: 'DP World Tour Championship', lat: 25.041, lng: 55.218, tz: 'Asia/Dubai', city: 'Dubai', country: 'UAE', sessions: [
+        { id: 'r3', name: 'Round 3', type: 'round', date: '2026-11-21', time: '08:00' },
+        { id: 'r4', name: 'Final round', type: 'final', date: '2026-11-22', time: '08:00' },
+      ], tags: ['jumeirah', 'earth course'] },
+      { id: 'presidents-26', name: 'Presidents Cup', lat: 41.978, lng: -87.860, tz: 'America/Chicago', city: 'Medinah', country: 'USA', sessions: [
+        { id: 'day1', name: 'Day 1 foursomes', type: 'session', date: '2026-09-22', time: '07:05' },
+        { id: 'day2', name: 'Day 2 fourballs', type: 'session', date: '2026-09-24', time: '07:05' },
+        { id: 'singles', name: 'Singles', type: 'final', date: '2026-09-27', time: '12:00' },
+      ], tags: ['medinah', 'team golf'] },
     ],
   },
   {
@@ -256,13 +326,22 @@ const SERIES = [
     sport: 'cycling',
     category: 'Cycling',
     season: '2026',
-    description: 'Tour de France 2026 — Barcelona start July 4, Champs-Élysées finale July 26.',
-    tags: ['cycling', 'tour de france', 'tdf', 'grand tour', 'peloton'],
+    description:
+      'Tour de France (Barcelona start → Champs-Élysées), Vuelta a España, and UCI Road World Championships.',
+    tags: ['cycling', 'tour de france', 'tdf', 'vuelta', 'worlds', 'grand tour', 'peloton'],
     events: [
       { id: 'tdf-2026', name: 'Tour de France', lat: 48.8698, lng: 2.3078, tz: 'Europe/Paris', city: 'Paris (finale)', country: 'France', sessions: [
         { id: 'window', name: 'Race window (21 stages)', type: 'window', startDate: '2026-07-04', endDate: '2026-07-26', firstCallTime: '12:00' },
         { id: 'final', name: 'Final stage — Champs-Élysées', type: 'final', date: '2026-07-26', time: '16:10' },
       ], tags: ['champs-elysees', 'yellow jersey'] },
+      { id: 'vuelta-2026', name: 'Vuelta a España', lat: 40.4153, lng: -3.7074, tz: 'Europe/Madrid', city: 'Madrid (finale)', country: 'Spain', sessions: [
+        { id: 'window', name: 'Race window', type: 'window', startDate: '2026-08-22', endDate: '2026-09-13', firstCallTime: '13:00' },
+        { id: 'final', name: 'Final stage — Madrid', type: 'final', date: '2026-09-13', time: '17:00' },
+      ], tags: ['la vuelta', 'red jersey'] },
+      { id: 'uci-worlds-26', name: 'UCI Road World Championships', lat: 55.6761, lng: 12.5683, tz: 'Europe/Copenhagen', city: 'Copenhagen', country: 'Denmark', sessions: [
+        { id: 'elite-w', name: 'Elite women road race', type: 'race', date: '2026-09-26', time: '12:00' },
+        { id: 'elite-m', name: 'Elite men road race', type: 'race', date: '2026-09-27', time: '11:00' },
+      ], tags: ['rainbow jersey', 'worlds'] },
     ],
   },
   {
@@ -271,10 +350,21 @@ const SERIES = [
     sport: 'cricket',
     category: 'Cricket',
     season: '2026',
-    description: 'England vs India ODI series decider at Lord\'s. Further series land via the live data feed.',
-    tags: ['cricket', 'odi', 'england', 'india', 'lords'],
+    description:
+      'England vs India white-ball window, Caribbean CPL flavour nights, and the autumn Australia home summer openers.',
+    tags: ['cricket', 'odi', 't20', 'test', 'england', 'india', 'australia', 'lords'],
     events: [
       { id: 'eng-ind-odi3', name: 'England vs India — 3rd ODI', lat: 51.5294, lng: -0.1727, tz: 'Europe/London', city: 'London', country: 'UK', sessions: [{ id: 'start', name: 'First ball', type: 'match', date: '2026-07-19', time: '11:00' }], tags: ['lords', 'series decider'] },
+      { id: 'eng-ind-t20-1', name: 'England vs India — 1st T20', lat: 52.4558, lng: -1.9025, tz: 'Europe/London', city: 'Birmingham', country: 'UK', sessions: [{ id: 'start', name: 'First ball', type: 'match', date: '2026-07-22', time: '18:30' }], tags: ['edgbaston'] },
+      { id: 'eng-ind-t20-2', name: 'England vs India — 2nd T20', lat: 53.4823, lng: -2.2002, tz: 'Europe/London', city: 'Manchester', country: 'UK', sessions: [{ id: 'start', name: 'First ball', type: 'match', date: '2026-07-24', time: '18:30' }], tags: ['old trafford'] },
+      { id: 'eng-ind-t20-3', name: 'England vs India — 3rd T20', lat: 51.4837, lng: -0.0090, tz: 'Europe/London', city: 'London', country: 'UK', sessions: [{ id: 'start', name: 'First ball', type: 'match', date: '2026-07-26', time: '14:30' }], tags: ['the oval'] },
+      { id: 'aus-ind-test1', name: 'Australia vs India — 1st Test', lat: -37.8199, lng: 144.9834, tz: 'Australia/Melbourne', city: 'Melbourne', country: 'Australia', sessions: [
+        { id: 'd1', name: 'Day 1 start', type: 'match', date: '2026-12-26', time: '10:30' },
+        { id: 'd2', name: 'Day 2 start', type: 'match', date: '2026-12-27', time: '10:30' },
+      ], tags: ['mcg', 'boxing day'] },
+      { id: 'aus-ind-test2', name: 'Australia vs India — 2nd Test', lat: -33.8915, lng: 151.2247, tz: 'Australia/Sydney', city: 'Sydney', country: 'Australia', sessions: [
+        { id: 'd1', name: 'Day 1 start', type: 'match', date: '2027-01-03', time: '10:30' },
+      ], tags: ['scg', 'new years'] },
     ],
   },
   {
@@ -359,6 +449,10 @@ export function validateCatalog(catalog) {
         } else {
           if (!DATE_RE.test(sess.date || '')) errors.push(`${sat}: bad date`);
           if (!TIME_RE.test(sess.time || '')) errors.push(`${sat}: bad time`);
+        }
+        if (sess.status != null) {
+          const ok = ['scheduled', 'delayed', 'live', 'final'].includes(sess.status);
+          if (!ok) errors.push(`${sat}: bad status "${sess.status}"`);
         }
       }
     }

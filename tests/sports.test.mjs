@@ -161,3 +161,48 @@ describe('cities expansion', () => {
     assert.equal(dps.tz, 'Asia/Makassar');
   });
 });
+
+
+describe('session status field', () => {
+  it('honors explicit final status over clock', () => {
+    const wc = SPORT_SERIES.find((s) => s.id === 'wc-2026');
+    const sf = wc.events.find((e) => e.id === 'wc-sf1');
+    // Even if we pretend "now" is before kickoff, final wins
+    const a = annotateSession(sf.sessions[0], sf.tz, 'UTC', false, new Date('2026-07-01T00:00:00Z'));
+    assert.equal(a.status, 'finished');
+    assert.equal(a.statusLabel, 'Final');
+  });
+
+  it('delayed status surfaces as delayed', () => {
+    const sess = { id: 'x', name: 'Test', type: 'match', date: '2026-08-01', time: '15:00', status: 'delayed' };
+    const a = annotateSession(sess, 'Europe/London', 'UTC', false, new Date('2026-07-01T00:00:00Z'));
+    assert.equal(a.status, 'delayed');
+  });
+});
+
+describe('post World Cup coverage', () => {
+  it('includes club football series after the tournament', () => {
+    const club = SPORT_SERIES.find((s) => s.id === 'club-football-2026');
+    assert.ok(club, 'club-football-2026 missing');
+    assert.ok(club.events.length >= 5);
+  });
+
+  it('tennis has more than the US Open alone', () => {
+    const t = SPORT_SERIES.find((s) => s.id === 'tennis-2026');
+    assert.ok(t.events.length >= 3);
+  });
+
+  it('NFL has international and Super Bowl week', () => {
+    const nfl = SPORT_SERIES.find((s) => s.id === 'nfl-2026');
+    assert.ok(nfl.events.some((e) => /london/i.test(e.name)));
+    assert.ok(nfl.events.some((e) => /super bowl/i.test(e.name)));
+  });
+});
+
+describe('tonight helper', () => {
+  it('returns rows without throwing', async () => {
+    const { upcomingTonight } = await import('../src/js/sports/schedule.js');
+    const rows = upcomingTonight(SPORT_SERIES, 'UTC', false, new Date('2026-09-13T22:00:00Z'), 5);
+    assert.ok(Array.isArray(rows));
+  });
+});

@@ -154,6 +154,18 @@ function ensureClockCards() {
     const el = els.clockList.querySelector(`.clock-card[data-id="${id}"]`);
     if (el) els.clockList.appendChild(el);
   }
+
+  let empty = els.clockList.querySelector('.clocks-empty');
+  if (!pinnedIds.length) {
+    if (!empty) {
+      empty = document.createElement('div');
+      empty.className = 'clocks-empty empty-state';
+      empty.innerHTML = '<strong>No cities pinned yet</strong><p>Search above to add clocks — they light up on the globe.</p>';
+      els.clockList.appendChild(empty);
+    }
+  } else if (empty) {
+    empty.remove();
+  }
 }
 
 function updateClockTimes(now) {
@@ -751,6 +763,21 @@ function wireSettings() {
     });
   }
 
+  const pinDensity = document.getElementById('setPinDensity');
+  if (pinDensity) {
+    pinDensity.value = settings.pinDensity || 'auto';
+    pinDensity.addEventListener('change', () => {
+      settings = updateSettings({ pinDensity: pinDensity.value });
+      globe?.setPinDensity?.(pinDensity.value);
+    });
+  }
+
+  document.getElementById('setReducedMotion')?.addEventListener('change', (e) => {
+    document.body.classList.toggle('reduced-motion', e.target.checked);
+    globe?.setReducedMotion?.(e.target.checked);
+    if (e.target.checked) globe?.setAutoRotate?.(false);
+  });
+
   document.getElementById('btnToggleWidget')?.addEventListener('click', () => {
     setWidgetMode(!widgetMode);
   });
@@ -1050,6 +1077,8 @@ async function boot() {
         globe.setShowGrid(settings.showGrid !== false);
         globe.setShowBands(!!settings.showTzBands);
         globe.setQuality(settings.quality || 'high');
+        globe.setPinDensity?.(settings.pinDensity || 'auto');
+        globe.setReducedMotion?.(!!settings.reducedMotion);
         globe.setHomeCity(settings.homeCityId);
       },
       onHover: (city) => {
